@@ -1,0 +1,4 @@
+# Prerequisites
+.pio/*
+.vscode/*
+src/mysecrets.h
