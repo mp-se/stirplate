@@ -32,10 +32,10 @@ class PwmFan {
         const static int pwmMax = 1024;             // Maximum value for output
         const static int pwmFrequency = 25000;      // Frequency of 25kHz (Range should be 21-28 kHz)
 
-        volatile int pwmRotationCounter = 0;        // for the tachiometer
-        int powerPercentage = 0;                    // Current output power output in percentage (0-100)
+        volatile int  pwmRotationCounter = 0;       // for the tachiometer
+        int           powerPercentage = 0;          // Current output power output in percentage (0-100)
         unsigned long rpmLastMillis;                // used to calculate the RPM 
-        int rpm = 0;
+        int           rpm = 0;
 
 #ifdef SIMULATE_RPM
         unsigned long simualteMillsStart;           // used to return simulation value 
@@ -47,7 +47,7 @@ class PwmFan {
         int setPower( int value, int minRange, int maxRange );
         int getCurrentPower() { return powerPercentage; }
         int getCurrentRPM();
-        void tachCallback() { pwmRotationCounter++; }
+        void tachCallback() { pwmRotationCounter++; }   
 };
 
 #endif // _PWMFAN_H

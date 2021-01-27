@@ -33,12 +33,8 @@ void printNewline(Print* _logOutput);
 
 // Classes
 class SerialDebug {
-    private:
-        const static int SERIAL_BAUD = 115200;      // output speed for serial console
-
     public:
-        SerialDebug();
-
+        SerialDebug(const long serialSpeed = 115200L);
         static Logging* getLog() { return &Log; };
 };
 

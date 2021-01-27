@@ -26,14 +26,14 @@ SOFTWARE.
 //
 // Configure serial debug output
 //
-SerialDebug::SerialDebug() { 
+SerialDebug::SerialDebug(const long serialSpeed) { 
     // Start serial with auto-detected rate (default to defined BAUD)
     Serial.flush();
-    Serial.begin(SERIAL_BAUD);
+    Serial.begin(serialSpeed);
 
     getLog()->begin(LOG_LEVEL, &Serial, true);
     getLog()->setPrefix(printTimestamp);
-    getLog()->notice(F("SDBG: Serial logging started at %l." CR), SERIAL_BAUD);
+    getLog()->notice(F("SDBG: Serial logging started at %l." CR), serialSpeed);
 }
 
 //
@@ -44,12 +44,5 @@ void printTimestamp(Print* _logOutput) {
   sprintf(c, "%10lu ", millis());
   _logOutput->print(c);
 }
-
-//
-// Print new line.
-//
-/*void printNewline(Print* _logOutput) {
-  _logOutput->print('\n');
-}*/
 
 // EOF

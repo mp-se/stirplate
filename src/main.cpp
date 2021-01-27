@@ -46,17 +46,18 @@ SOFTWARE.
  */
 
 // Define constats for this program
-const int interval = 500;            // ms, time to wait between changes to output
+const int        interval = 500;     // ms, time to wait between changes to output
 const static int tachPIN = 12;       // Measure speed on FAN. D6 PIN on ESP-12F
 
-SerialDebug serial;                  // Setting up the serial debug logging (Configure Logging library)
-Display *display = 0;
-PwmFan *fan = 0;
-AnalogSensor *pot = 0;
+SerialDebug   serial;                // Setting up the serial debug logging (Configure Logging library)
+Display       *display = 0;
+PwmFan        *fan = 0;
+AnalogSensor  *pot = 0;
+unsigned long lastMillis = 0;
+
 #ifdef ACTIVATE_BLYNK
 extern BlynkPins blynk;
 #endif
-unsigned long lastMillis = 0;
 
 //
 // Callback for tachimeter
@@ -115,7 +116,9 @@ void loop() {
     int pwr = fan->getCurrentPower();
 
     // Use the lower line to create a power bar that indicate power to stirplate
-    //Log.verbose(F("MAIN: POT = %d, Percentage %d, RPM=%d." CR), vin, pwr, rpm);
+#if LOG_LEVEL==6
+    Log.verbose(F("MAIN: POT = %d, Percentage %d, RPM=%d." CR), vin, pwr, rpm);
+#endif
 
 #ifdef ACTIVATE_BLYNK
     blynk.writeRemoteRPM( rpm );

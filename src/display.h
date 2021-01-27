@@ -36,6 +36,7 @@ class Display {
 
         void setup();
         void createCustomChars();
+        
 #ifdef DISPLAY_SELFTEST 
         void selfTest();
 #endif
