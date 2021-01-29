@@ -23,6 +23,8 @@ SOFTWARE.
  */
 #include "wifi.h"
 
+#ifdef ACTIVATE_WIFI
+
 //
 //
 //
@@ -51,7 +53,10 @@ bool Wifi::connect(const char *ap, const char *pwd) {
 //
 bool Wifi::disconnect() {
 
+    // Not yet implemented (not needed)
     return true;
 }
+
+#endif
 
 // EOF 

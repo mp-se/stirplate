@@ -23,6 +23,8 @@ SOFTWARE.
  */
 #include "otaupdate.h"
 
+#ifdef ACTIVATE_WIFI
+
 //
 //
 //
@@ -152,5 +154,7 @@ bool OtaUpdate::parseVersionString( int (&num)[3], const char *version ) {
 
     return true;
 }
+
+#endif
 
 // EOF 

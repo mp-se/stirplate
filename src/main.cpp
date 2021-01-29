@@ -98,6 +98,7 @@ void setup() {
   sprintf( &buffer[0], "%s", CFG_APPNAME );
   display->printText( 0, 0, &buffer[0] );    
 
+#ifdef ACTIVATE_WIFI
   wifi = new Wifi();
   display->printText( 0, 1, "Connect wifi    " );    
   wifi->connect( WIFI_SECRET_AP, WIFI_SECRET_PWD);
@@ -109,6 +110,7 @@ void setup() {
     display->printText( 0, 1, "Updating        " );    
     ota.updateFirmware();
   }
+#endif
 
   // Setup interrput callback for tachiometer (fan rotation)
   pinMode(tachPIN, INPUT_PULLUP);
