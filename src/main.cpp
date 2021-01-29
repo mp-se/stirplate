@@ -105,6 +105,7 @@ void setup() {
   OtaUpdate ota;
   display->printText( 0, 1, "Checking for upd" );    
   if( ota.checkVersion() ) {
+    delay(500);
     display->printText( 0, 1, "Updating        " );    
     ota.updateFirmware();
   }
@@ -117,7 +118,6 @@ void setup() {
   Log.notice(F("Main: Connecting to blynk." CR));
   display->printText( 0, 1, "Connect blynk   " );    
   blynk.connect( BLYNK_TOKEN, BLYNK_SERVER, 8080 );
-  blynk.writeRemoteVer(CFG_APPVER);
 #endif
 
 #if LOG_LEVEL==6
@@ -149,6 +149,7 @@ void loop() {
 #ifdef ACTIVATE_BLYNK
     blynk.writeRemoteRPM( rpm );
     blynk.writeRemotePower( pwr );
+    blynk.writeRemoteVer(CFG_APPVER);
 #endif
 
     display->printProgressBar(0,1, pwr);

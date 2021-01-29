@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #include "blynk.h"
-#include "serial_debug.h"
 
 #ifdef ACTIVATE_BLYNK
 
@@ -88,21 +87,21 @@ void BlynkPins::writeRemoteVer(const char *ver) {
 //
 // Connect to the WIFI and blynk server
 //
-void BlynkPins::connect(const char* wifiName, const char* wifiPwd, const char* blynkToken, IPAddress ip, uint16_t port) {
+void BlynkPins::connect(const char* wifiName, const char* wifiPwd, const char* blynkToken, IPAddress ip, int port) {
 #if LOG_LEVEL==6
     Log.verbose(F("BLYN: connect(1)." CR));
 #endif    
-    Blynk.begin(wifiName, wifiPwd, blynkToken, ip, port);
+    Blynk.begin(wifiName, wifiPwd, blynkToken, ip, (uint16_t) port);
 }
 
 //
 // Connect to the WIFI and blynk server
 //
-void BlynkPins::connect(const char* blynkToken, IPAddress ip, uint16_t port) {
+void BlynkPins::connect(const char* blynkToken, IPAddress ip, int port) {
 #if LOG_LEVEL==6
     Log.verbose(F("BLYN: connect(2)." CR));
 #endif    
-    Blynk.config(blynkToken, ip, port);
+    Blynk.config(blynkToken, ip, (uint16_t) port);
 }
 
 //

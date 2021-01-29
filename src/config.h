@@ -21,26 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef _WIFI_H
-#define _WIFI_H
+#ifndef _CONFIG_H
+#define _CONFIG_H
 
-// Includes
-#include "serial_debug.h"
-#include "mysecrets.h"
+// defintions
+#define CFG_APPNAME  "StirPlate"
+#define CFG_APPVER   "0.3.0"
 
-#include <ESP8266WiFi.h>
-
-// classes
-class Wifi {
-    private:
-        bool connected = false;
-
-    public:
-        Wifi() {}; 
-        bool connect(const char *ap, const char *pwd);
-        bool disconnect();
-};
-
-#endif // _WIFI_H
+#endif // _CONFIG_H
 
 // EOF

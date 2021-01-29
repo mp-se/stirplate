@@ -24,6 +24,9 @@ SOFTWARE.
 #ifndef _PWMFAN_H
 #define _PWMFAN_H
 
+// Includes
+#include "serial_debug.h"
+
 // classes
 class PwmFan {
     private:

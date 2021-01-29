@@ -22,8 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #include "otaupdate.h"
-#include "mysecrets.h"
-#include "main.h"           // Get current version number
 
 //
 //
