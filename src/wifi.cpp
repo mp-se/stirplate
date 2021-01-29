@@ -21,38 +21,38 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef _BLYNK_H
-#define _BLYNK_H
+#include "wifi.h"
+#include "serial_debug.h"
 
-// Includes
-#include <Arduino.h>
-#include <ESP8266WiFi.h>
+//
+//
+//
+bool Wifi::connect(const char *ap, const char *pwd) {
+#if LOG_LEVEL==6
+    Log.verbose(F("WIFI: Connecting to %s." CR), ap);
+#endif
+    WiFi.setAutoReconnect( true );
+    WiFi.begin( ap, pwd);
 
-#ifdef ACTIVATE_BLYNK
+    // TODO: Add a timeout if we are not able to connect to the WIFI
+    // TODO: Do error checking in and return false if needed
 
-// Classes
-class BlynkPins {
-    private:
-        int toggle = 0;
-        int power = 0;
+    Log.notice(F("WIFI: Connecting." CR));
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Log.notice(F("WIFI: ." CR));
+    }
 
-    public:
-        void connect(const char* wifiName, const char* wifiPwd, const char* blynkToken, IPAddress ip, uint16_t port);
-        void connect(const char* blynkToken, IPAddress ip, uint16_t port);
-        void run();
+    Log.notice(F("WIFI: Connected to %s with %s." CR), ap, WiFi.localIP().toString().c_str());
+    return true;
+}
 
-        void setRemoteToggle(int t) { toggle = t; };
-        void setRemotePower(int p) { power = p; }
+//
+//
+//
+bool Wifi::disconnect() {
 
-        int readRemoteToggle() { return toggle; };
-        int readRemotePower() { return power; }
-        void writeRemoteRPM(int v);
-        void writeRemotePower(int v);
-        void writeRemoteVer(const char *ver);
-};
+    return true;
+}
 
-#endif 
-
-#endif // _BLYNK_H
-
-// EOF
+// EOF 

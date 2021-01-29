@@ -21,38 +21,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef _BLYNK_H
-#define _BLYNK_H
+#ifndef _OTAUPDATE_H
+#define _OTAUPDATE_H
 
 // Includes
-#include <Arduino.h>
+#include "serial_debug.h"
+#include "mysecrets.h"
 #include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#include <WiFiClient.h>
+#include <ArduinoJson.h>
+#include <ESP8266httpUpdate.h>
 
-#ifdef ACTIVATE_BLYNK
-
-// Classes
-class BlynkPins {
+// classes
+class OtaUpdate {
     private:
-        int toggle = 0;
-        int power = 0;
+        bool newVersion = false;
+
+        bool parseVersionString( int (&num)[3], const char *version );
 
     public:
-        void connect(const char* wifiName, const char* wifiPwd, const char* blynkToken, IPAddress ip, uint16_t port);
-        void connect(const char* blynkToken, IPAddress ip, uint16_t port);
-        void run();
-
-        void setRemoteToggle(int t) { toggle = t; };
-        void setRemotePower(int p) { power = p; }
-
-        int readRemoteToggle() { return toggle; };
-        int readRemotePower() { return power; }
-        void writeRemoteRPM(int v);
-        void writeRemotePower(int v);
-        void writeRemoteVer(const char *ver);
+        OtaUpdate() {};
+        bool updateFirmware();
+        bool checkVersion();
 };
 
-#endif 
-
-#endif // _BLYNK_H
+#endif // _OTAUPDATE_H
 
 // EOF

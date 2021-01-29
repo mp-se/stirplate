@@ -76,13 +76,33 @@ void BlynkPins::writeRemotePower(int v) {
 }
 
 //
+// Inform blynk about what version we are running
+//
+void BlynkPins::writeRemoteVer(const char *ver) {
+#if LOG_LEVEL==6
+    Log.verbose(F("BLYN: write version %s." CR), ver);
+#endif
+    Blynk.virtualWrite(V4, ver);
+}
+
+//
 // Connect to the WIFI and blynk server
 //
 void BlynkPins::connect(const char* wifiName, const char* wifiPwd, const char* blynkToken, IPAddress ip, uint16_t port) {
 #if LOG_LEVEL==6
-    Log.verbose(F("BLYN: connect." CR));
+    Log.verbose(F("BLYN: connect(1)." CR));
 #endif    
     Blynk.begin(wifiName, wifiPwd, blynkToken, ip, port);
+}
+
+//
+// Connect to the WIFI and blynk server
+//
+void BlynkPins::connect(const char* blynkToken, IPAddress ip, uint16_t port) {
+#if LOG_LEVEL==6
+    Log.verbose(F("BLYN: connect(2)." CR));
+#endif    
+    Blynk.config(blynkToken, ip, port);
 }
 
 //

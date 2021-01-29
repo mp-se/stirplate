@@ -9,6 +9,7 @@ Since I had a few ESP8266 controller this was the natual choise to use... Since 
 ## Versions
 
 * 0.2.0 First version that is published on github
+* 0.3.0 Some minor refactoring + OTA update from local web server.
 
 ## How it works
 
@@ -32,6 +33,7 @@ This is what this file should contain.
 #define BLYNK_TOKEN     "token"
 // IP adress of local blynk server, should listen to 8080 by default.
 #define BLYNK_SERVER    IPAddress(192,168,1,1)      
+#define OTA_HTTP        "http://192.168.1.16/firmware/stirplate/"     
 
 #endif // _MYSECRETS_H
 ```
@@ -44,6 +46,17 @@ The following defintions can be used to enable/disable parts of the code
 * SIMULATE_RPM      Used to simulate pwm readings
 * DISPLAY_SELFTEST  Runs some tests on the display at startup
 
+## OTA function
+
+From version 0.3.0 I have added the possibility to do updates via OTA from a local web server. 
+
+For this to work, place the following files (version.json + firmware.bin) at the location that you pointed out in the mysecrets.h file. If the version number in the json file is newer than in the code the update will procced.
+
+Contents version.json
+```
+{ "project":"stirplate", "version":"0.3.0" }
+```
+
 ## Blynk Sensors
 
 Currently the code uses the following virtual sensors to interact with blynk
@@ -52,6 +65,7 @@ Currently the code uses the following virtual sensors to interact with blynk
 * V1 - Output - Potentiometer Fan Power in %
 * V2 - Input  - Activate remote control (if = 1, it will use V3 to control the speed)
 * V3 - Input  - Remote Fan Power in %
+* V4 - Output - Version string
 
 ![Screenshot from Blynk](img/blynk.png)
 

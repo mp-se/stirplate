@@ -2,3 +2,5 @@
 .pio/*
 .vscode/*
 src/mysecrets.h
+cad/*.lib
+cad/*.sch-bak

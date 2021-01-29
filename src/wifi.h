@@ -21,38 +21,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef _BLYNK_H
-#define _BLYNK_H
+#ifndef _WIFI_H
+#define _WIFI_H
 
 // Includes
-#include <Arduino.h>
+#include "mysecrets.h"
 #include <ESP8266WiFi.h>
 
-#ifdef ACTIVATE_BLYNK
-
-// Classes
-class BlynkPins {
+// classes
+class Wifi {
     private:
-        int toggle = 0;
-        int power = 0;
+        bool connected = false;
 
     public:
-        void connect(const char* wifiName, const char* wifiPwd, const char* blynkToken, IPAddress ip, uint16_t port);
-        void connect(const char* blynkToken, IPAddress ip, uint16_t port);
-        void run();
-
-        void setRemoteToggle(int t) { toggle = t; };
-        void setRemotePower(int p) { power = p; }
-
-        int readRemoteToggle() { return toggle; };
-        int readRemotePower() { return power; }
-        void writeRemoteRPM(int v);
-        void writeRemotePower(int v);
-        void writeRemoteVer(const char *ver);
+        Wifi() {}; 
+        bool connect(const char *ap, const char *pwd);
+        bool disconnect();
 };
 
-#endif 
-
-#endif // _BLYNK_H
+#endif // _WIFI_H
 
 // EOF
