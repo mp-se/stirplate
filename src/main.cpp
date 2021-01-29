@@ -102,7 +102,9 @@ void setup() {
   wifi = new Wifi();
   display->printText( 0, 1, "Connect wifi    " );    
   wifi->connect( WIFI_SECRET_AP, WIFI_SECRET_PWD);
+#endif
 
+#ifdef ACTIVATE_OTA
   OtaUpdate ota;
   display->printText( 0, 1, "Checking for upd" );    
   if( ota.checkVersion() ) {

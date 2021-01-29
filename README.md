@@ -41,6 +41,7 @@ This is what this file should contain.
 The following defintions can be used to enable/disable parts of the code
 
 * ACTIVATE_BLYNK    Include blynk code in build (requires wifi)
+* ACTIVATE_OTA      Include ota code in build (requires wifi)
 * ACTIVATE_WIFI     Include wifi access in build 
 * LOG_LEVEL=6       Configure Arduino Log (6=Debug, 4=Warning)
 * SIMULATE_SENSOR   Used to simulate pot readings

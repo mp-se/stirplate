@@ -23,7 +23,7 @@ SOFTWARE.
  */
 #include "otaupdate.h"
 
-#ifdef ACTIVATE_WIFI
+#ifdef ACTIVATE_OTA
 
 //
 //
