@@ -26,7 +26,7 @@ SOFTWARE.
 
 // defintions
 #define CFG_APPNAME  "StirPlate"
-#define CFG_APPVER   "0.3.0"
+#define CFG_APPVER   "0.3.1"
 
 #endif // _CONFIG_H
 
