@@ -121,7 +121,7 @@ void setup() {
 #ifdef ACTIVATE_BLYNK
   Log.notice(F("Main: Connecting to blynk." CR));
   display->printText( 0, 1, "Connect blynk   " );    
-  blynk.connect( BLYNK_TOKEN, BLYNK_SERVER, 8080 );
+  blynk.connect( BLYNK_TOKEN, BLYNK_SERVER, BLYNK_PORT );
 #endif
 
 #if LOG_LEVEL==6

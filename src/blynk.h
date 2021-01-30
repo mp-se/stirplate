@@ -39,7 +39,6 @@ class BlynkPins {
         int power = 0;
 
     public:
-        void connect(const char* wifiName, const char* wifiPwd, const char* blynkToken, IPAddress ip, int port);
         void connect(const char* blynkToken, IPAddress ip, int port);
         void run();
 

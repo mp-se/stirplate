@@ -87,16 +87,6 @@ void BlynkPins::writeRemoteVer(const char *ver) {
 //
 // Connect to the WIFI and blynk server
 //
-void BlynkPins::connect(const char* wifiName, const char* wifiPwd, const char* blynkToken, IPAddress ip, int port) {
-#if LOG_LEVEL==6
-    Log.verbose(F("BLYN: connect(1)." CR));
-#endif    
-    Blynk.begin(wifiName, wifiPwd, blynkToken, ip, (uint16_t) port);
-}
-
-//
-// Connect to the WIFI and blynk server
-//
 void BlynkPins::connect(const char* blynkToken, IPAddress ip, int port) {
 #if LOG_LEVEL==6
     Log.verbose(F("BLYN: connect(2)." CR));

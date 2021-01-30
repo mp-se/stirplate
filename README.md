@@ -33,6 +33,7 @@ This is what this file should contain.
 #define BLYNK_TOKEN     "token"
 // IP adress of local blynk server, should listen to 8080 by default.
 #define BLYNK_SERVER    IPAddress(192,168,1,1)      
+#define BLYNK_PORT      8080
 #define OTA_HTTP        "http://192.168.1.16/firmware/stirplate/"     
 
 #endif // _MYSECRETS_H
@@ -43,14 +44,14 @@ The following defintions can be used to enable/disable parts of the code
 * ACTIVATE_BLYNK    Include blynk code in build (requires wifi)
 * ACTIVATE_OTA      Include ota code in build (requires wifi)
 * ACTIVATE_WIFI     Include wifi access in build 
-* LOG_LEVEL=6       Configure Arduino Log (6=Debug, 4=Warning)
+* LOG_LEVEL=6       Configure Arduino Log (6=Debug, 5=Trace, 4=Notice, 3=Warning, 2=Error, 1=Fatal, 0=Silent)
 * SIMULATE_SENSOR   Used to simulate pot readings
 * SIMULATE_RPM      Used to simulate pwm readings
 * DISPLAY_SELFTEST  Runs some tests on the display at startup
 
 ## OTA function
 
-From version 0.3.0 I have added the possibility to do updates via OTA from a local web server. 
+From version 0.3.0 I have added the possibility to do updates via OTA from a local web server over port 80. 
 
 For this to work, place the following files (version.json + firmware.bin) at the location that you pointed out in the mysecrets.h file. If the version number in the json file is newer than in the code the update will procced.
 
@@ -91,4 +92,10 @@ A schematics that I used can be found in the cad directory. [Electronic schema](
 
 ![First build](img/build.jpg)
 
-Happy building. 
+On my build I cut of the wings to the FAN, this increased the maximum RPM from 1800 -> 2700. I glued the fan to the box lid,, just make sure there is enough distance for the fan to spin. 
+
+![Fan without wings](img/fan.jpg)
+
+Feel free to use the code and modify your own build. 
+
+Happy building. /Magnus 
