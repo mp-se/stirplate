@@ -21,28 +21,42 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include "serial_debug.h"
+#include "wifi.h"
+
+#ifdef ACTIVATE_WIFI
 
 //
-// Configure serial debug output
 //
-SerialDebug::SerialDebug(const long serialSpeed) { 
-    // Start serial with auto-detected rate (default to defined BAUD)
-    Serial.flush();
-    Serial.begin(serialSpeed);
+//
+bool Wifi::connect(const char *ap, const char *pwd) {
+#if LOG_LEVEL==6
+    Log.verbose(F("WIFI: Connecting to %s." CR), ap);
+#endif
+    WiFi.setAutoReconnect( true );
+    WiFi.begin( ap, pwd);
 
-    getLog()->begin(LOG_LEVEL, &Serial, true);
-    getLog()->setPrefix(printTimestamp);
-    getLog()->notice(F("SDBG: Serial logging started at %l." CR), serialSpeed);
+    // TODO: Add a timeout if we are not able to connect to the WIFI
+    // TODO: Do error checking in and return false if needed
+
+    Log.notice(F("WIFI: Connecting." CR));
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Log.notice(F("WIFI: ." CR));
+    }
+
+    Log.notice(F("WIFI: Connected to %s with %s." CR), ap, WiFi.localIP().toString().c_str());
+    return true;
 }
 
 //
-// Print the timestamp (ms since start of device)
 //
-void printTimestamp(Print* _logOutput) {
-  char c[12];
-  sprintf(c, "%10lu ", millis());
-  _logOutput->print(c);
+//
+bool Wifi::disconnect() {
+
+    // Not yet implemented (not needed)
+    return true;
 }
 
-// EOF
+#endif
+
+// EOF 

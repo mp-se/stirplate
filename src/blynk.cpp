@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #include "blynk.h"
-#include "serial_debug.h"
 
 #ifdef ACTIVATE_BLYNK
 
@@ -37,7 +36,9 @@ BlynkPins blynk;
 BLYNK_WRITE(V3)
 {
     int v = param.asInt(); // assigning incoming value from pin V1 to a variable
-    //Log.verbose(F("BLYN: Callback V3 %d." CR), v);
+#if LOG_LEVEL==6
+    Log.verbose(F("BLYN: Callback V3 %d." CR), v);
+#endif
     blynk.setRemotePower( v );
 }
 
@@ -47,7 +48,9 @@ BLYNK_WRITE(V3)
 BLYNK_WRITE(V2)
 {
     int v = param.asInt(); // assigning incoming value from pin V1 to a variable
-    //Log.verbose(F("BLYN: Callback V2 %d." CR), v);
+#if LOG_LEVEL==6
+    Log.verbose(F("BLYN: Callback V2 %d." CR), v);
+#endif
     blynk.setRemoteToggle( v );
 }
 
@@ -55,7 +58,9 @@ BLYNK_WRITE(V2)
 // Send the RPM value to the blynk server on pin V0
 //
 void BlynkPins::writeRemoteRPM(int v) {
-    //Log.verbose(F("BLYN: write rpm %d." CR), v);
+#if LOG_LEVEL==6
+    Log.verbose(F("BLYN: write rpm %d." CR), v);
+#endif
     Blynk.virtualWrite(V0, v);
 }
 
@@ -63,23 +68,39 @@ void BlynkPins::writeRemoteRPM(int v) {
 // Send the power value (0-100%) to the blynk server on pin V1
 //
 void BlynkPins::writeRemotePower(int v) {
-    //Log.verbose(F("BLYN: write power %d." CR), v);
+#if LOG_LEVEL==6
+    Log.verbose(F("BLYN: write power %d." CR), v);
+#endif
     Blynk.virtualWrite(V1, v);
+}
+
+//
+// Inform blynk about what version we are running
+//
+void BlynkPins::writeRemoteVer(const char *ver) {
+#if LOG_LEVEL==6
+    Log.verbose(F("BLYN: write version %s." CR), ver);
+#endif
+    Blynk.virtualWrite(V4, ver);
 }
 
 //
 // Connect to the WIFI and blynk server
 //
-void BlynkPins::connect(const char* wifiName, const char* wifiPwd, const char* blynkToken, IPAddress ip, uint16_t port) {
-    //Log.verbose(F("BLYN: connect." CR));
-    Blynk.begin(wifiName, wifiPwd, blynkToken, ip, port);
+void BlynkPins::connect(const char* blynkToken, IPAddress ip, int port) {
+#if LOG_LEVEL==6
+    Log.verbose(F("BLYN: connect(2)." CR));
+#endif    
+    Blynk.config(blynkToken, ip, (uint16_t) port);
 }
 
 //
 // Call the run method in the blynk library (should be called in the loop)
 //
 void BlynkPins::run() {
-    //Log.verbose(F("BLYN: run." CR));
+#if LOG_LEVEL==6
+    Log.verbose(F("BLYN: run." CR));
+#endif
 
     Blynk.run();
 }

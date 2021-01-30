@@ -22,13 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #include "pwmfan.h"
-#include "serial_debug.h"
 
 //
 // Constructor
 //
 PwmFan::PwmFan() {
-    //Log.verbose(F("Setting up pwm fan control." CR));
+#if LOG_LEVEL==6
+    Log.verbose(F("Setting up pwm fan control." CR));
+#endif
 
     pinMode(PwmFan::pwmCtrlPIN, OUTPUT);   
     analogWriteFreq( PwmFan::pwmFrequency );   
@@ -43,7 +44,9 @@ PwmFan::PwmFan() {
 // Set the speed of the pwmsignal
 //
 int PwmFan::setPower( int value, int minRange, int maxRange ) {
-    //Log.verbose(F("PFAN: Setting output value to %d." CR), value);
+#if LOG_LEVEL==6
+    Log.verbose(F("PFAN: Setting output value to %d." CR), value);
+#endif
 
     powerPercentage = map(value, minRange, maxRange, 0, 100);   // Convert to percentage
     int power = map(powerPercentage, 0, 100, PwmFan::pwmMin, PwmFan::pwmMax);
@@ -59,18 +62,20 @@ int PwmFan::getCurrentRPM() {
 #ifdef SIMULATE_RPM
     rpm = simulateRPM();
     return rpm;
-#else
+#endif
+
     // How much time has passed since the last call?
     long unsigned timePeriod = millis() - rpmLastMillis;
 
-    //Log.verbose(F("PFAN: Period %d, Rotations = %d." CR), timePeriod, pwmRotationCounter);
+#if LOG_LEVEL==6
+    Log.verbose(F("PFAN: Period %d, Rotations = %d." CR), timePeriod, pwmRotationCounter);
+#endif
 
     // My fan report 2 ticks per rotation. 
     rpm = ((double) pwmRotationCounter / (double) timePeriod) * 1000 * 60 / 2;
     rpmLastMillis = millis();
     pwmRotationCounter = 0;
     return rpm;
-#endif 
 }
 
 #ifdef SIMULATE_RPM
@@ -91,12 +96,12 @@ int simSequenceRPM[][2] = {
 };
 
 //
-// Used to simualte sensor value if no analog input is avaialble.
+// Used to simualate sensor value if no analog input is avaialble.
 //
 int PwmFan::simulateRPM() {
     int max = (sizeof(simSequenceRPM) / sizeof(int) / 2);
 
-    //Log.verbose(F("PFAN: Value simulator %d." CR), powerPercentage);
+    Log.verbose(F("PFAN: Value simulator %d." CR), powerPercentage);
 
     for(int i = 0; i < max; i++ ) {
         if( powerPercentage < simSequenceRPM[i][0] )

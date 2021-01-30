@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #include "analogsensor.h"
-#include "serial_debug.h"
 
 #ifdef ACTIVATE_BLYNK   // Enable blynk updates and control
 #include "blynk.h"
@@ -33,7 +32,9 @@ extern BlynkPins blynk;
 // Constructor
 //
 AnalogSensor::AnalogSensor() {
-    //Log.verbose(F("ASEN: Setting up analog sensor." CR));
+#if LOG_LEVEL==6
+    Log.verbose(F("ASEN: Setting up analog sensor." CR));
+#endif
 
     pinMode(analogPIN, INPUT);    
 #ifdef SIMULATE_SENSOR
@@ -45,7 +46,9 @@ AnalogSensor::AnalogSensor() {
 // Set the speed of the pwmsignal
 //
 int AnalogSensor::readSensor() {
-    //Log.verbose(F("ASEN: Reading analog sensor." CR));
+#if LOG_LEVEL==6
+    Log.verbose(F("ASEN: Reading analog sensor." CR));
+#endif
 
 #ifdef SIMULATE_SENSOR
     value = simulateSensor();
@@ -74,7 +77,12 @@ int AnalogSensor::readSensor() {
 #ifdef SIMULATE_SENSOR
 
 // Format, timestamp(s)-value
-int simSequenceSensor[][2] = {
+struct SimPoint { 
+    unsigned long time;
+    int power;
+};
+
+const SimPoint simSequenceSensor[] = {
     {   0,    0 },
     {  15,  200 },
     {  20,  300 },
@@ -92,15 +100,17 @@ int simSequenceSensor[][2] = {
 //
 int AnalogSensor::simulateSensor() {
     unsigned long tstamp = abs( millis() - simualteMillsStart ) / 1000;
-    int max = (sizeof(simSequenceSensor) / sizeof(int) / 2);
-    int v = simSequenceSensor[max-1][1];
+    int max = (sizeof(simSequenceSensor) / sizeof(SimPoint));
+    int v = simSequenceSensor[max-1].power;
 
     for(int i = 0; i < max; i++ ) {
-        if( simSequenceSensor[i][0] <= tstamp )
-            v = simSequenceSensor[i][1];
+        if( simSequenceSensor[i].time <= tstamp )
+            v = simSequenceSensor[i].power;
     }
 
-    //Log.verbose(F("ASEN: Value simulator %d, value %d." CR), tstamp, v);
+#if LOG_LEVEL==6
+    Log.verbose(F("ASEN: Value simulator %l, value %d." CR), tstamp, v);
+#endif
     return v;
 }
 

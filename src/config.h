@@ -21,28 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include "serial_debug.h"
+#ifndef _CONFIG_H
+#define _CONFIG_H
 
-//
-// Configure serial debug output
-//
-SerialDebug::SerialDebug(const long serialSpeed) { 
-    // Start serial with auto-detected rate (default to defined BAUD)
-    Serial.flush();
-    Serial.begin(serialSpeed);
+// defintions
+#define CFG_APPNAME  "StirPlate"
+#define CFG_APPVER   "0.3.1"
 
-    getLog()->begin(LOG_LEVEL, &Serial, true);
-    getLog()->setPrefix(printTimestamp);
-    getLog()->notice(F("SDBG: Serial logging started at %l." CR), serialSpeed);
-}
-
-//
-// Print the timestamp (ms since start of device)
-//
-void printTimestamp(Print* _logOutput) {
-  char c[12];
-  sprintf(c, "%10lu ", millis());
-  _logOutput->print(c);
-}
+#endif // _CONFIG_H
 
 // EOF

@@ -21,28 +21,26 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+#ifndef _WIFI_H
+#define _WIFI_H
+
+// Includes
 #include "serial_debug.h"
+#include "mysecrets.h"
 
-//
-// Configure serial debug output
-//
-SerialDebug::SerialDebug(const long serialSpeed) { 
-    // Start serial with auto-detected rate (default to defined BAUD)
-    Serial.flush();
-    Serial.begin(serialSpeed);
+#include <ESP8266WiFi.h>
 
-    getLog()->begin(LOG_LEVEL, &Serial, true);
-    getLog()->setPrefix(printTimestamp);
-    getLog()->notice(F("SDBG: Serial logging started at %l." CR), serialSpeed);
-}
+// classes
+class Wifi {
+    private:
+        bool connected = false;
 
-//
-// Print the timestamp (ms since start of device)
-//
-void printTimestamp(Print* _logOutput) {
-  char c[12];
-  sprintf(c, "%10lu ", millis());
-  _logOutput->print(c);
-}
+    public:
+        Wifi() {}; 
+        bool connect(const char *ap, const char *pwd);
+        bool disconnect();
+};
+
+#endif // _WIFI_H
 
 // EOF

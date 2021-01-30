@@ -28,6 +28,8 @@ SOFTWARE.
 #include "blynk.h"
 #include "analogsensor.h"
 #include "mysecrets.h"
+#include "wifi.h"
+#include "otaupdate.h"
 
 /*
  * This is the fan I used for my build.
@@ -46,17 +48,20 @@ SOFTWARE.
  */
 
 // Define constats for this program
-const int interval = 500;            // ms, time to wait between changes to output
+const int        interval = 500;     // ms, time to wait between changes to output
 const static int tachPIN = 12;       // Measure speed on FAN. D6 PIN on ESP-12F
 
-SerialDebug serial;                  // Setting up the serial debug logging (Configure Logging library)
-Display *display = 0;
-PwmFan *fan = 0;
-AnalogSensor *pot = 0;
+SerialDebug   serial;                // Setting up the serial debug logging (Configure Logging library)
+Display       *display = 0;
+PwmFan        *fan = 0;
+AnalogSensor  *pot = 0;
+Wifi          *wifi = 0;
+
+unsigned long lastMillis = 0;
+
 #ifdef ACTIVATE_BLYNK
 extern BlynkPins blynk;
 #endif
-unsigned long lastMillis = 0;
 
 //
 // Callback for tachimeter
@@ -76,13 +81,14 @@ void setup() {
   fan = new PwmFan();
   pot = new AnalogSensor();
 
+#if LOG_LEVEL==6
+//  Log.verbose(F("MAIN: Wait 5s for debugger to come online." CR));
+//  delay(5000);
+#endif
+
   // Setup watchdog
   ESP.wdtDisable();
   ESP.wdtEnable( interval*2 );
-
-  // Setup interrput callback for tachiometer (fan rotation)
-  pinMode(tachPIN, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(tachPIN), handleTachiometerInterrupt, FALLING);
 
   // Setup display
   Log.notice(F("Main: Looking for display." CR));
@@ -92,10 +98,35 @@ void setup() {
   sprintf( &buffer[0], "%s", CFG_APPNAME );
   display->printText( 0, 0, &buffer[0] );    
 
+#ifdef ACTIVATE_WIFI
+  wifi = new Wifi();
+  display->printText( 0, 1, "Connect wifi    " );    
+  wifi->connect( WIFI_SECRET_AP, WIFI_SECRET_PWD);
+#endif
+
+#ifdef ACTIVATE_OTA
+  OtaUpdate ota;
+  display->printText( 0, 1, "Checking for upd" );    
+  if( ota.checkVersion() ) {
+    delay(500);
+    display->printText( 0, 1, "Updating        " );    
+    ota.updateFirmware();
+  }
+#endif
+
+  // Setup interrput callback for tachiometer (fan rotation)
+  pinMode(tachPIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(tachPIN), handleTachiometerInterrupt, FALLING);
+
 #ifdef ACTIVATE_BLYNK
   Log.notice(F("Main: Connecting to blynk." CR));
-  display->printText( 0, 1, "Connecting WIFI." );    
-  blynk.connect(BLYNK_TOKEN, WIFI_SECRET_AP, WIFI_SECRET_PWD, BLYNK_SERVER, 8080);
+  display->printText( 0, 1, "Connect blynk   " );    
+  blynk.connect( BLYNK_TOKEN, BLYNK_SERVER, BLYNK_PORT );
+#endif
+
+#if LOG_LEVEL==6
+//  Log.verbose(F("MAIN: Wait 5s." CR));
+//  delay(5000);
 #endif
 }
 
@@ -115,11 +146,14 @@ void loop() {
     int pwr = fan->getCurrentPower();
 
     // Use the lower line to create a power bar that indicate power to stirplate
-    //Log.verbose(F("MAIN: POT = %d, Percentage %d, RPM=%d." CR), vin, pwr, rpm);
+#if LOG_LEVEL==6
+    Log.verbose(F("MAIN: POT = %d, Percentage %d, RPM=%d." CR), vin, pwr, rpm);
+#endif
 
 #ifdef ACTIVATE_BLYNK
     blynk.writeRemoteRPM( rpm );
     blynk.writeRemotePower( pwr );
+    blynk.writeRemoteVer(CFG_APPVER);
 #endif
 
     display->printProgressBar(0,1, pwr);

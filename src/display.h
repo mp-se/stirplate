@@ -25,7 +25,9 @@ SOFTWARE.
 #define _DISPLAY_H
 
 // includes
-#include <Wire.h>                   //for ESP8266 use bug free i2c driver https://github.com/enjoyneering/ESP8266-I2C-Driver
+#include "serial_debug.h"
+
+#include <Wire.h>                   
 #include <LiquidCrystal_I2C.h>
 
 // classes
@@ -36,6 +38,7 @@ class Display {
 
         void setup();
         void createCustomChars();
+        
 #ifdef DISPLAY_SELFTEST 
         void selfTest();
 #endif

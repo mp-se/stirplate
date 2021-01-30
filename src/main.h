@@ -24,10 +24,6 @@ SOFTWARE.
 #ifndef _MAIN_H
 #define _MAIN_H
 
-// defintions
-#define CFG_APPNAME  "StirPlate"
-#define CFG_APPVER   "0.2.0"
-
 #endif // _MAIN_H
 
 // EOF

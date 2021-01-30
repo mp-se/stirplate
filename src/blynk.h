@@ -25,6 +25,8 @@ SOFTWARE.
 #define _BLYNK_H
 
 // Includes
+#include "serial_debug.h"
+
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 
@@ -37,7 +39,7 @@ class BlynkPins {
         int power = 0;
 
     public:
-        void connect(const char* wifiName, const char* wifiPwd, const char* blynkToken, IPAddress ip, uint16_t port);
+        void connect(const char* blynkToken, IPAddress ip, int port);
         void run();
 
         void setRemoteToggle(int t) { toggle = t; };
@@ -47,6 +49,7 @@ class BlynkPins {
         int readRemotePower() { return power; }
         void writeRemoteRPM(int v);
         void writeRemotePower(int v);
+        void writeRemoteVer(const char *ver);
 };
 
 #endif 
