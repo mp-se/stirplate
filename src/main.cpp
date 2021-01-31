@@ -27,6 +27,8 @@ SOFTWARE.
 #include "pwmfan.h"
 #include "blynk.h"
 #include "analogsensor.h"
+#include "tempsensor.h"
+#include "helper.h"
 #include "mysecrets.h"
 #include "wifi.h"
 #include "otaupdate.h"
@@ -55,6 +57,7 @@ SerialDebug   serial;                // Setting up the serial debug logging (Con
 Display       *display = 0;
 PwmFan        *fan = 0;
 AnalogSensor  *pot = 0;
+TempSensor    *temp = 0;
 Wifi          *wifi = 0;
 
 unsigned long lastMillis = 0;
@@ -78,6 +81,7 @@ void setup() {
 
   // Initialize pin outputs
   Log.notice(F("Main: Started setup." CR));
+  printBuildOptions();
   fan = new PwmFan();
   pot = new AnalogSensor();
 
@@ -123,6 +127,8 @@ void setup() {
   display->printText( 0, 1, "Connect blynk   " );    
   blynk.connect( BLYNK_TOKEN, BLYNK_SERVER, BLYNK_PORT );
 #endif
+
+  temp = new TempSensor();
 
 #if LOG_LEVEL==6
 //  Log.verbose(F("MAIN: Wait 5s." CR));

@@ -30,6 +30,15 @@ SOFTWARE.
 // classes
 class PwmFan {
     private:
+        // A pwm fan can operate on a base frequency of beteween 21 - 28 kHz, the code used 25 kHz as standard but can 
+        // easily be changed in the constant below (pwmFrequency)
+        //
+        // The constants pwmMin/pwmMax is used to control the pwmSignal, on my fan the value of 1024 gives a maximum RPM 
+        // of 2700 but in 3liters of liquid its 1400 RPM. 
+        //
+        // If you want better control of lover RPM you can reduce the pwmMax to a lower value. This would probably require 
+        // some testing since it would depend on the FAN and strenght of magnets.
+        //
         const static int pwmCtrlPIN = 14;           // Control PWM signal to FAN. D5 PIN on ESP-12F 
         const static int pwmMin = 0;                // Minium value for output
         const static int pwmMax = 1024;             // Maximum value for output

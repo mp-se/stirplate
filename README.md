@@ -1,15 +1,27 @@
-# PWM controlled stirplate with remote control
+# PWM controlled stir plate with remote control
 
-I decided to build my own stirplate and I wanted to use a PWM controlled fan for optimal performance. This also enabled me to measure the RPM of the fan. I'm using this build for my yeast starter (Beer brewing).
+I decided to build my own stir plate and I wanted to use a PWM controlled fan for optimal performance. This also enabled me to measure the RPM of the fan. I'm using this build for my yeast starter (Beer brewing).
 
 Since I had a few ESP8266 controller this was the natual choise to use... Since there is built in wifi, one needs to use this. This first version can use a local Blynk server in order to display the RPM and also control the FAN from the app. 
 
 ![Yeast fermentation](img/stirplate.jpg)
 
+Here is a short video that shows the minimum and maximum speed with a 3 liter starter. The slow speed is around 150 RPM and max speed is 1400 RPM.
+
+[Video of running stir plate](img/speed.mov)
+
 ## Versions
 
 * 0.2.0 First version that is published on github
 * 0.3.0 Some minor refactoring + OTA update from local web server.
+
+## Future changes
+
+* Add support for tempsensor to measure the temperature
+* Add WIFIManager and configuration options
+* Add MDNSresponder to find the device by name
+* Add WebServer and REST API to get values from the device (and perhaps control the device)
+* Add support for Blynk Cloud (or at least test/document this part)
 
 ## How it works
 
@@ -20,6 +32,10 @@ D5 is used to generate the PWM signal to the FAN and D6 is used to monitor the R
 I have created a few classes to encapsulate the display, analog sensor, pwm control, blynk interface. This also enables me to simualate some of the functionallity without connecting all the cables. This simplifies the development. Just make sure you build the release target when flashing since the debug version use the simulated inputs for sensor and rpm.
 
 ## Configuration/Build
+
+I have not added a configuration option yet but thats a future feature. Until then you need to build the binaries for your setup and home network. 
+
+I prefer to use Visual Studio Code with the extension PlatformIO which makes it quite easy to make a build.
 
 In order to compile the project and use WIFI/Blynk functionallity to work you need to create a file called src/mysecrets.h which contains your personal wifi and blynk settings. I used a local blynk server to minimize the latency/update speed. The code submits new data every 500ms. If you intend to use the blynk cloud it might be neccesary to update the code to submit data more seldom.
 

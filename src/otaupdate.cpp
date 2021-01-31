@@ -45,7 +45,7 @@ bool OtaUpdate::updateFirmware() {
 
     // TODO: Update code to work with https connection (currently not using that at home)
 
-    HTTPUpdateResult ret = ESPhttpUpdate.update(serverPath);
+    HTTPUpdateResult ret = ESPhttpUpdate.update(client, serverPath);
 
     switch(ret) {
         case HTTP_UPDATE_FAILED:
