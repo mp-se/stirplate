@@ -25,9 +25,6 @@ SOFTWARE.
 #define _DISPLAY_H
 
 // includes
-#include "serial_debug.h"
-
-#include <Wire.h>                   
 #include <LiquidCrystal_I2C.h>
 
 // classes

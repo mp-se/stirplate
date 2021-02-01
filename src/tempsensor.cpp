@@ -23,6 +23,11 @@ SOFTWARE.
  */
 #include "tempsensor.h"
 
+#include "serial_debug.h"
+#include <onewire.h>
+#include <DallasTemperature.h>
+#include <Wire.h>
+
 //
 // THIS CODE HAS NOT YET BEEN TESTED IN THE BUILD. FUTURE FEATURE
 //

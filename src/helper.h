@@ -24,11 +24,6 @@ SOFTWARE.
 #ifndef _HELPER_H
 #define _HELPER_H
 
-// Includes
-#include "serial_debug.h"
-
-#include <Arduino.h>
-
 void powerLedConfigure();
 void powerLedToggle();
 void powerLedOn();

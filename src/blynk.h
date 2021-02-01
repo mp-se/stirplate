@@ -25,10 +25,7 @@ SOFTWARE.
 #define _BLYNK_H
 
 // Includes
-#include "serial_debug.h"
-
 #include <Arduino.h>
-#include <ESP8266WiFi.h>
 
 #ifdef ACTIVATE_BLYNK
 

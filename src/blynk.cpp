@@ -26,6 +26,9 @@ SOFTWARE.
 #ifdef ACTIVATE_BLYNK
 
 #define BLYNK_PRINT Serial
+
+#include "serial_debug.h"
+#include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
 
 BlynkPins blynk;
@@ -91,6 +94,9 @@ void BlynkPins::connect(const char* blynkToken, IPAddress ip, int port) {
 #if LOG_LEVEL==6
     Log.verbose(F("BLYN: connect(2)." CR));
 #endif    
+
+    // IPadderss apip.fromString(apipch)
+
     Blynk.config(blynkToken, ip, (uint16_t) port);
 }
 

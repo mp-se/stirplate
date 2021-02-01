@@ -23,6 +23,9 @@ SOFTWARE.
  */
 #include "helper.h"
 
+#include "serial_debug.h"
+#include <Arduino.h>
+
 bool powerLedConfigured = false;
 
 //

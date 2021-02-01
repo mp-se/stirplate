@@ -25,6 +25,7 @@ SOFTWARE.
 #include "serial_debug.h"
 #include "display.h"
 #include "pwmfan.h"
+#include "config.h"
 #include "blynk.h"
 #include "analogsensor.h"
 #include "tempsensor.h"
@@ -79,9 +80,19 @@ void ICACHE_RAM_ATTR handleTachiometerInterrupt() {
 //
 void setup() {
 
+  // Wait for the debugger to start
+  //delay(10000);
+
   // Initialize pin outputs
   Log.notice(F("Main: Started setup." CR));
   printBuildOptions();
+
+  Log.notice(F("Main: Loading configuration." CR));
+  //config.formatFileSystem();    // Erase the config file
+  config.checkFileSystem();
+  config.loadFile();
+
+  Log.notice(F("Main: Setting up devices." CR));
   fan = new PwmFan();
   pot = new AnalogSensor();
 
@@ -105,13 +116,15 @@ void setup() {
 #ifdef ACTIVATE_WIFI
   wifi = new Wifi();
   display->printText( 0, 1, "Connect wifi    " );    
-  wifi->connect( WIFI_SECRET_AP, WIFI_SECRET_PWD);
+  //wifi->disconnect();   // clear current wifi settings.
+  wifi->connect();
 #endif
+
 
 #ifdef ACTIVATE_OTA
   OtaUpdate ota;
   display->printText( 0, 1, "Checking for upd" );    
-  if( ota.checkVersion() ) {
+  if( wifi->isConnected() && ota.checkVersion() ) {
     delay(500);
     display->printText( 0, 1, "Updating        " );    
     ota.updateFirmware();
@@ -123,9 +136,11 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(tachPIN), handleTachiometerInterrupt, FALLING);
 
 #ifdef ACTIVATE_BLYNK
-  Log.notice(F("Main: Connecting to blynk." CR));
-  display->printText( 0, 1, "Connect blynk   " );    
-  blynk.connect( BLYNK_TOKEN, BLYNK_SERVER, BLYNK_PORT );
+  if( wifi->isConnected() && config.isBlynkEnabled() ) {
+    Log.notice(F("Main: Connecting to blynk." CR));
+    display->printText( 0, 1, "Connect blynk   " );    
+    blynk.connect( BLYNK_TOKEN, BLYNK_SERVER, BLYNK_PORT );
+  }
 #endif
 
   temp = new TempSensor();
@@ -134,6 +149,7 @@ void setup() {
 //  Log.verbose(F("MAIN: Wait 5s." CR));
 //  delay(5000);
 #endif
+  Log.notice(F("Main: Setup is completed." CR));
 }
 
 void loop() {
@@ -143,7 +159,7 @@ void loop() {
 #ifdef ACTIVATE_BLYNK
     blynk.run();
 #endif
-
+/*
     int vin = pot->readSensor();
     
     // setPower will map the value to the range supported by the PWM output
@@ -174,7 +190,7 @@ void loop() {
       sprintf( &s[0], "%5d", fan->getCurrentRPM());
     }
     display->printText( 11, 0, &s[0] );
-
+*/
     lastMillis = millis();
   }
 }

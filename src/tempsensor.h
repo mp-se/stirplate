@@ -24,13 +24,6 @@ SOFTWARE.
 #ifndef _TEMPSENSOR_H
 #define _TEMPSENSOR_H
 
-// includes
-#include "serial_debug.h"
-
-#include <onewire.h>
-#include <DallasTemperature.h>
-#include <Wire.h>
-
 // definitions
 #define TEMPERATURE_PRECISION 9
 #define MAX_TEMP_SENSORS 5

@@ -24,9 +24,45 @@ SOFTWARE.
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
+// Includes
+#include <Arduino.h>
+
 // defintions
-#define CFG_APPNAME  "Stir Plate"
-#define CFG_APPVER   "0.3.3"
+#define CFG_APPNAME         "Stir Plate"    // Name of firmware
+#define CFG_APPVER          "0.3.3"         // Version of firmware (used wit OTA update to check for newer)
+
+#define WIFI_DEFAULT_SSID   "StirPlate"     // Name of created SSID
+#define WIFI_DEFAULT_PWD    "Secret"        // Password for created SSID
+#define WIFI_PORTAL_TIMEOUT 120             // Number of seconds until the config portal is closed
+
+class Config {
+    public:
+        // OTA configuration
+        char otaUrl[40]         = "";
+
+        // Blynk configuration
+        char blynkServer[40]    = "";
+        char blynkToken[40]     = "";
+        char blynkServerPort[5] = "";
+
+        // Set this flag if config has changed
+        bool saveNeeded = false;
+
+        // Conversion functions
+        int  getBlynkPort() { return atoi(&blynkServerPort[0]); }
+        bool isBlynkActive() { return strlen(blynkToken)>0?true:false; }
+        bool isOtaActive() { return strlen(otaUrl)>0?true:false; }
+
+        // IO functions
+        bool saveFile();
+        bool loadFile();
+        void debug();
+        void checkFileSystem();
+        void formatFileSystem();
+};
+
+// Global instance created
+extern Config config;
 
 #endif // _CONFIG_H
 

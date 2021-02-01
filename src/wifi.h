@@ -24,12 +24,6 @@ SOFTWARE.
 #ifndef _WIFI_H
 #define _WIFI_H
 
-// Includes
-#include "serial_debug.h"
-#include "mysecrets.h"
-
-#include <ESP8266WiFi.h>
-
 // classes
 class Wifi {
     private:
@@ -37,8 +31,9 @@ class Wifi {
 
     public:
         Wifi() {}; 
-        bool connect(const char *ap, const char *pwd);
+        bool connect();
         bool disconnect();
+        bool isConnected() { return connected; };
 };
 
 #endif // _WIFI_H

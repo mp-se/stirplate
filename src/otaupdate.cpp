@@ -25,6 +25,16 @@ SOFTWARE.
 
 #ifdef ACTIVATE_OTA
 
+#include "serial_debug.h"
+#include "mysecrets.h"
+#include "config.h"
+
+#include <WiFiClient.h>
+#include <ArduinoJson.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#include <ESP8266httpUpdate.h>
+
 //
 //
 //

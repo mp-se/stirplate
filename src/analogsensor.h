@@ -24,9 +24,7 @@ SOFTWARE.
 #ifndef _ANALOGSENSOR_H
 #define _ANALOGSENSOR_H
 
-// includes
-#include "serial_debug.h"
-
+// Includes
 #include <Arduino.h>
 
 // classes

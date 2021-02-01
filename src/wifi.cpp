@@ -25,36 +25,79 @@ SOFTWARE.
 
 #ifdef ACTIVATE_WIFI
 
+#include "serial_debug.h"
+#include "config.h"
+#include "mysecrets.h"      // To be removed when done
+#include <ESP8266WiFi.h>
+#include <WiFiManager.h>
+
+WiFiManager wifiManager; 
+
 //
 //
 //
-bool Wifi::connect(const char *ap, const char *pwd) {
+void saveConfigCallback() {
 #if LOG_LEVEL==6
-    Log.verbose(F("WIFI: Connecting to %s." CR), ap);
+    Log.verbose(F("WIFI: Callback to save params." CR));
 #endif
-    WiFi.setAutoReconnect( true );
-    WiFi.begin( ap, pwd);
-
-    // TODO: Add a timeout if we are not able to connect to the WIFI
-    // TODO: Do error checking in and return false if needed
-
-    Log.notice(F("WIFI: Connecting." CR));
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Log.notice(F("WIFI: ." CR));
-    }
-
-    Log.notice(F("WIFI: Connected to %s with %s." CR), ap, WiFi.localIP().toString().c_str());
-    return true;
+    config.saveNeeded = true;
 }
 
 //
+// Connect to last known access point or create one if connection is not working. 
 //
+bool Wifi::connect() {
+#if LOG_LEVEL==6
+    Log.verbose(F("WIFI: Connecting to WIFI via connection manager." CR));
+    wifiManager.setDebugOutput(true);    
+#endif
+
+    // Setup OTA variables
+    WiFiManagerParameter cfgOtaUrl("otaUrl", "OTA Base URL (ex: http://server:port/path)", config.otaUrl, sizeof(config.otaUrl));
+    wifiManager.addParameter(&cfgOtaUrl);
+
+    // Setup blynk variables
+    WiFiManagerParameter cfgBlynkServer("blynkServer", "Blynk server (ex: 192.168.1.1)", config.blynkServer, sizeof(config.blynkServer));
+    wifiManager.addParameter(&cfgBlynkServer);
+    WiFiManagerParameter cfgBlynkServerPort("blynkServerPort", "Blynk server port (ex: 80)", config.blynkServerPort, sizeof(config.blynkServerPort));
+    wifiManager.addParameter(&cfgBlynkServerPort);
+    WiFiManagerParameter cfgBlynkToken("blynkToken", "Blynk token (from blynk)", config.blynkToken, sizeof(config.blynkToken));
+    wifiManager.addParameter(&cfgBlynkToken);
+
+    wifiManager.setConfigPortalTimeout( WIFI_PORTAL_TIMEOUT );
+    wifiManager.setSaveConfigCallback(saveConfigCallback);
+
+    // Connect to WIFI
+    bool ret = wifiManager.autoConnect( WIFI_DEFAULT_SSID, WIFI_DEFAULT_PWD );
+
+    // If the flag is changed, the callback was triggered
+    if( ret && config.saveNeeded ) {
+#if LOG_LEVEL==6
+        Log.verbose(F("WIFI: Saving configuration options." CR));
+#endif
+        strcpy( config.otaUrl, cfgOtaUrl.getValue() );
+        strcpy( config.blynkServer, cfgBlynkServer.getValue() );
+        strcpy( config.blynkServerPort, cfgBlynkServerPort.getValue() );
+        strcpy( config.blynkToken, cfgBlynkToken.getValue() );
+    }
+
+    config.saveFile();
+
+#if LOG_LEVEL==6
+    Log.verbose(F("WIFI: Connect returned %s." CR), ret?"True":"False" );
+#endif
+
+    return ret;
+}
+
+//
+// This will erase the stored credentials and forcing the WIFI manager to AP mode.
 //
 bool Wifi::disconnect() {
+    Log.notice(F("WIFI: Erasing stored WIFI credentials." CR));
 
-    // Not yet implemented (not needed)
-    return true;
+    // Erase WIFI credentials
+    return WiFi.disconnect();
 }
 
 #endif

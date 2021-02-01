@@ -24,17 +24,6 @@ SOFTWARE.
 #ifndef _OTAUPDATE_H
 #define _OTAUPDATE_H
 
-// Includes
-#include "serial_debug.h"
-#include "mysecrets.h"
-#include "config.h"
-
-#include <WiFiClient.h>
-#include <ArduinoJson.h>
-#include <ESP8266WiFi.h>
-#include <ESP8266HTTPClient.h>
-#include <ESP8266httpUpdate.h>
-
 // classes
 class OtaUpdate {
     private:

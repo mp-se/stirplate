@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #include "analogsensor.h"
+#include "serial_debug.h"
 
 #ifdef ACTIVATE_BLYNK   // Enable blynk updates and control
 #include "blynk.h"
