@@ -43,6 +43,9 @@ class AnalogSensor {
         int readSensor();
 };
 
+// Global instance created
+extern AnalogSensor stirAnalogSensor;
+
 #endif // _ANALOGSENSOR_H
 
 // EOF

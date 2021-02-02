@@ -59,6 +59,9 @@ class PwmFan {
         void tachCallback() { pwmRotationCounter++; }   
 };
 
+// Global instance created
+extern PwmFan stirFan;
+
 #endif // _PWMFAN_H
 
 // EOF

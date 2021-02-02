@@ -24,17 +24,37 @@ SOFTWARE.
 #ifndef _WIFI_H
 #define _WIFI_H
 
+// Include 
+#include <WiFiManager.h>
+
 // classes
 class Wifi {
     private:
-        bool connected = false;
+        // WIFI
+        bool   connectedFlag = false;
+
+        // WEB server
+        void setupWebServer();
+
+        // OTA
+        bool newFirmware = false;
+        bool parseFirmwareVersionString( int (&num)[3], const char *version );
 
     public:
-        Wifi() {}; 
-        bool connect();
-        bool disconnect();
-        bool isConnected() { return connected; };
+        // WIFI
+        bool   connect();
+        bool   disconnect();
+        bool   isConnected() { return connectedFlag; };
+        String getIPAddress() { return WiFi.localIP().toString(); };
+        void   loop();
+
+        // OTA
+        bool updateFirmware();
+        bool checkFirmwareVersion();
 };
+
+// Global instance created
+extern Wifi stirWifi;
 
 #endif // _WIFI_H
 

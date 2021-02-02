@@ -22,14 +22,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #include "helper.h"
+#include <Ticker.h>  
 
-#include "serial_debug.h"
-#include <Arduino.h>
-
-bool powerLedConfigured = false;
+SerialDebug stirSerial;
+Ticker      powerLedBlinker;
+bool        powerLedConfigured = false;
 
 //
+// Activate the ticker function to flash the led
 //
+void activateLedTicker(float t) {
+    powerLedBlinker.attach( t, powerLedToggle );
+}
+
+//
+// Disable the ticker function
+//
+void deactivateLedTicker() {
+    powerLedBlinker.detach();
+    powerLedOff();
+}
+
+//
+// Setup the LED pin as output
 //
 void powerLedConfigure() {
     if( !powerLedConfigured ) {
@@ -39,7 +54,7 @@ void powerLedConfigure() {
 }
 
 //
-//
+// Turn on power led 
 //
 void powerLedOn() {
     powerLedConfigure();    
@@ -47,7 +62,7 @@ void powerLedOn() {
 }
 
 //
-//
+// Turn off the power led
 //
 void powerLedOff() {
     powerLedConfigure();    
@@ -55,7 +70,7 @@ void powerLedOff() {
 }
 
 //
-//
+// Toggle the power led
 //
 void powerLedToggle() {
     powerLedConfigure();    
@@ -63,7 +78,7 @@ void powerLedToggle() {
 }
 
 //
-//
+// Print the build options used
 //
 void printBuildOptions() {
     Log.notice( F("Build options: LOGLEVEL %d " 
@@ -89,6 +104,28 @@ void printBuildOptions() {
                 "DISPLAY_SELFTEST "
 #endif    
     CR), LOG_LEVEL );
+}
+
+//
+// Configure serial debug output
+//
+SerialDebug::SerialDebug(const long serialSpeed) { 
+    // Start serial with auto-detected rate (default to defined BAUD)
+    Serial.flush();
+    Serial.begin(serialSpeed);
+
+    getLog()->begin(LOG_LEVEL, &Serial, true);
+    getLog()->setPrefix(printTimestamp);
+    getLog()->notice(F("SDBG: Serial logging started at %l." CR), serialSpeed);
+}
+
+//
+// Print the timestamp (ms since start of device)
+//
+void printTimestamp(Print* _logOutput) {
+  char c[12];
+  sprintf(c, "%10lu ", millis());
+  _logOutput->print(c);
 }
 
 // EOF 

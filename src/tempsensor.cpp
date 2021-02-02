@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #include "tempsensor.h"
+#include "helper.h"
 
-#include "serial_debug.h"
 #include <onewire.h>
 #include <DallasTemperature.h>
 #include <Wire.h>
@@ -33,7 +33,7 @@ SOFTWARE.
 //
 
 /*
-OneWire oneWire(D6);
+OneWire oneWire(D4);
 DallasTemperature sensors(&oneWire);
 */
 

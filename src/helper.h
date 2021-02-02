@@ -24,12 +24,35 @@ SOFTWARE.
 #ifndef _HELPER_H
 #define _HELPER_H
 
+// Includes
+#include <ArduinoLog.h>
+
+#define LED_FLASH_WIFI 0.2
+
+// Interact with LED
 void powerLedConfigure();
 void powerLedToggle();
 void powerLedOn();
 void powerLedOff();
+void activateLedTicker(float t);
+void deactivateLedTicker();
 
+// Show build options
 void printBuildOptions();
+
+// Logging via serial
+void printTimestamp(Print* _logOutput);
+void printNewline(Print* _logOutput);
+
+// Classes
+class SerialDebug {
+    public:
+        SerialDebug(const long serialSpeed = 115200L);
+        static Logging* getLog() { return &Log; };
+};
+
+// Global instance created
+extern SerialDebug stirSerial;
 
 #endif // _HELPER_H
 

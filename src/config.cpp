@@ -22,12 +22,37 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #include "config.h"
-#include "serial_debug.h"
-#include <ArduinoJson.h>
+#include "helper.h"
 #include <LittleFS.h>
 
 Config config;
 
+//
+// Create the config class with default settings
+//
+Config::Config() {
+    sprintf(&mDNS[0], "stirplate%6x", (unsigned int) ESP.getChipId() );
+#if LOG_LEVEL==6
+    Log.verbose(F("CFG : Creating hostname %s." CR), mDNS);
+#endif
+}
+
+//
+// Populate the json document
+//
+void Config::createJson(StaticJsonDocument<512>& doc) {
+    doc["mDNS"]                = mDNS;
+
+    doc["OtaURL"]              = otaUrl;
+
+    doc["BlynkServer"]         = blynkServer;
+    doc["BlynkServerPort"]     = blynkServerPort;
+    doc["BlynkToken"]          = blynkToken;
+}
+
+//
+// Save json document to file
+//
 bool Config::saveFile() {
 
     bool success = false;
@@ -37,20 +62,14 @@ bool Config::saveFile() {
         Log.verbose(F("CFG : Saving configuration." CR));
 #endif    
 
-        StaticJsonDocument<1024> doc;
-
-        doc["OtaURL"]              = otaUrl;
-
-        doc["BlynkServer"]         = blynkServer;
-        doc["BlynkServerPort"]     = blynkServerPort;
-        doc["BlynkToken"]          = blynkToken;
-
         File configFile = LittleFS.open("/config.json", "w");
 
         if (!configFile) {
             Log.error(F("CFG : Failed to save /config.json." CR));
         }
 
+        StaticJsonDocument<512> doc;
+        createJson( doc );
 #if LOG_LEVEL==6
         serializeJson(doc, Serial);
 #endif    
@@ -74,6 +93,9 @@ bool Config::saveFile() {
     return success;
 }
 
+//
+// Load config file from disk
+//
 bool Config::loadFile() {
 
     bool success = false;
