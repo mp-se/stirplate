@@ -197,11 +197,11 @@ void loop() {
       sprintf( &s[0], "%5s", CFG_APPVER);
 #if defined( ACTIVATE_WIFI )      
       if( stirWifi.isConnected() )
-        stirDisplay.printText( 0, 1, "WIFI           " );
+        stirDisplay.printText( 0, 1, "WIFI            " );
       else
-        stirDisplay.printText( 0, 1, "NO WIFI        " );
+        stirDisplay.printText( 0, 1, "NO WIFI         " );
 #else 
-        stirDisplay.printText( 0, 1, "               " );
+        stirDisplay.printText( 0, 1, "                " );
 #endif // ACTIVATE_WIFI
     }
     else {
