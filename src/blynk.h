@@ -47,6 +47,8 @@ class BlynkPins {
         void writeRemoteRPM(int v);
         void writeRemotePower(int v);
         void writeRemoteVer(const char *ver);
+        void writeRemoteTempC(float f);
+        void writeRemoteTempF(float f);
 };
 
 #endif 

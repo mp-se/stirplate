@@ -63,9 +63,6 @@ BLYNK_WRITE(V2)
 // Send the RPM value to the blynk server on pin V0
 //
 void BlynkPins::writeRemoteRPM(int v) {
-//#if LOG_LEVEL==6
-//    Log.verbose(F("BLYN: write rpm %d." CR), v);
-//#endif
     Blynk.virtualWrite(V0, v);
 }
 
@@ -73,9 +70,6 @@ void BlynkPins::writeRemoteRPM(int v) {
 // Send the power value (0-100%) to the blynk server on pin V1
 //
 void BlynkPins::writeRemotePower(int v) {
-//#if LOG_LEVEL==6
-//    Log.verbose(F("BLYN: write power %d." CR), v);
-//#endif
     Blynk.virtualWrite(V1, v);
 }
 
@@ -83,10 +77,21 @@ void BlynkPins::writeRemotePower(int v) {
 // Inform blynk about what version we are running
 //
 void BlynkPins::writeRemoteVer(const char *ver) {
-//#if LOG_LEVEL==6
-//    Log.verbose(F("BLYN: write version %s." CR), ver);
-//#endif
     Blynk.virtualWrite(V4, ver);
+}
+
+//
+// Write temp sensor value in C
+//
+void BlynkPins::writeRemoteTempC(float t) {
+    Blynk.virtualWrite(V5, t);
+}
+
+//
+// Write temp sensor value in F
+//
+void BlynkPins::writeRemoteTempF(float t) {
+    Blynk.virtualWrite(V6, t);
 }
 
 //
@@ -99,7 +104,6 @@ void BlynkPins::connect(const char* blynkToken, const char *ip, int port) {
     Log.verbose(F("BLYN: connect %s." CR), bs.toString().c_str());
 #endif    
     Blynk.config(blynkToken, bs, (uint16_t) port);
-    Blynk.run();
     Blynk.syncAll();
     Blynk.run();
 }

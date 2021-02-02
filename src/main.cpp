@@ -157,10 +157,11 @@ void loop() {
 #endif 
 
   if( abs(millis() - lastMillis) > interval ) {
-#if defined( ACTIVATE_TEMP )
-    stirTempSensor.loop();    
-#endif
     int vin = stirAnalogSensor.readSensor();
+#if defined( ACTIVATE_TEMP )
+    float tempC = stirTempSensor.getValueCelcius();
+    float tempF = stirTempSensor.getValueFarenheight();
+#endif
 
     // setPower will map the value to the range supported by the PWM output
     stirFan.setPower( vin, 0, 1024 );   
@@ -177,8 +178,13 @@ void loop() {
     blynk.writeRemoteRPM( rpm );
     blynk.writeRemotePower( pwr );
     blynk.writeRemoteVer(CFG_APPVER);
-  }
+#if defined( ACTIVATE_TEMP )
+    blynk.writeRemoteTempC(tempC);
+    blynk.writeRemoteTempF(tempF);
 #endif
+  }
+#endif // ACTIVATE_BLYNK && ACTIVATE_WIFI
+
 
   // Display Layout 
   //

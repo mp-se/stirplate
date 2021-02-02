@@ -34,6 +34,8 @@ OneWire oneWire(D4);
 DallasTemperature sensors(&oneWire);
 TempSensor stirTempSensor;
 
+#define TEMPERATURE_PRECISION 9
+
 //
 // Setup temp sensors
 //
@@ -41,64 +43,27 @@ void TempSensor::setup() {
 #if LOG_LEVEL==6
   Log.verbose(F("TSEN: Looking for temp sensors." CR));
 #endif
-
   sensors.begin();
-  noSensors = sensors.getDeviceCount();
-  Log.notice(F("TSEN: Found %d sensors." CR), noSensors);
+  Log.notice(F("TSEN: Found %d sensors." CR), sensors.getDeviceCount());
   sensors.setResolution(TEMPERATURE_PRECISION);
-#if LOG_LEVEL==6
-  Log.verbose(F("TSEN: Set resolution to %d." CR), TEMPERATURE_PRECISION);
-#endif
-  loop();
-
-  for( int i=0; i<noSensors; i++) {
-    DeviceAddress da;
-
-    if(!sensors.getAddress(da, i)) {
-      Log.error(F("Temp: Unable to find address for device %d." CR), i);
-    } else {
-      Log.notice(F("Temp: Device [%d] adress %x %x %x %x %x %x %x %x." CR), i, 
-        da[0],da[1],da[2],da[3],da[4],da[5],da[6],da[7] );
-
-#if LOG_LEVEL==6
-      Log.verbose(F("Temp: Temperature for device [%d] %F C." CR), i, values[i]);
-#endif
-    }
-  }
-}
-
-//
-// Reading values from temp sensors
-//
-void TempSensor::loop() {
-  sensors.requestTemperatures();
-
-  for( int i=0; i<noSensors; i++) {
-
-    float tempC = sensors.getTempCByIndex(i);
-    if(tempC == DEVICE_DISCONNECTED_C) {
-      Log.error(F("TSEN: Could not read temperature data from device [%d]." CR), i);
-    } else {
-      values[i] = tempC;
-#if LOG_LEVEL==6
-      Log.verbose(F("TSEN: Temperature for device [%d] %F C." CR), i, getValue(i));
-#endif
-    } 
-  }
 }
 
 //
 // Retrieving value from sensor
 //
-float TempSensor::getValue(int index) {
+float TempSensor::getValueCelcius() {
   float f = 0;
 
-  if( noSensors >= index )
-    f = values[index];
+  sensors.requestTemperatures();
+
+  if( sensors.getDeviceCount() >= 1) {
+    f = sensors.getTempCByIndex(0);
 
 #if LOG_LEVEL==6
-  Log.verbose(F("TSEN: Reciving temp value for sensor %d = %F C." CR), index, f);
+    Log.verbose(F("TSEN: Reciving temp value for sensor %F C." CR), f);
 #endif
+  }
+
   return f;
 }
 

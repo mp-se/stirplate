@@ -18,10 +18,11 @@ Here is a short video that shows the minimum and maximum speed with a 3 liter st
 
 ## Future changes
 
-* Add new schema and pcb layout
-* Add support for tempsensor to measure the temperature (DS18B20)
+* Add new schema and pcb layout to include temp sensor
+* Add support for tempsensors (Code written but no hardware built)
 * Add REST API to get values from the device 
 * Add support for Blynk Cloud (or at least test/document this part)
+* Add support for mqtt
 
 ## How it works
 
@@ -94,6 +95,8 @@ Currently the code uses the following virtual sensors to interact with blynk
 * V2 - Input  - Activate remote control (if = 1, it will use V3 to control the speed)
 * V3 - Input  - Remote Fan Power in %
 * V4 - Output - Version string
+* V5 - Output - Temp sensor in C (if no tempsensor attached it will return 0)
+* V6 - Output - Temp sensor in F (if no tempsensor attached it will return 32)
 
 ![Screenshot from Blynk](img/blynk.png)
 

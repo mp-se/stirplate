@@ -25,21 +25,13 @@ SOFTWARE.
 #define _TEMPSENSOR_H
 
 // definitions
-#define TEMPERATURE_PRECISION 9
-#define MAX_TEMP_SENSORS 5
 
 // classes
 class TempSensor {
-    private:
-        float values[MAX_TEMP_SENSORS]; 
-        int noSensors = 0;
-
     public:
-        void setup();
-        void loop();
-        
-        int   sensorCount() { return noSensors; };
-        float getValue(int index);
+        void setup();    
+        float getValueCelcius();
+        float getValueFarenheight() { return (getValueCelcius() * 1.8 ) + 32.0; };
 };
 
 // Global instance created
