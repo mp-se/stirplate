@@ -131,6 +131,12 @@ void setup() {
   }
 #endif
 
+  Log.notice(F("Main: Setting up sensors." CR));
+  stirAnalogSensor.setup();
+#if defined( ACTIVATE_TEMP )
+  stirTempSensor.setup();
+#endif
+
 #if LOG_LEVEL==6
 //  Log.verbose(F("MAIN: Wait 5s." CR));
 //  delay(5000);
@@ -147,10 +153,13 @@ void loop() {
   stirWifi.loop();    
 #endif
 #if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
-  blynk.run();
+  blynk.loop();
 #endif 
 
   if( abs(millis() - lastMillis) > interval ) {
+#if defined( ACTIVATE_TEMP )
+    stirTempSensor.loop();    
+#endif
     int vin = stirAnalogSensor.readSensor();
 
     // setPower will map the value to the range supported by the PWM output

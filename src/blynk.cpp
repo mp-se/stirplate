@@ -107,7 +107,7 @@ void BlynkPins::connect(const char* blynkToken, const char *ip, int port) {
 //
 // Call the run method in the blynk library (should be called in the loop)
 //
-void BlynkPins::run() {
+void BlynkPins::loop() {
     // Dont put serial debug output in this call
     Blynk.run();
 }

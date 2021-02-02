@@ -35,12 +35,15 @@ class TempSensor {
         int noSensors = 0;
 
     public:
-        TempSensor();
-        void run();
+        void setup();
+        void loop();
         
         int   sensorCount() { return noSensors; };
         float getValue(int index);
 };
+
+// Global instance created
+extern TempSensor stirTempSensor;
 
 #endif // _TEMPSENSOR_H
 

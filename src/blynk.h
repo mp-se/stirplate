@@ -37,7 +37,7 @@ class BlynkPins {
 
     public:
         void connect(const char* blynkToken, const char* ip, int port);
-        void run();
+        void loop();
 
         void setRemoteToggle(int t) { toggle = t; };
         void setRemotePower(int p) { power = p; }

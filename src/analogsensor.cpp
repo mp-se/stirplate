@@ -32,9 +32,9 @@ extern BlynkPins blynk;
 AnalogSensor stirAnalogSensor;
 
 //
-// Constructor
+// Setup analog input
 //
-AnalogSensor::AnalogSensor() {
+void AnalogSensor::setup() {
 //#if LOG_LEVEL==6
 //    Log.verbose(F("ASEN: Setting up analog sensor." CR));
 //#endif

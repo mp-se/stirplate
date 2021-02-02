@@ -28,20 +28,16 @@ SOFTWARE.
 #include <DallasTemperature.h>
 #include <Wire.h>
 
-//
-// THIS CODE HAS NOT YET BEEN TESTED IN THE BUILD. FUTURE FEATURE
-//
+#if defined( ACTIVATE_TEMP )
 
-/*
 OneWire oneWire(D4);
 DallasTemperature sensors(&oneWire);
-*/
+TempSensor stirTempSensor;
 
 //
+// Setup temp sensors
 //
-//
-TempSensor::TempSensor() {
-/*
+void TempSensor::setup() {
 #if LOG_LEVEL==6
   Log.verbose(F("TSEN: Looking for temp sensors." CR));
 #endif
@@ -53,7 +49,7 @@ TempSensor::TempSensor() {
 #if LOG_LEVEL==6
   Log.verbose(F("TSEN: Set resolution to %d." CR), TEMPERATURE_PRECISION);
 #endif
-  run();
+  loop();
 
   for( int i=0; i<noSensors; i++) {
     DeviceAddress da;
@@ -69,14 +65,12 @@ TempSensor::TempSensor() {
 #endif
     }
   }
-*/
 }
 
 //
 // Reading values from temp sensors
 //
-void TempSensor::run() {
-/*
+void TempSensor::loop() {
   sensors.requestTemperatures();
 
   for( int i=0; i<noSensors; i++) {
@@ -91,14 +85,12 @@ void TempSensor::run() {
 #endif
     } 
   }
-*/
 }
 
 //
 // Retrieving value from sensor
 //
 float TempSensor::getValue(int index) {
-/*
   float f = 0;
 
   if( noSensors >= index )
@@ -108,8 +100,8 @@ float TempSensor::getValue(int index) {
   Log.verbose(F("TSEN: Reciving temp value for sensor %d = %F C." CR), index, f);
 #endif
   return f;
-*/
-  return 0;
 }
+
+#endif //  ACTIVATE_TEMP 
 
 // EOF 
