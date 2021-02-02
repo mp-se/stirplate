@@ -22,15 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #include "pwmfan.h"
+#include "helper.h"
+
+PwmFan stirFan;
 
 //
 // Constructor
 //
 PwmFan::PwmFan() {
-#if LOG_LEVEL==6
-    Log.verbose(F("Setting up pwm fan control." CR));
-#endif
-
+//#if LOG_LEVEL==6
+//    Log.verbose(F("Setting up pwm fan control." CR));
+//#endif
     pinMode(PwmFan::pwmCtrlPIN, OUTPUT);   
     analogWriteFreq( PwmFan::pwmFrequency );   
     analogWrite(PwmFan::pwmCtrlPIN, 0);
@@ -44,10 +46,9 @@ PwmFan::PwmFan() {
 // Set the speed of the pwmsignal
 //
 int PwmFan::setPower( int value, int minRange, int maxRange ) {
-#if LOG_LEVEL==6
-    Log.verbose(F("PFAN: Setting output value to %d." CR), value);
-#endif
-
+//#if LOG_LEVEL==6
+//    Log.verbose(F("PFAN: Setting output value to %d." CR), value);
+//#endif
     powerPercentage = map(value, minRange, maxRange, 0, 100);   // Convert to percentage
     int power = map(powerPercentage, 0, 100, PwmFan::pwmMin, PwmFan::pwmMax);
     analogWrite(PwmFan::pwmCtrlPIN, power);
@@ -58,19 +59,15 @@ int PwmFan::setPower( int value, int minRange, int maxRange ) {
 // Set the speed of the pwmsignal
 //
 int PwmFan::getCurrentRPM() {
-
 #ifdef SIMULATE_RPM
     rpm = simulateRPM();
     return rpm;
 #endif
-
     // How much time has passed since the last call?
     long unsigned timePeriod = millis() - rpmLastMillis;
-
-#if LOG_LEVEL==6
-    Log.verbose(F("PFAN: Period %d, Rotations = %d." CR), timePeriod, pwmRotationCounter);
-#endif
-
+//#if LOG_LEVEL==6
+//    Log.verbose(F("PFAN: Period %d, Rotations = %d." CR), timePeriod, pwmRotationCounter);
+//#endif
     // My fan report 2 ticks per rotation. 
     rpm = ((double) pwmRotationCounter / (double) timePeriod) * 1000 * 60 / 2;
     rpmLastMillis = millis();
@@ -101,7 +98,7 @@ int simSequenceRPM[][2] = {
 int PwmFan::simulateRPM() {
     int max = (sizeof(simSequenceRPM) / sizeof(int) / 2);
 
-    Log.verbose(F("PFAN: Value simulator %d." CR), powerPercentage);
+//  Log.verbose(F("PFAN: Value simulator %d." CR), powerPercentage);
 
     for(int i = 0; i < max; i++ ) {
         if( powerPercentage < simSequenceRPM[i][0] )
@@ -111,6 +108,6 @@ int PwmFan::simulateRPM() {
     return simSequenceRPM[max-1][1];
 }
 
-#endif 
+#endif // SIMULATE_RPM
 
 // EOF 

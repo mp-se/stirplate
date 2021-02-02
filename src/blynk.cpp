@@ -23,9 +23,14 @@ SOFTWARE.
  */
 #include "blynk.h"
 
-#ifdef ACTIVATE_BLYNK
+#if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
 
+#if LOG_LEVEL==6
 #define BLYNK_PRINT Serial
+#endif
+
+#include "helper.h"
+#include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
 
 BlynkPins blynk;
@@ -58,9 +63,9 @@ BLYNK_WRITE(V2)
 // Send the RPM value to the blynk server on pin V0
 //
 void BlynkPins::writeRemoteRPM(int v) {
-#if LOG_LEVEL==6
-    Log.verbose(F("BLYN: write rpm %d." CR), v);
-#endif
+//#if LOG_LEVEL==6
+//    Log.verbose(F("BLYN: write rpm %d." CR), v);
+//#endif
     Blynk.virtualWrite(V0, v);
 }
 
@@ -68,9 +73,9 @@ void BlynkPins::writeRemoteRPM(int v) {
 // Send the power value (0-100%) to the blynk server on pin V1
 //
 void BlynkPins::writeRemotePower(int v) {
-#if LOG_LEVEL==6
-    Log.verbose(F("BLYN: write power %d." CR), v);
-#endif
+//#if LOG_LEVEL==6
+//    Log.verbose(F("BLYN: write power %d." CR), v);
+//#endif
     Blynk.virtualWrite(V1, v);
 }
 
@@ -78,33 +83,35 @@ void BlynkPins::writeRemotePower(int v) {
 // Inform blynk about what version we are running
 //
 void BlynkPins::writeRemoteVer(const char *ver) {
-#if LOG_LEVEL==6
-    Log.verbose(F("BLYN: write version %s." CR), ver);
-#endif
+//#if LOG_LEVEL==6
+//    Log.verbose(F("BLYN: write version %s." CR), ver);
+//#endif
     Blynk.virtualWrite(V4, ver);
 }
 
 //
 // Connect to the WIFI and blynk server
 //
-void BlynkPins::connect(const char* blynkToken, IPAddress ip, int port) {
+void BlynkPins::connect(const char* blynkToken, const char *ip, int port) {
+    IPAddress bs(0,0,0,0);
+    bs.fromString(ip);
 #if LOG_LEVEL==6
-    Log.verbose(F("BLYN: connect(2)." CR));
+    Log.verbose(F("BLYN: connect %s." CR), bs.toString().c_str());
 #endif    
-    Blynk.config(blynkToken, ip, (uint16_t) port);
+    Blynk.config(blynkToken, bs, (uint16_t) port);
+    Blynk.run();
+    Blynk.syncAll();
+    Blynk.run();
 }
 
 //
 // Call the run method in the blynk library (should be called in the loop)
 //
 void BlynkPins::run() {
-#if LOG_LEVEL==6
-    Log.verbose(F("BLYN: run." CR));
-#endif
-
+    // Dont put serial debug output in this call
     Blynk.run();
 }
 
-#endif 
+#endif // ACTIVATE_BLYNK && ACTIVATE_WIFI 
 
 // EOF 

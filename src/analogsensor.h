@@ -24,9 +24,7 @@ SOFTWARE.
 #ifndef _ANALOGSENSOR_H
 #define _ANALOGSENSOR_H
 
-// includes
-#include "serial_debug.h"
-
+// Includes
 #include <Arduino.h>
 
 // classes
@@ -44,6 +42,9 @@ class AnalogSensor {
         AnalogSensor();
         int readSensor();
 };
+
+// Global instance created
+extern AnalogSensor stirAnalogSensor;
 
 #endif // _ANALOGSENSOR_H
 

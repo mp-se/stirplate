@@ -4,3 +4,4 @@
 src/mysecrets.h
 cad/*.lib
 cad/*.sch-bak
+log/*

@@ -22,20 +22,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #include "analogsensor.h"
+#include "helper.h"
 
-#ifdef ACTIVATE_BLYNK   // Enable blynk updates and control
+#if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
 #include "blynk.h"
 extern BlynkPins blynk;
 #endif
+
+AnalogSensor stirAnalogSensor;
 
 //
 // Constructor
 //
 AnalogSensor::AnalogSensor() {
-#if LOG_LEVEL==6
-    Log.verbose(F("ASEN: Setting up analog sensor." CR));
-#endif
-
+//#if LOG_LEVEL==6
+//    Log.verbose(F("ASEN: Setting up analog sensor." CR));
+//#endif
     pinMode(analogPIN, INPUT);    
 #ifdef SIMULATE_SENSOR
     simualteMillsStart = millis();
@@ -46,16 +48,16 @@ AnalogSensor::AnalogSensor() {
 // Set the speed of the pwmsignal
 //
 int AnalogSensor::readSensor() {
-#if LOG_LEVEL==6
-    Log.verbose(F("ASEN: Reading analog sensor." CR));
-#endif
+//#if LOG_LEVEL==6
+//    Log.verbose(F("ASEN: Reading analog sensor." CR));
+//#endif
 
 #ifdef SIMULATE_SENSOR
     value = simulateSensor();
     return value;
 #endif
 
-#ifdef ACTIVATE_BLYNK
+#if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
     if( blynk.readRemoteToggle() == 1 ) {
         value = map( blynk.readRemotePower(), 0, 100, 0, 1024);
 
@@ -108,12 +110,12 @@ int AnalogSensor::simulateSensor() {
             v = simSequenceSensor[i].power;
     }
 
-#if LOG_LEVEL==6
-    Log.verbose(F("ASEN: Value simulator %l, value %d." CR), tstamp, v);
-#endif
+//#if LOG_LEVEL==6
+//  Log.verbose(F("ASEN: Value simulator %l, value %d." CR), tstamp, v);
+//#endif
     return v;
 }
 
-#endif 
+#endif // SIMULATE_SENSOR
 
 // EOF 

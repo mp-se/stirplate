@@ -25,9 +25,6 @@ SOFTWARE.
 #define _DISPLAY_H
 
 // includes
-#include "serial_debug.h"
-
-#include <Wire.h>                   
 #include <LiquidCrystal_I2C.h>
 
 // classes
@@ -47,12 +44,15 @@ class Display {
         const static int DISP_COLUMS = 16;
         const static int DISP_ROWS   = 2;
 
-        Display();
+        void init();
         void clear();
 
         void printText( int x, int y, const char *s );
         void printProgressBar( int x, int y, int percentage );
 };
+
+// Global instance created
+extern Display stirDisplay;
 
 #endif // _DISPLAY_H
 
