@@ -24,6 +24,9 @@ SOFTWARE.
 #ifndef _PWMFAN_H
 #define _PWMFAN_H
 
+// Includes
+#include <Arduino.h>
+
 // classes
 class PwmFan {
     private:
@@ -36,7 +39,7 @@ class PwmFan {
         // If you want better control of lover RPM you can reduce the pwmMax to a lower value. This would probably require 
         // some testing since it would depend on the FAN and strenght of magnets.
         //
-        const static int pwmCtrlPIN = 14;           // Control PWM signal to FAN. D5 PIN on ESP-12F 
+        const static int pwmCtrlPIN = D5;           // Control PWM signal to FAN. D5 (14) PIN on ESP-12F 
         const static int pwmMin = 0;                // Minium value for output
         const static int pwmMax = 1024;             // Maximum value for output
         const static int pwmFrequency = 25000;      // Frequency of 25kHz (Range should be 21-28 kHz)
