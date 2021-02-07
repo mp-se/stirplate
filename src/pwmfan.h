@@ -63,7 +63,7 @@ class PwmFan {
 };
 
 // Global instance created
-extern PwmFan stirFan;
+extern PwmFan myFan;
 
 #endif // _PWMFAN_H
 

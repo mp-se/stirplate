@@ -30,7 +30,7 @@ SOFTWARE.
 
 // defintions
 #define CFG_APPNAME         "Stir Plate"    // Name of firmware
-#define CFG_APPVER          "0.4.0"         // Version of firmware (used wit OTA update to check for newer)
+#define CFG_APPVER          "0.4.1"         // Version of firmware (used wit OTA update to check for newer)
 
 #define WIFI_DEFAULT_SSID   "StirPlate"     // Name of created SSID
 #define WIFI_DEFAULT_PWD    "password"      // Password for created SSID
@@ -48,6 +48,9 @@ class Config {
         char blynkServer[40];
         char blynkToken[40];
         char blynkServerPort[5];
+
+        // Temp Settings
+        char tempFormat[2];     // Should be C or F
 
         // Set this flag if config has changed
         bool saveNeeded = false;
@@ -70,7 +73,7 @@ class Config {
 };
 
 // Global instance created
-extern Config config;
+extern Config myConfig;
 
 #endif // _CONFIG_H
 

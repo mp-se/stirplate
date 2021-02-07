@@ -24,10 +24,10 @@ SOFTWARE.
 #ifndef _BLYNK_H
 #define _BLYNK_H
 
+#if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
+
 // Includes
 #include <Arduino.h>
-
-#ifdef ACTIVATE_BLYNK
 
 // Classes
 class BlynkPins {
@@ -36,6 +36,7 @@ class BlynkPins {
         int power = 0;
 
     public:
+        BlynkPins() {};
         void connect(const char* blynkToken, const char* ip, int port);
         void loop();
 
@@ -51,7 +52,9 @@ class BlynkPins {
         void writeRemoteTempF(float f);
 };
 
-#endif 
+extern BlynkPins myBlynk;
+
+#endif // ACTIVATE_BLYNK && ACTIVATE_WIFI
 
 #endif // _BLYNK_H
 

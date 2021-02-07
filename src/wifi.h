@@ -54,7 +54,7 @@ class Wifi {
 };
 
 // Global instance created
-extern Wifi stirWifi;
+extern Wifi myWifi;
 
 #endif // _WIFI_H
 

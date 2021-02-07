@@ -52,7 +52,7 @@ class SerialDebug {
 };
 
 // Global instance created
-extern SerialDebug stirSerial;
+extern SerialDebug mySerial;
 
 #endif // _HELPER_H
 

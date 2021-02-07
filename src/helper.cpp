@@ -24,7 +24,7 @@ SOFTWARE.
 #include "helper.h"
 #include <Ticker.h>  
 
-SerialDebug stirSerial;
+SerialDebug mySerial;
 Ticker      powerLedBlinker;
 bool        powerLedConfigured = false;
 

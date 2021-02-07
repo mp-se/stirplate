@@ -33,9 +33,9 @@ SOFTWARE.
 #include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
 
-Wifi stirWifi;
-WiFiManager stirWifiManager; 
-ESP8266WebServer stirWebServer(80);
+Wifi myWifi;
+WiFiManager myWifiManager; 
+ESP8266WebServer myWebServer(80);
 
 //
 // Callback from wifiManager when settings have changed.
@@ -44,7 +44,7 @@ void saveConfigCallback() {
 #if LOG_LEVEL==6
     Log.verbose(F("WIFI: wifiMgr callback to save params." CR));
 #endif
-    config.saveNeeded = true;
+    myConfig.saveNeeded = true;
 }
 
 //
@@ -55,8 +55,8 @@ void webHandleRoot() {
     Log.verbose(F("WIFI: webServer callback for /." CR));
 #endif
     char buf[100];
-    sprintf( &buf[0], "%s (%s), %s", CFG_APPNAME, CFG_APPVER, config.mDNS );
-    stirWebServer.send(200, "text/plain", buf );
+    sprintf( &buf[0], "%s (%s), %s", CFG_APPNAME, CFG_APPVER, myConfig.mDNS );
+    myWebServer.send(200, "text/plain", buf );
 }
 
 //
@@ -67,13 +67,13 @@ void webHandleConfig() {
     Log.verbose(F("WIFI: webServer callback for /config." CR));
 #endif
     StaticJsonDocument<512> doc;
-    config.createJson( doc );
+    myConfig.createJson( doc );
 #if LOG_LEVEL==6
     serializeJson(doc, Serial);
 #endif    
     String out;
     serializeJson(doc, out);
-    stirWebServer.send(200, "application/json", out.c_str() );
+    myWebServer.send(200, "application/json", out.c_str() );
 }
 
 //
@@ -83,7 +83,7 @@ void webHandleReset() {
 #if LOG_LEVEL==6
     Log.verbose(F("WIFI: webServer callback for /reset." CR));
 #endif
-    stirWebServer.send(200, "text/plain", "Clearing WIFI credentials, doing reset...");
+    myWebServer.send(200, "text/plain", "Clearing WIFI credentials, doing reset...");
     delay(1000);
     WiFi.disconnect();  // Clear credentials
     ESP.reset();
@@ -97,10 +97,10 @@ void Wifi::setupWebServer() {
 //#if LOG_LEVEL==6
 //    Log.verbose(F("WIFI: Setting up web server." CR));
 //#endif
-    stirWebServer.on("/", webHandleRoot);
-    stirWebServer.on("/config", webHandleConfig);
-    stirWebServer.on("/reset", webHandleReset);
-    stirWebServer.begin();
+    myWebServer.on("/", webHandleRoot);
+    myWebServer.on("/config", webHandleConfig);
+    myWebServer.on("/reset", webHandleReset);
+    myWebServer.begin();
 }
 
 //
@@ -109,42 +109,52 @@ void Wifi::setupWebServer() {
 bool Wifi::connect() {
 #if LOG_LEVEL==6
     Log.verbose(F("WIFI: Connecting to WIFI via connection manager." CR));
-    stirWifiManager.setDebugOutput(true);    
+    myWifiManager.setDebugOutput(true);    
 #endif
 
     // LED will show that we are in WIFI connection/configuration mode
     activateLedTicker( LED_FLASH_WIFI );
 
     // Setup OTA variables
-    WiFiManagerParameter cfgOtaUrl("otaUrl", "OTA Base URL (ex: http://server:port/path)", config.otaUrl, sizeof(config.otaUrl));
-    stirWifiManager.addParameter(&cfgOtaUrl);
+    WiFiManagerParameter cfgOtaUrl("otaUrl", "OTA Base URL (ex: http://server:port/path)", myConfig.otaUrl, sizeof(myConfig.otaUrl)-1);
+    myWifiManager.addParameter(&cfgOtaUrl);
 
     // Setup Blynk variables
-    WiFiManagerParameter cfgBlynkServer("blynkServer", "Blynk server (ex: 192.168.1.1)", config.blynkServer, sizeof(config.blynkServer));
-    stirWifiManager.addParameter(&cfgBlynkServer);
-    WiFiManagerParameter cfgBlynkServerPort("blynkServerPort", "Blynk server port (ex: 8080)", config.blynkServerPort, sizeof(config.blynkServerPort));
-    stirWifiManager.addParameter(&cfgBlynkServerPort);
-    WiFiManagerParameter cfgBlynkToken("blynkToken", "Blynk token (from blynk)", config.blynkToken, sizeof(config.blynkToken));
-    stirWifiManager.addParameter(&cfgBlynkToken);
+    WiFiManagerParameter cfgBlynkServer("blynkServer", "Blynk server (ex: 192.168.1.1)", myConfig.blynkServer, sizeof(myConfig.blynkServer)-1);
+    myWifiManager.addParameter(&cfgBlynkServer);
+    WiFiManagerParameter cfgBlynkServerPort("blynkServerPort", "Blynk server port (ex: 8080)", myConfig.blynkServerPort, sizeof(myConfig.blynkServerPort)-1);
+    myWifiManager.addParameter(&cfgBlynkServerPort);
+    WiFiManagerParameter cfgBlynkToken("blynkToken", "Blynk token (from blynk)", myConfig.blynkToken, sizeof(myConfig.blynkToken)-1);
+    myWifiManager.addParameter(&cfgBlynkToken);
 
-    stirWifiManager.setConfigPortalTimeout( WIFI_PORTAL_TIMEOUT );
-    stirWifiManager.setSaveConfigCallback(saveConfigCallback);
+    // Setup temp format
+    WiFiManagerParameter tempFormat("tempFormat", "Temperature format (C|F)", myConfig.tempFormat, sizeof(myConfig.tempFormat)-1);
+    myWifiManager.addParameter(&tempFormat);
+
+    myWifiManager.setConfigPortalTimeout( WIFI_PORTAL_TIMEOUT );
+    myWifiManager.setSaveConfigCallback(saveConfigCallback);
 
     // Connect to WIFI
-    connectedFlag = stirWifiManager.autoConnect( WIFI_DEFAULT_SSID, WIFI_DEFAULT_PWD );
+    connectedFlag = myWifiManager.autoConnect( WIFI_DEFAULT_SSID, WIFI_DEFAULT_PWD );
 
     // If the flag is changed, the callback was triggered
-    if( connectedFlag && config.saveNeeded ) {
+    if( connectedFlag && myConfig.saveNeeded ) {
 #if LOG_LEVEL==6
         Log.verbose(F("WIFI: Saving configuration options." CR));
 #endif
-        strcpy( config.otaUrl, cfgOtaUrl.getValue() );
-        strcpy( config.blynkServer, cfgBlynkServer.getValue() );
-        strcpy( config.blynkServerPort, cfgBlynkServerPort.getValue() );
-        strcpy( config.blynkToken, cfgBlynkToken.getValue() );
+        const char* t = cfgOtaUrl.getValue();
+        if( strcmp(t, "C")==0 || strcmp(t, "c")==0 )
+            strcpy( myConfig.tempFormat, "C" );
+        if( strcmp(t, "F")==0 || strcmp(t, "f")==0 )
+            strcpy( myConfig.tempFormat, "F" );
+
+        strcpy( myConfig.otaUrl, cfgOtaUrl.getValue() );
+        strcpy( myConfig.blynkServer, cfgBlynkServer.getValue() );
+        strcpy( myConfig.blynkServerPort, cfgBlynkServerPort.getValue() );
+        strcpy( myConfig.blynkToken, cfgBlynkToken.getValue() );
     }
 
-    config.saveFile();
+    myConfig.saveFile();
 
 #if LOG_LEVEL==6
     Log.verbose(F("WIFI: Connect returned %s." CR), connectedFlag?"True":"False" );
@@ -152,9 +162,9 @@ bool Wifi::connect() {
 
     if( connectedFlag ) {
 #if LOG_LEVEL==6
-        Log.verbose(F("WIFI: Starting mDNS for %s." CR), config.mDNS );
+        Log.verbose(F("WIFI: Starting mDNS for %s." CR), myConfig.mDNS );
 #endif
-        MDNS.begin( config.mDNS );
+        MDNS.begin( myConfig.mDNS );
         MDNS.addService("http", "tcp", 80);
         setupWebServer();
 
@@ -170,7 +180,7 @@ bool Wifi::connect() {
 //
 void Wifi::loop() {
     // Dont put serial debug output in this call
-    stirWebServer.handleClient();
+    myWebServer.handleClient();
     MDNS.update();
 }
 
@@ -202,7 +212,7 @@ bool Wifi::updateFirmware() {
 //#endif
 
     WiFiClient client;
-    String serverPath = config.otaUrl;
+    String serverPath = myConfig.otaUrl;
     serverPath += "firmware.bin";
 
     // TODO: Update code to work with https connection 
@@ -235,7 +245,7 @@ bool Wifi::checkFirmwareVersion() {
 //#endif
     WiFiClient client;
     HTTPClient http;
-    String serverPath = config.otaUrl;
+    String serverPath = myConfig.otaUrl;
     serverPath += "version.json";
 
     // Your Domain name with URL path or IP address with path

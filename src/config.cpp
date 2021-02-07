@@ -25,7 +25,7 @@ SOFTWARE.
 #include "helper.h"
 #include <LittleFS.h>
 
-Config config;
+Config myConfig;
 
 //
 // Create the config class with default settings
@@ -35,6 +35,8 @@ Config::Config() {
 #if LOG_LEVEL==6
     Log.verbose(F("CFG : Creating hostname %s." CR), mDNS);
 #endif
+
+    strcpy( &tempFormat[0], "C");
 }
 
 //
@@ -48,6 +50,8 @@ void Config::createJson(StaticJsonDocument<512>& doc) {
     doc["BlynkServer"]         = blynkServer;
     doc["BlynkServerPort"]     = blynkServerPort;
     doc["BlynkToken"]          = blynkToken;
+
+    doc["tempFormat"]          = tempFormat;
 }
 
 //
@@ -78,7 +82,7 @@ bool Config::saveFile() {
 
         saveNeeded = false;
         success = true;
-        config.debug();
+        myConfig.debug();
 
 #if LOG_LEVEL==6
         Log.verbose(F("CFG : Configuration saved to /config.json." CR));
@@ -130,7 +134,9 @@ bool Config::loadFile() {
                     Log.verbose(F("CFG : Parsed configuration file." CR));
 #endif    
                     // If we add new parameters we need to check if they exist in the json file...
-                    //if( !cfg["OtaURL"].isNull() )
+                
+                    if( !cfg["tempFormat"].isNull() )
+                        strcpy( tempFormat, cfg["tempFormat"]);
 
                     strcpy( otaUrl, cfg["OtaURL"]);
 
@@ -138,7 +144,7 @@ bool Config::loadFile() {
                     strcpy( blynkServerPort, cfg["BlynkServerPort"]);
                     strcpy( blynkToken, cfg["BlynkToken"] );
 
-                    config.debug();
+                    myConfig.debug();
                     success = true;
                 }
             } else {

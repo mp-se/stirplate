@@ -48,22 +48,19 @@ SOFTWARE.
 
 // Define constats for this program
 #if LOG_LEVEL==6
-const int        interval = 2000;    // ms, time to wait between changes to output (slow down if debugging)
+const int        interval = 1000;    // ms, time to wait between changes to output (slow down if debugging)
 #else
 const int        interval = 500;     // ms, time to wait between changes to output
 #endif
 const static int tachPIN = 12;       // Measure speed on FAN. D6 PIN on ESP-12F
 unsigned long    lastMillis = 0;
-
-#if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
-extern BlynkPins blynk;
-#endif
+int              loopCounter = 0;
 
 //
 // Callback for tachimeter
 // 
 void ICACHE_RAM_ATTR handleTachiometerInterrupt() {
-  stirFan.tachCallback();
+  myFan.tachCallback();
 }
 
 //
@@ -79,9 +76,9 @@ void setup() {
   printBuildOptions();
 
   Log.notice(F("Main: Loading configuration." CR));
-  //config.formatFileSystem();    // Erase the config file
-  config.checkFileSystem();
-  config.loadFile();
+  //myConfig.formatFileSystem();    // Erase the config file
+  myConfig.checkFileSystem();
+  myConfig.loadFile();
 
   Log.notice(F("Main: Setting up devices." CR));
 
@@ -96,26 +93,26 @@ void setup() {
 
   // Setup display
   Log.notice(F("Main: Looking for display." CR));
-  stirDisplay.init();
+  myDisplay.init();
 
   char buffer[20];
   sprintf( &buffer[0], "%s", CFG_APPNAME );
-  stirDisplay.printText( 0, 0, &buffer[0] );    
+  myDisplay.printText( 0, 0, &buffer[0] );    
 
 #if defined( ACTIVATE_WIFI )
-  stirDisplay.printText( 0, 1, "Connect wifi    " );    
-  //stirWifi.disconnect();   // clear current wifi settings.
-  stirWifi.connect();
-  if( stirWifi.isConnected() )
-    Log.notice(F("Main: Connected to wifi ip=%s." CR), stirWifi.getIPAddress().c_str() );
+  myDisplay.printText( 0, 1, "Connect wifi    " );    
+  //myWifi.disconnect();   // clear current wifi settings.
+  myWifi.connect();
+  if( myWifi.isConnected() )
+    Log.notice(F("Main: Connected to wifi ip=%s." CR), myWifi.getIPAddress().c_str() );
 #endif
 
 #if defined( ACTIVATE_WIFI ) && defined( ACTIVATE_OTA )
-  stirDisplay.printText( 0, 1, "Checking for upd" );    
-  if( stirWifi.isConnected() && stirWifi.checkFirmwareVersion() ) {
+  myDisplay.printText( 0, 1, "Checking for upd" );    
+  if( myWifi.isConnected() && myWifi.checkFirmwareVersion() ) {
     delay(500);
-    stirDisplay.printText( 0, 1, "Updating        " );    
-    stirWifi.updateFirmware();
+    myDisplay.printText( 0, 1, "Updating        " );    
+    myWifi.updateFirmware();
   }
 #endif
 
@@ -123,18 +120,18 @@ void setup() {
   pinMode(tachPIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(tachPIN), handleTachiometerInterrupt, FALLING);
 
-#if defined( ACTIVATE_WIFI ) && defined( ACTIVATE_BLYNK )
-  if( stirWifi.isConnected() && config.isBlynkActive() ) {
+#if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
+  if( myWifi.isConnected() && myConfig.isBlynkActive() ) {
     Log.notice(F("Main: Connecting to blynk." CR));
-    stirDisplay.printText( 0, 1, "Connect blynk   " );   
-    blynk.connect( config.blynkToken, config.blynkServer, config.getBlynkPort() );
+    myDisplay.printText( 0, 1, "Connect blynk   " );   
+    myBlynk.connect( myConfig.blynkToken, myConfig.blynkServer, myConfig.getBlynkPort() );
   }
 #endif
 
   Log.notice(F("Main: Setting up sensors." CR));
-  stirAnalogSensor.setup();
+  myAnalogSensor.setup();
 #if defined( ACTIVATE_TEMP )
-  stirTempSensor.setup();
+  myAnalogSensor.setup();
 #endif
 
 #if LOG_LEVEL==6
@@ -150,23 +147,25 @@ void setup() {
 void loop() {
 
 #if defined( ACTIVATE_WIFI )
-  stirWifi.loop();    
+  myWifi.loop();    
 #endif
 #if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
-  blynk.loop();
+  myBlynk.loop();
 #endif 
 
   if( abs(millis() - lastMillis) > interval ) {
-    int vin = stirAnalogSensor.readSensor();
+    int vin = myAnalogSensor.readSensor();
 #if defined( ACTIVATE_TEMP )
-    float tempC = stirTempSensor.getValueCelcius();
-    float tempF = stirTempSensor.getValueFarenheight();
+    bool tempAttached = myTempSensor.isSensorAttached();
+    float tempC = myTempSensor.getValueCelcius();
+    float tempF = myTempSensor.getValueFarenheight();
 #endif
+    loopCounter++;    
 
     // setPower will map the value to the range supported by the PWM output
-    stirFan.setPower( vin, 0, 1024 );   
-    int rpm = stirFan.getCurrentRPM();
-    int pwr = stirFan.getCurrentPower();
+    myFan.setPower( vin, 0, 1024 );   
+    int rpm = myFan.getCurrentRPM();
+    int pwr = myFan.getCurrentPower();
 
     // Use the lower line to create a power bar that indicate power to stirplate
 #if LOG_LEVEL==6
@@ -174,17 +173,18 @@ void loop() {
 #endif
 
 #if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
-  if( stirWifi.isConnected() && config.isBlynkActive() ) {
-    blynk.writeRemoteRPM( rpm );
-    blynk.writeRemotePower( pwr );
-    blynk.writeRemoteVer(CFG_APPVER);
+  if( myWifi.isConnected() && myConfig.isBlynkActive() ) {
+    myBlynk.writeRemoteRPM( rpm );
+    myBlynk.writeRemotePower( pwr );
+    myBlynk.writeRemoteVer(CFG_APPVER);
 #if defined( ACTIVATE_TEMP )
-    blynk.writeRemoteTempC(tempC);
-    blynk.writeRemoteTempF(tempF);
+    if( tempAttached ) {
+      myBlynk.writeRemoteTempC(tempC);
+      myBlynk.writeRemoteTempF(tempF);
+    }
 #endif
   }
 #endif // ACTIVATE_BLYNK && ACTIVATE_WIFI
-
 
   // Display Layout 
   //
@@ -201,30 +201,50 @@ void loop() {
   // 2|No wifi         | - no wifi connected
 
   //  |123456789.123456| - Power on
-  // 1|Stir plate  0rpm| - RPM 
+  // 1|Stir plate  0rpm| - RPM (Variera var 5:e sekund med TEMP)
   // 2|-progress-  000%| - Progress + % power
 
+  //  |123456789.123456| - Power on
+  // 1|Stir plate   20C| - Temperator (Variera var 5:e sekund med RPM) - Välja temperatur (C/F)
+  // 2|-progress-  000%| - Progress + % power
 
     // If there is no power we show the version number, else the RPM
     char s[10];
 
-    if( stirFan.getCurrentPower() < 10 ) {    // Show the version number 
+    // If the stirplate is not running we show the version number
+    if( myFan.getCurrentPower() < 10 ) { 
       sprintf( &s[0], "%5s", CFG_APPVER);
 #if defined( ACTIVATE_WIFI )      
-      if( stirWifi.isConnected() )
-        stirDisplay.printText( 0, 1, "WIFI            " );
+      if( myWifi.isConnected() )
+        myDisplay.printText( 0, 1, "WIFI            " );
       else
-        stirDisplay.printText( 0, 1, "NO WIFI         " );
+        myDisplay.printText( 0, 1, "NO WIFI         " );
 #else 
-        stirDisplay.printText( 0, 1, "                " );
+        myDisplay.printText( 0, 1, "                " );
 #endif // ACTIVATE_WIFI
     }
     else {
-      stirDisplay.printProgressBar(0,1, pwr);
-      sprintf( &s[0], "%5d", stirFan.getCurrentRPM());
+      // Create progress bar
+      myDisplay.printProgressBar(0,1, pwr);
+
+      // Show RPM
+      sprintf( &s[0], "%5d", myFan.getCurrentRPM());
+
+      // Show Temp
+#if defined( ACTIVATE_TEMP )
+      // Every 5 seconds we swap between RPM and TEMP if there is a temp sensor attached
+      if( loopCounter>10 && tempAttached ) {
+        if( strcmp( myConfig.tempFormat, "C" )==0 )
+          sprintf( &s[0], "%3d C", (int) tempC);      
+        else
+          sprintf( &s[0], "%3d F", (int) tempF);      
+      }
+      if( loopCounter>20 )
+        loopCounter = 0;                
+#endif
     }
 
-    stirDisplay.printText( 11, 0, &s[0] );
+    myDisplay.printText( 11, 0, &s[0] );
     lastMillis = millis();
   }
 }

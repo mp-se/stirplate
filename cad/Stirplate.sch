@@ -13141,7 +13141,7 @@ DIN A4, landscape with location and doc. field</description>
 </class>
 </classes>
 <parts>
-<part name="U$1" library="diy-modules" deviceset="WEMOS-D1-MINI" device=""/>
+<part name="U1" library="diy-modules" deviceset="WEMOS-D1-MINI" device=""/>
 <part name="C1" library="rcl" deviceset="C-EU" device="050-025X075" value="100n"/>
 <part name="C2" library="rcl" deviceset="CPOL-EU" device="E2.5-5" value="10u"/>
 <part name="C3" library="rcl" deviceset="CPOL-EU" device="E2.5-5" value="10 u"/>
@@ -13169,8 +13169,8 @@ DIN A4, landscape with location and doc. field</description>
 <part name="SUPPLY9" library="supply2" deviceset="GND" device="" value=""/>
 <part name="P+5" library="supply1" deviceset="+5V" device=""/>
 <part name="SUPPLY10" library="supply2" deviceset="GND" device="" value=""/>
-<part name="IC1" library="1wire" deviceset="DS18B20" device=""/>
-<part name="IC3" library="v-reg" deviceset="78XXL" device="" value="7505"/>
+<part name="U2" library="1wire" deviceset="DS18B20" device=""/>
+<part name="U3" library="v-reg" deviceset="78XXL" device="" value="7505"/>
 <part name="R4" library="rcl" deviceset="R-EU_" device="0207/10" value="4.7K"/>
 <part name="P+9" library="supply1" deviceset="+5V" device=""/>
 <part name="FRAME1" library="frames" deviceset="A4L-LOC" device=""/>
@@ -13178,13 +13178,14 @@ DIN A4, landscape with location and doc. field</description>
 <sheets>
 <sheet>
 <plain>
-<text x="60.96" y="10.16" size="1.778" layer="91">GPIO5 = SCL = D1
-GPIO4= SDA = D2
-GPIO12= Tacto = D6
+<text x="58.42" y="5.08" size="1.778" layer="91">GPIO5   = SCL = D1
+GPIO4   = SDA = D2
+GPIO2   = TEMP = D4
+GPIO12 = Tacto = D6
 GPIO14 = PWM = D5</text>
 </plain>
 <instances>
-<instance part="U$1" gate="G$1" x="71.12" y="40.64" smashed="yes">
+<instance part="U1" gate="G$1" x="71.12" y="40.64" smashed="yes">
 <attribute name="NAME" x="58.42" y="66.04" size="1.778" layer="95"/>
 <attribute name="VALUE" x="58.42" y="63.5" size="1.778" layer="96"/>
 </instance>
@@ -13281,14 +13282,14 @@ GPIO14 = PWM = D5</text>
 <instance part="SUPPLY10" gate="GND" x="119.38" y="40.64" smashed="yes">
 <attribute name="VALUE" x="117.475" y="37.465" size="1.778" layer="96"/>
 </instance>
-<instance part="IC1" gate="G$1" x="104.14" y="35.56" smashed="yes" rot="MR0">
+<instance part="U2" gate="G$1" x="104.14" y="35.56" smashed="yes" rot="MR0">
 <attribute name="NAME" x="114.3" y="35.56" size="1.27" layer="95" rot="MR0" align="bottom-right"/>
 <attribute name="VALUE" x="114.3" y="33.02" size="1.27" layer="96" rot="MR0" align="bottom-right"/>
 </instance>
-<instance part="IC1" gate="P" x="109.22" y="35.56" smashed="yes">
+<instance part="U2" gate="P" x="109.22" y="35.56" smashed="yes">
 <attribute name="NAME" x="111.125" y="40.005" size="1.778" layer="95" font="vector"/>
 </instance>
-<instance part="IC3" gate="A" x="38.1" y="91.44" smashed="yes">
+<instance part="U3" gate="A" x="38.1" y="91.44" smashed="yes">
 <attribute name="NAME" x="40.64" y="83.82" size="1.778" layer="95"/>
 <attribute name="VALUE" x="40.64" y="81.28" size="1.778" layer="96"/>
 </instance>
@@ -13310,7 +13311,7 @@ GPIO14 = PWM = D5</text>
 <nets>
 <net name="N$1" class="0">
 <segment>
-<pinref part="U$1" gate="G$1" pin="A0"/>
+<pinref part="U1" gate="G$1" pin="A0"/>
 <pinref part="R3" gate="G$1" pin="S"/>
 <wire x1="53.34" y1="48.26" x2="45.72" y2="48.26" width="0.1524" layer="91"/>
 <wire x1="45.72" y1="48.26" x2="45.72" y2="50.8" width="0.1524" layer="91"/>
@@ -13326,7 +13327,7 @@ GPIO14 = PWM = D5</text>
 </net>
 <net name="+5V" class="0">
 <segment>
-<pinref part="U$1" gate="G$1" pin="5V"/>
+<pinref part="U1" gate="G$1" pin="5V"/>
 <wire x1="88.9" y1="33.02" x2="93.98" y2="33.02" width="0.1524" layer="91"/>
 <wire x1="93.98" y1="33.02" x2="93.98" y2="71.12" width="0.1524" layer="91"/>
 <pinref part="P+1" gate="1" pin="+5V"/>
@@ -13339,7 +13340,7 @@ GPIO14 = PWM = D5</text>
 <segment>
 <pinref part="P+3" gate="1" pin="+5V"/>
 <wire x1="109.22" y1="43.18" x2="109.22" y2="71.12" width="0.1524" layer="91"/>
-<pinref part="IC1" gate="P" pin="VDD"/>
+<pinref part="U2" gate="P" pin="VDD"/>
 </segment>
 <segment>
 <pinref part="R2" gate="G$1" pin="2"/>
@@ -13357,7 +13358,7 @@ GPIO14 = PWM = D5</text>
 <junction x="55.88" y="91.44"/>
 <junction x="48.26" y="91.44"/>
 <pinref part="P+6" gate="1" pin="+5V"/>
-<pinref part="IC3" gate="A" pin="OUT"/>
+<pinref part="U3" gate="A" pin="OUT"/>
 </segment>
 <segment>
 <pinref part="SV2" gate="1" pin="2"/>
@@ -13378,7 +13379,7 @@ GPIO14 = PWM = D5</text>
 <pinref part="SUPPLY1" gate="GND" pin="GND"/>
 </segment>
 <segment>
-<pinref part="U$1" gate="G$1" pin="GND"/>
+<pinref part="U1" gate="G$1" pin="GND"/>
 <wire x1="88.9" y1="35.56" x2="96.52" y2="35.56" width="0.1524" layer="91"/>
 <wire x1="96.52" y1="35.56" x2="96.52" y2="27.94" width="0.1524" layer="91"/>
 <pinref part="SUPPLY2" gate="GND" pin="GND"/>
@@ -13400,7 +13401,7 @@ GPIO14 = PWM = D5</text>
 <segment>
 <wire x1="38.1" y1="83.82" x2="38.1" y2="81.28" width="0.1524" layer="91"/>
 <pinref part="SUPPLY7" gate="GND" pin="GND"/>
-<pinref part="IC3" gate="A" pin="GND"/>
+<pinref part="U3" gate="A" pin="GND"/>
 </segment>
 <segment>
 <pinref part="C2" gate="G$1" pin="-"/>
@@ -13420,7 +13421,7 @@ GPIO14 = PWM = D5</text>
 </segment>
 <segment>
 <pinref part="SUPPLY3" gate="GND" pin="GND"/>
-<pinref part="IC1" gate="P" pin="GND"/>
+<pinref part="U2" gate="P" pin="GND"/>
 </segment>
 </net>
 <net name="+12V" class="0">
@@ -13433,7 +13434,7 @@ GPIO14 = PWM = D5</text>
 <wire x1="25.4" y1="91.44" x2="25.4" y2="96.52" width="0.1524" layer="91"/>
 <pinref part="P+7" gate="1" pin="+12V"/>
 <pinref part="X1" gate="-1" pin="KL"/>
-<pinref part="IC3" gate="A" pin="IN"/>
+<pinref part="U3" gate="A" pin="IN"/>
 </segment>
 <segment>
 <pinref part="SV1" gate="1" pin="2"/>
@@ -13445,7 +13446,7 @@ GPIO14 = PWM = D5</text>
 <net name="N$5" class="0">
 <segment>
 <wire x1="45.72" y1="38.1" x2="45.72" y2="43.18" width="0.1524" layer="91"/>
-<pinref part="U$1" gate="G$1" pin="D5"/>
+<pinref part="U1" gate="G$1" pin="D5"/>
 <wire x1="45.72" y1="43.18" x2="53.34" y2="43.18" width="0.1524" layer="91"/>
 <pinref part="SV1" gate="1" pin="4"/>
 <wire x1="12.7" y1="38.1" x2="45.72" y2="38.1" width="0.1524" layer="91"/>
@@ -13453,7 +13454,7 @@ GPIO14 = PWM = D5</text>
 </net>
 <net name="N$4" class="0">
 <segment>
-<pinref part="U$1" gate="G$1" pin="D6"/>
+<pinref part="U1" gate="G$1" pin="D6"/>
 <wire x1="53.34" y1="40.64" x2="25.4" y2="40.64" width="0.1524" layer="91"/>
 <pinref part="SV1" gate="1" pin="3"/>
 <pinref part="R2" gate="G$1" pin="1"/>
@@ -13464,7 +13465,7 @@ GPIO14 = PWM = D5</text>
 </net>
 <net name="N$8" class="0">
 <segment>
-<pinref part="U$1" gate="G$1" pin="D2"/>
+<pinref part="U1" gate="G$1" pin="D2"/>
 <wire x1="88.9" y1="43.18" x2="104.14" y2="43.18" width="0.1524" layer="91"/>
 <wire x1="104.14" y1="43.18" x2="104.14" y2="48.26" width="0.1524" layer="91"/>
 <pinref part="SV2" gate="1" pin="3"/>
@@ -13473,7 +13474,7 @@ GPIO14 = PWM = D5</text>
 </net>
 <net name="N$9" class="0">
 <segment>
-<pinref part="U$1" gate="G$1" pin="D1"/>
+<pinref part="U1" gate="G$1" pin="D1"/>
 <pinref part="SV2" gate="1" pin="4"/>
 <wire x1="88.9" y1="45.72" x2="121.92" y2="45.72" width="0.1524" layer="91"/>
 </segment>
@@ -13481,9 +13482,9 @@ GPIO14 = PWM = D5</text>
 <net name="1W" class="0">
 <segment>
 <wire x1="101.6" y1="35.56" x2="101.6" y2="38.1" width="0.1524" layer="91"/>
-<pinref part="U$1" gate="G$1" pin="D4"/>
+<pinref part="U1" gate="G$1" pin="D4"/>
 <wire x1="88.9" y1="38.1" x2="101.6" y2="38.1" width="0.1524" layer="91"/>
-<pinref part="IC1" gate="G$1" pin="1W"/>
+<pinref part="U2" gate="G$1" pin="1W"/>
 <wire x1="101.6" y1="35.56" x2="104.14" y2="35.56" width="0.1524" layer="91"/>
 <pinref part="R4" gate="G$1" pin="1"/>
 <wire x1="101.6" y1="38.1" x2="101.6" y2="53.34" width="0.1524" layer="91"/>
@@ -13494,11 +13495,11 @@ GPIO14 = PWM = D5</text>
 </sheet>
 </sheets>
 <errors>
-<approved hash="204,1,53.34,33.02,U$1,3V3,,,,"/>
-<approved hash="104,1,88.9,33.02,U$1,5V,+5V,,,"/>
-<approved hash="104,1,109.22,43.18,IC1P,VDD,+5V,,,"/>
+<approved hash="204,1,53.34,33.02,U1,3V3,,,,"/>
+<approved hash="104,1,88.9,33.02,U1,5V,+5V,,,"/>
+<approved hash="104,1,109.22,43.18,U2P,VDD,+5V,,,"/>
 <approved hash="113,1,8.69652,91.44,X1,,,,,"/>
-<approved hash="113,1,73.9172,53.871,FRAME1,,,,,"/>
+<approved hash="113,1,71.651,53.871,FRAME1,,,,,"/>
 </errors>
 </schematic>
 </drawing>

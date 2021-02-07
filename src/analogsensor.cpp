@@ -26,10 +26,9 @@ SOFTWARE.
 
 #if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
 #include "blynk.h"
-extern BlynkPins blynk;
 #endif
 
-AnalogSensor stirAnalogSensor;
+AnalogSensor myAnalogSensor;
 
 //
 // Setup analog input
@@ -58,8 +57,8 @@ int AnalogSensor::readSensor() {
 #endif
 
 #if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
-    if( blynk.readRemoteToggle() == 1 ) {
-        value = map( blynk.readRemotePower(), 0, 100, 0, 1024);
+    if( myBlynk.readRemoteToggle() == 1 ) {
+        value = map( myBlynk.readRemotePower(), 0, 100, 0, 1024);
 
         //Log.verbose(F("ASEN: Remote power enabled, using %d." CR), value);
         return value;

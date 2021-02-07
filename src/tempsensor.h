@@ -28,14 +28,18 @@ SOFTWARE.
 
 // classes
 class TempSensor {
+    private:
+        bool hasSensors = false;
+
     public:
         void setup();    
+        bool  isSensorAttached() { return hasSensors; };
         float getValueCelcius();
         float getValueFarenheight() { return (getValueCelcius() * 1.8 ) + 32.0; };
 };
 
 // Global instance created
-extern TempSensor stirTempSensor;
+extern TempSensor myTempSensor;
 
 #endif // _TEMPSENSOR_H
 

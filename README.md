@@ -12,14 +12,14 @@ Here is a short video that shows the minimum and maximum speed with a 3 liter st
 
 ## Versions
 
+* 0.5.0 Added temp sensor support + pcb layout (not yet tested)
 * 0.4.0 Added wifi manager/web server to enable config changes via webbrowser/wifi setup.
 * 0.3.0 Some minor refactoring + OTA update from local web server.
 * 0.2.0 First version that is published on github
 
 ## Future changes
 
-* Add new schema and pcb layout to include temp sensor
-* Add support for tempsensors (Code written but no hardware built)
+* Add display of temperature readings
 * Add REST API to get values from the device 
 * Add support for Blynk Cloud (or at least test/document this part)
 * Add support for mqtt
@@ -104,19 +104,27 @@ Currently the code uses the following virtual sensors to interact with blynk
 
 In order to build this project you will need the following;
 
-* U1 - Microcontroller ESP8266
-* U2 - I2C compatible display - I used a 2x16 LCD
-* U3 - Power regulator 12V -> 5V 1A - I used L4940V5 TO-220
-* R1 - Resistor 2.2k 
+Schema and PCB is avaialble under the cad folder, these are designed in Eagle (Free version) and can be downloaded from Autodesk. Note! That these are not yet tested and verified. 
+
+* U1 - Microcontroller ESP8266 (WEMOS D1 Mini)
+* IC1- DS28B20 (Temperature probe)
+* IC2- Power regulator 12V -> 5V 1A - I used L4940V5 TO-220
+* R1 - Resistor 3.3k 
 * R2 - Potentiometer 5k
 * R3 - Resistor 3.3k
+* R4 - Resistor 4.7k
+* C1 - 100nF
+* C2 - 10uF
+* C3 - 10uF
+* 2 x 4PIN connectors for display and fan.
+* I2C compatible display - I used a 2x16 LCD
 * Board for mounting components
 * FAN with PWM (4-pin) - I used Noctua NF-B9 rexux 1600 
 * Box large enough to hold the FAN and electronics
 * Power supply 12VAC - 1A
 * 2 neodym magnets (glued to fan)
 
-A schematics that I used can be found in the cad directory. [Electronic schema](cad/schema.pdf)
+A schematics that I used can be found in the cad directory. [Electronic schema](cad/stirplate.pdf)
 
 ![First build](img/build.jpg)
 

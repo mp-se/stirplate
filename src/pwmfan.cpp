@@ -24,7 +24,7 @@ SOFTWARE.
 #include "pwmfan.h"
 #include "helper.h"
 
-PwmFan stirFan;
+PwmFan myFan;
 
 //
 // Constructor

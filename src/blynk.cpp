@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #include "blynk.h"
+#include "helper.h"
 
 #if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
 
@@ -29,11 +30,10 @@ SOFTWARE.
 #define BLYNK_PRINT Serial
 #endif
 
-#include "helper.h"
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
 
-BlynkPins blynk;
+BlynkPins myBlynk;
 
 //
 // These are callback functions for updates from the Mobile App. This is the power callback (0-100%).
@@ -44,7 +44,7 @@ BLYNK_WRITE(V3)
 #if LOG_LEVEL==6
     Log.verbose(F("BLYN: Callback V3 %d." CR), v);
 #endif
-    blynk.setRemotePower( v );
+    myBlynk.setRemotePower( v );
 }
 
 //
@@ -56,7 +56,7 @@ BLYNK_WRITE(V2)
 #if LOG_LEVEL==6
     Log.verbose(F("BLYN: Callback V2 %d." CR), v);
 #endif
-    blynk.setRemoteToggle( v );
+    myBlynk.setRemoteToggle( v );
 }
 
 //

@@ -44,7 +44,7 @@ class AnalogSensor {
 };
 
 // Global instance created
-extern AnalogSensor stirAnalogSensor;
+extern AnalogSensor myAnalogSensor;
 
 #endif // _ANALOGSENSOR_H
 

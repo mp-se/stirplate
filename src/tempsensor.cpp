@@ -30,9 +30,9 @@ SOFTWARE.
 
 #if defined( ACTIVATE_TEMP )
 
-OneWire oneWire(D4);
-DallasTemperature sensors(&oneWire);
-TempSensor stirTempSensor;
+OneWire myOneWire(D4);
+DallasTemperature mySensors(&myOneWire);
+TempSensor myTempSensor;
 
 #define TEMPERATURE_PRECISION 9
 
@@ -43,9 +43,9 @@ void TempSensor::setup() {
 #if LOG_LEVEL==6
   Log.verbose(F("TSEN: Looking for temp sensors." CR));
 #endif
-  sensors.begin();
-  Log.notice(F("TSEN: Found %d sensors." CR), sensors.getDeviceCount());
-  sensors.setResolution(TEMPERATURE_PRECISION);
+  mySensors.begin();
+  Log.notice(F("TSEN: Found %d sensors." CR), mySensors.getDeviceCount());
+  mySensors.setResolution(TEMPERATURE_PRECISION);
 }
 
 //
@@ -54,14 +54,15 @@ void TempSensor::setup() {
 float TempSensor::getValueCelcius() {
   float f = 0;
 
-  sensors.requestTemperatures();
+  mySensors.requestTemperatures();
 
-  if( sensors.getDeviceCount() >= 1) {
-    f = sensors.getTempCByIndex(0);
+  if( mySensors.getDeviceCount() >= 1) {
+    f = mySensors.getTempCByIndex(0);
 
 #if LOG_LEVEL==6
     Log.verbose(F("TSEN: Reciving temp value for sensor %F C." CR), f);
 #endif
+    hasSensors = true;
   }
 
   return f;
