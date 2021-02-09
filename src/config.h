@@ -31,9 +31,11 @@ SOFTWARE.
 // defintions
 #define CFG_APPNAME         "Stir Plate"    // Name of firmware
 #define CFG_APPVER          "0.4.1"         // Version of firmware (used wit OTA update to check for newer)
+#define CFG_FILENAME        "/config.json"  // Filename of config file
 
 #define WIFI_DEFAULT_SSID   "StirPlate"     // Name of created SSID
 #define WIFI_DEFAULT_PWD    "password"      // Password for created SSID
+#define WIFI_MDNS           "stirplate"     // Prefix for mdns name
 #define WIFI_PORTAL_TIMEOUT 120             // Number of seconds until the config portal is closed
 
 class Config {

@@ -31,7 +31,7 @@ Config myConfig;
 // Create the config class with default settings
 //
 Config::Config() {
-    sprintf(&mDNS[0], "stirplate%6x", (unsigned int) ESP.getChipId() );
+    sprintf(&mDNS[0], "" WIFI_MDNS "%6x", (unsigned int) ESP.getChipId() );
 #if LOG_LEVEL==6
     Log.verbose(F("CFG : Creating hostname %s." CR), mDNS);
 #endif
@@ -66,10 +66,10 @@ bool Config::saveFile() {
         Log.verbose(F("CFG : Saving configuration." CR));
 #endif    
 
-        File configFile = LittleFS.open("/config.json", "w");
+        File configFile = LittleFS.open(CFG_FILENAME, "w");
 
         if (!configFile) {
-            Log.error(F("CFG : Failed to save /config.json." CR));
+            Log.error(F("CFG : Failed to save " CFG_FILENAME "." CR));
         }
 
         StaticJsonDocument<512> doc;
@@ -85,7 +85,7 @@ bool Config::saveFile() {
         myConfig.debug();
 
 #if LOG_LEVEL==6
-        Log.verbose(F("CFG : Configuration saved to /config.json." CR));
+        Log.verbose(F("CFG : Configuration saved to " CFG_FILENAME "." CR));
 #endif    
     } else {
 #if LOG_LEVEL==6
@@ -112,9 +112,9 @@ bool Config::loadFile() {
 #if LOG_LEVEL==6
         Log.verbose(F("CFG : Filesystem mounted." CR));
 #endif    
-        if (LittleFS.exists("/config.json")) {
+        if (LittleFS.exists(CFG_FILENAME)) {
 
-            File configFile = LittleFS.open("/config.json", "r");
+            File configFile = LittleFS.open(CFG_FILENAME, "r");
             
             if (configFile) {
 #if LOG_LEVEL==6
@@ -128,7 +128,7 @@ bool Config::loadFile() {
                 DeserializationError err = deserializeJson(cfg, buf);
 
                 if( err ) {
-                    Log.error(F("CFG : Failed to load /config.json file." CR));
+                    Log.error(F("CFG : Failed to load " CFG_FILENAME " file." CR));
                 } else {
 #if LOG_LEVEL==6
                     Log.verbose(F("CFG : Parsed configuration file." CR));
@@ -148,10 +148,10 @@ bool Config::loadFile() {
                     success = true;
                 }
             } else {
-                Log.error(F("CFG : Failed to open /config.json." CR));
+                Log.error(F("CFG : Failed to open " CFG_FILENAME "." CR));
             }
         }  else {
-            Log.error(F("CFG : Configuration file does not exist /config.json." CR));
+            Log.error(F("CFG : Configuration file does not exist " CFG_FILENAME "." CR));
         }
     } else {
         Log.error(F("CFG : Failed to mount file system." CR));
@@ -194,7 +194,7 @@ void Config::checkFileSystem() {
 //
 void Config::debug() {
 #if LOG_LEVEL==6
-    Log.verbose(F("CFG : Dumping configration." CR));
+    Log.verbose(F("CFG : Dumping configration " CFG_FILENAME "." CR));
     Log.verbose(F("CFG : OTA; '%s'." CR), otaUrl );
     Log.verbose(F("CFG : Blynk; '%s' '%s' '%s'." CR), blynkServer, blynkServerPort, blynkToken );
 #endif    
