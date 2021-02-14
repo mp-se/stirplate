@@ -40,12 +40,19 @@ TempSensor myTempSensor;
 // Setup temp sensors
 //
 void TempSensor::setup() {
+
+  if( mySensors.getDeviceCount() )
+    return;
+
 #if LOG_LEVEL==6
   Log.verbose(F("TSEN: Looking for temp sensors." CR));
 #endif
   mySensors.begin();
-  Log.notice(F("TSEN: Found %d sensors." CR), mySensors.getDeviceCount());
-  mySensors.setResolution(TEMPERATURE_PRECISION);
+
+  if( mySensors.getDeviceCount() ) {
+    Log.notice(F("TSEN: Found %d sensors." CR), mySensors.getDeviceCount());
+    mySensors.setResolution(TEMPERATURE_PRECISION);
+  }
 }
 
 //

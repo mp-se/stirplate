@@ -240,6 +240,12 @@ bool Wifi::updateFirmware() {
 // Check what firmware version is available over OTA
 //
 bool Wifi::checkFirmwareVersion() {
+
+    if( !myConfig.isOtaConfigured() ) {
+        Log.notice(F("WIFI: No OTA URL defined, skipping." CR));
+        return false;
+    }
+
 //#if LOG_LEVEL==6
 //    Log.verbose(F("WIFI: Checking if new version exist." CR));
 //#endif

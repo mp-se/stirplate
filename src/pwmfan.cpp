@@ -50,6 +50,10 @@ int PwmFan::setPower( int value, int minRange, int maxRange ) {
 //    Log.verbose(F("PFAN: Setting output value to %d." CR), value);
 //#endif
     powerPercentage = map(value, minRange, maxRange, 0, 100);   // Convert to percentage
+
+    if( powerPercentage > 100 )     // Cap the value in case we get a higher analog read than expected.
+        powerPercentage = 100;
+
     int power = map(powerPercentage, 0, 100, PwmFan::pwmMin, PwmFan::pwmMax);
     analogWrite(PwmFan::pwmCtrlPIN, power);
     return powerPercentage;

@@ -121,7 +121,7 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(tachPIN), handleTachiometerInterrupt, FALLING);
 
 #if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
-  if( myWifi.isConnected() && myConfig.isBlynkActive() ) {
+  if( myWifi.isConnected() && myConfig.isBlynkConfigured() ) {
     Log.notice(F("Main: Connecting to blynk." CR));
     myDisplay.printText( 0, 1, "Connect blynk   " );   
     myBlynk.connect( myConfig.blynkToken, myConfig.blynkServer, myConfig.getBlynkPort() );
@@ -131,7 +131,7 @@ void setup() {
   Log.notice(F("Main: Setting up sensors." CR));
   myAnalogSensor.setup();
 #if defined( ACTIVATE_TEMP )
-  myAnalogSensor.setup();
+  myTempSensor.setup();
 #endif
 
 #if LOG_LEVEL==6
@@ -154,6 +154,12 @@ void loop() {
 #endif 
 
   if( abs(millis() - lastMillis) > interval ) {
+
+    // Since the tempsensor can be remove/added we check if this is the case 
+#if defined( ACTIVATE_TEMP )
+    myTempSensor.setup();
+#endif
+
     int vin = myAnalogSensor.readSensor();
 #if defined( ACTIVATE_TEMP )
     bool tempAttached = myTempSensor.isSensorAttached();
@@ -163,7 +169,7 @@ void loop() {
     loopCounter++;    
 
     // setPower will map the value to the range supported by the PWM output
-    myFan.setPower( vin, 0, 1024 );   
+    myFan.setPower( vin, 0, POT_MAX_READING );      // (value, min,  max) reading of value
     int rpm = myFan.getCurrentRPM();
     int pwr = myFan.getCurrentPower();
 
@@ -173,7 +179,7 @@ void loop() {
 #endif
 
 #if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
-  if( myWifi.isConnected() && myConfig.isBlynkActive() ) {
+  if( myWifi.isConnected() && myBlynk.isActive() ) {
     myBlynk.writeRemoteRPM( rpm );
     myBlynk.writeRemotePower( pwr );
     myBlynk.writeRemoteVer(CFG_APPVER);
