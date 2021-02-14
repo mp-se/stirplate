@@ -113,9 +113,8 @@ Schema and PCB is avaialble under the cad folder, these are designed in Eagle (F
 * R2 - Potentiometer 5k
 * R3 - Resistor 3.3k
 * R4 - Resistor 4.7k
-* C1 - 100nF
+* C1 - 10uF
 * C2 - 10uF
-* C3 - 10uF
 * 2 x 4PIN connectors for display and fan.
 * I2C compatible display - I used a 2x16 LCD
 * Board for mounting components

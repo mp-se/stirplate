@@ -32,8 +32,9 @@ SOFTWARE.
 // Classes
 class BlynkPins {
     private:
-        int toggle = 0;
-        int power = 0;
+        int toggle  = 0;
+        int power   = 0;
+        bool active = false;
 
     public:
         BlynkPins() {};
@@ -50,6 +51,8 @@ class BlynkPins {
         void writeRemoteVer(const char *ver);
         void writeRemoteTempC(float f);
         void writeRemoteTempF(float f);
+
+        bool isActive() { return active; };
 };
 
 extern BlynkPins myBlynk;
