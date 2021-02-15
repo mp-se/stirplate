@@ -2,7 +2,7 @@
 
 I decided to build my own stir plate and I wanted to use a PWM controlled fan for optimal performance. This also enabled me to measure the RPM of the fan. I'm using this build for my yeast starter (Beer brewing).
 
-Since I had a few ESP8266 controller this was the natual choise to use... Since there is built in wifi, one needs to use this. This first version can use a local Blynk server in order to display the RPM and also control the FAN from the app. 
+Since I had a few ESP8266 controller this was the natual choise to use and since there is built in wifi, one needs to use that. This version can use a local Blynk server in order to display the RPM and also control the FAN from the app. 
 
 ![Yeast fermentation](img/stirplate.jpg)
 
@@ -12,14 +12,13 @@ Here is a short video that shows the minimum and maximum speed with a 3 liter st
 
 ## Versions
 
-* 0.5.0 Added temp sensor support + pcb layout (not yet tested)
+* 0.5.0 Added temp sensor support + pcb layout (pcb has not yet been fully tested)
 * 0.4.0 Added wifi manager/web server to enable config changes via webbrowser/wifi setup.
 * 0.3.0 Some minor refactoring + OTA update from local web server.
 * 0.2.0 First version that is published on github
 
 ## Future changes
 
-* Add code to enter wifi portal with double reset.
 * Add REST API to get values from the device 
 * Add support for Blynk Cloud (or at least test/document this part)
 * Add support for mqtt
@@ -72,10 +71,11 @@ The following defintions can be used to enable/disable parts of the code
 * ACTIVATE_WIFI     Include wifi access in build 
 * ACTIVATE_TEMP     Include temperature sensor access in build 
 
-Development related settings
+Development related settings (so I dont have to have a fully working setup)
 
 * LOG_LEVEL=6       Configure Arduino Log (6=Debug, 5=Trace, 4=Notice, 3=Warning, 2=Error, 1=Fatal, 0=Silent)
 * SIMULATE_SENSOR   Used to simulate pot readings
+* SIMULATE_TEMP     Used to simulate temp readings
 * SIMULATE_RPM      Used to simulate pwm readings
 * DISPLAY_SELFTEST  Runs some tests on the display at startup
 
@@ -85,9 +85,9 @@ From version 0.3.0 I have added the possibility to do updates via OTA from a loc
 
 For this to work, place the following files (version.json + firmware.bin) at the location that you pointed out in the mysecrets.h file. If the version number in the json file is newer than in the code the update will procced.
 
-Example; OTA URL (don't forget trailing dash) 
+Example; OTA URL (don't forget trailing dash), the name of the file should be firmware.bin
 ```
-http://192.168.1.x/firmware/stirplate/
+http://192.168.4.1/firmware/stirplate/
 ```
 
 Contents version.json

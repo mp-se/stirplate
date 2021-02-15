@@ -41,6 +41,11 @@ TempSensor myTempSensor;
 //
 void TempSensor::setup() {
 
+#if defined( SIMULATE_TEMP )
+  hasSensors = true;
+  return;
+#endif
+
   if( mySensors.getDeviceCount() )
     return;
 
@@ -60,6 +65,10 @@ void TempSensor::setup() {
 //
 float TempSensor::getValueCelcius() {
   float f = 0;
+
+#if defined( SIMULATE_TEMP )
+  return 21;
+#endif
 
   mySensors.requestTemperatures();
 
