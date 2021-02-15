@@ -56,9 +56,10 @@ class PwmFan {
 
     public:
         PwmFan();
+        void loop();
         int setPower( int value, int minRange, int maxRange );
         int getCurrentPower() { return powerPercentage; }
-        int getCurrentRPM();
+        int getCurrentRPM() { return rpm; };
         void tachCallback() { pwmRotationCounter++; }   
 };
 

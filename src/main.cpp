@@ -112,7 +112,6 @@ void setup() {
     Log.notice(F("Main: Detected doubletap on reset." CR));
 
   myDisplay.printText( 0, 1, "Connect wifi    " );    
-  //myWifi.disconnect();   // clear current wifi settings.
   myWifi.connect( dt );
   if( myWifi.isConnected() )
     Log.notice(F("Main: Connected to wifi ip=%s." CR), myWifi.getIPAddress().c_str() );
@@ -158,6 +157,7 @@ void setup() {
 void loop() {
 
   myDRD->loop();
+  myFan.loop();
 
 #if defined( ACTIVATE_WIFI )
   myWifi.loop();    
@@ -168,7 +168,7 @@ void loop() {
 
   if( abs(millis() - lastMillis) > interval ) {
 
-    // Since the tempsensor can be remove/added we check if this is the case 
+    // Since the tempsensor can be remove/added we check if there is a change 
 #if defined( ACTIVATE_TEMP )
     myTempSensor.setup();
 #endif

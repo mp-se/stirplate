@@ -24,6 +24,8 @@ SOFTWARE.
 #include "pwmfan.h"
 #include "helper.h"
 
+#define RPM_INTERVAL 1000
+
 PwmFan myFan;
 
 //
@@ -60,23 +62,30 @@ int PwmFan::setPower( int value, int minRange, int maxRange ) {
 }
 
 //
-// Set the speed of the pwmsignal
+// Calculate the rotations per period
 //
-int PwmFan::getCurrentRPM() {
+void PwmFan::loop() {
 #ifdef SIMULATE_RPM
     rpm = simulateRPM();
-    return rpm;
+    return;
 #endif
+
+    unsigned long m = millis();
+
+  if( abs(m - rpmLastMillis) > RPM_INTERVAL ) {
+
     // How much time has passed since the last call?
-    long unsigned timePeriod = millis() - rpmLastMillis;
-//#if LOG_LEVEL==6
-//    Log.verbose(F("PFAN: Period %d, Rotations = %d." CR), timePeriod, pwmRotationCounter);
-//#endif
+    long unsigned timePeriod = m - rpmLastMillis;
+
+#if LOG_LEVEL==6
+    Log.verbose(F("PFAN: Period %d, Rotations = %d." CR), timePeriod, pwmRotationCounter);
+#endif
+
     // My fan report 2 ticks per rotation. 
     rpm = ((double) pwmRotationCounter / (double) timePeriod) * 1000 * 60 / 2;
-    rpmLastMillis = millis();
     pwmRotationCounter = 0;
-    return rpm;
+    rpmLastMillis = m;  
+  }
 }
 
 #ifdef SIMULATE_RPM
