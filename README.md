@@ -19,7 +19,7 @@ Here is a short video that shows the minimum and maximum speed with a 3 liter st
 
 ## Future changes
 
-* Add display of temperature readings
+* Add code to enter wifi portal with double reset.
 * Add REST API to get values from the device 
 * Add support for Blynk Cloud (or at least test/document this part)
 * Add support for mqtt
@@ -45,6 +45,15 @@ An option could be to use this tool; https://github.com/marcelstoer/nodemcu-pyfl
 ## Setup
 
 The wifi version will create an access point at startup called StirPlate (password=password). In the portal you can choose the settings for OTA and Blynk (local server). Leaving the fields blank will disable that part of the functionallity.
+
+Double tap on the reset button will force the device into wifi setup mode.
+
+The following are the options you can set in the WIFI portal:
+* OTA URL; Point to a directory on a webserver where the firmware and version.json file is stored.  
+* BLYNK SERVER; IP adress to the blynk server (192.168.4.1) 
+* BLYNK PORT; If you are using the blynk docker image this is typlically 8080
+* BLYNK TOKEN; Token for your blynk app
+* TEMPERATURE: Use C or F (Capital letters) to indicate if you want Celcius or Farenheight for the temp display.
 
 Once the device is on the wifi network it will have a running webserver that can show the active configuration and also force the device into configuration model. The name of the device will be __stirplateXXXXX.local__ (or just use the dynamic IP). Chip ID will be 6 characters and uniqe for that device (eg 7a84DC).
 
@@ -108,7 +117,7 @@ Schema and PCB is avaialble under the cad folder, these are designed in Eagle (F
 
 * U1 - Microcontroller ESP8266 (WEMOS D1 Mini)
 * IC1- DS28B20 (Temperature probe)
-* IC2- Power regulator 12V -> 5V 1A - I used L4940V5 TO-220
+* IC2- Power regulator 12V -> 5V (I used LD1085V50)
 * R1 - Resistor 3.3k 
 * R2 - Potentiometer 5k
 * R3 - Resistor 3.3k

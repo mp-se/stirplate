@@ -30,6 +30,11 @@ SOFTWARE.
 #include "tempsensor.h"
 #include "wifi.h"
 
+// Settings for double reset
+#define ESP8266_DRD_USE_RTC true
+#define DOUBLERESETDETECTOR_DEBUG true
+#include <ESP_DoubleResetDetector.h>
+
 /*
  * This is the fan I used for my build.
  * https://noctua.at/pub/media/wysiwyg/Noctua_PWM_specifications_white_paper.pdf
@@ -48,13 +53,14 @@ SOFTWARE.
 
 // Define constats for this program
 #if LOG_LEVEL==6
-const int        interval = 1000;    // ms, time to wait between changes to output (slow down if debugging)
+const int interval = 1000;    // ms, time to wait between changes to output (slow down if debugging)
 #else
-const int        interval = 500;     // ms, time to wait between changes to output
+const int interval = 500;     // ms, time to wait between changes to output
 #endif
-const static int tachPIN = 12;       // Measure speed on FAN. D6 PIN on ESP-12F
-unsigned long    lastMillis = 0;
-int              loopCounter = 0;
+const static int     tachPIN = 12;       // Measure speed on FAN. D6 PIN on ESP-12F
+unsigned long        lastMillis = 0;
+int                  loopCounter = 0;
+DoubleResetDetector* myDRD;
 
 //
 // Callback for tachimeter
@@ -74,6 +80,8 @@ void setup() {
   // Initialize pin outputs
   Log.notice(F("Main: Started setup for %s." CR), String( ESP.getChipId(), HEX).c_str() );
   printBuildOptions();
+  myDRD = new DoubleResetDetector(3, 0); // Timeout, Address
+  bool dt = myDRD->detectDoubleReset();
 
   Log.notice(F("Main: Loading configuration." CR));
   //myConfig.formatFileSystem();    // Erase the config file
@@ -100,9 +108,12 @@ void setup() {
   myDisplay.printText( 0, 0, &buffer[0] );    
 
 #if defined( ACTIVATE_WIFI )
+  if( dt ) 
+    Log.notice(F("Main: Detected doubletap on reset." CR));
+
   myDisplay.printText( 0, 1, "Connect wifi    " );    
   //myWifi.disconnect();   // clear current wifi settings.
-  myWifi.connect();
+  myWifi.connect( dt );
   if( myWifi.isConnected() )
     Log.notice(F("Main: Connected to wifi ip=%s." CR), myWifi.getIPAddress().c_str() );
 #endif
@@ -145,6 +156,8 @@ void setup() {
 // Main loop
 //
 void loop() {
+
+  myDRD->loop();
 
 #if defined( ACTIVATE_WIFI )
   myWifi.loop();    

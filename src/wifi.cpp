@@ -106,9 +106,9 @@ void Wifi::setupWebServer() {
 //
 // Connect to last known access point or create one if connection is not working. 
 //
-bool Wifi::connect() {
+bool Wifi::connect( bool showPortal ) {
 #if LOG_LEVEL==6
-    Log.verbose(F("WIFI: Connecting to WIFI via connection manager." CR));
+    Log.verbose(F("WIFI: Connecting to WIFI via connection manager (portal=%s)." CR), showPortal?"true":"false");
     myWifiManager.setDebugOutput(true);    
 #endif
 
@@ -135,7 +135,11 @@ bool Wifi::connect() {
     myWifiManager.setSaveConfigCallback(saveConfigCallback);
 
     // Connect to WIFI
-    connectedFlag = myWifiManager.autoConnect( WIFI_DEFAULT_SSID, WIFI_DEFAULT_PWD );
+   // Connect to WIFI
+    if( showPortal )
+        connectedFlag = myWifiManager.startConfigPortal( WIFI_DEFAULT_SSID, WIFI_DEFAULT_PWD );
+    else
+        connectedFlag = myWifiManager.autoConnect( WIFI_DEFAULT_SSID, WIFI_DEFAULT_PWD );
 
     // If the flag is changed, the callback was triggered
     if( connectedFlag && myConfig.saveNeeded ) {

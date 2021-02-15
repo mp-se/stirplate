@@ -42,7 +42,7 @@ class Wifi {
 
     public:
         // WIFI
-        bool   connect();
+        bool   connect( bool showPortal );
         bool   disconnect();
         bool   isConnected() { return connectedFlag; };
         String getIPAddress() { return WiFi.localIP().toString(); };
