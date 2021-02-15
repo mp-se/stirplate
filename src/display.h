@@ -52,7 +52,7 @@ class Display {
 };
 
 // Global instance created
-extern Display stirDisplay;
+extern Display myDisplay;
 
 #endif // _DISPLAY_H
 

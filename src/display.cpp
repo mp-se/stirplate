@@ -25,7 +25,7 @@ SOFTWARE.
 #include "helper.h"
 #include <Wire.h>                   
 
-Display stirDisplay;
+Display myDisplay;
 
 //
 // Initialize display

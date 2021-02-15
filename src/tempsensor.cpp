@@ -28,88 +28,62 @@ SOFTWARE.
 #include <DallasTemperature.h>
 #include <Wire.h>
 
-//
-// THIS CODE HAS NOT YET BEEN TESTED IN THE BUILD. FUTURE FEATURE
-//
+#if defined( ACTIVATE_TEMP )
 
-/*
-OneWire oneWire(D4);
-DallasTemperature sensors(&oneWire);
-*/
+OneWire myOneWire(D4);
+DallasTemperature mySensors(&myOneWire);
+TempSensor myTempSensor;
+
+#define TEMPERATURE_PRECISION 9
 
 //
+// Setup temp sensors
 //
-//
-TempSensor::TempSensor() {
-/*
+void TempSensor::setup() {
+
+#if defined( SIMULATE_TEMP )
+  hasSensors = true;
+  return;
+#endif
+
+  if( mySensors.getDeviceCount() )
+    return;
+
 #if LOG_LEVEL==6
   Log.verbose(F("TSEN: Looking for temp sensors." CR));
 #endif
+  mySensors.begin();
 
-  sensors.begin();
-  noSensors = sensors.getDeviceCount();
-  Log.notice(F("TSEN: Found %d sensors." CR), noSensors);
-  sensors.setResolution(TEMPERATURE_PRECISION);
-#if LOG_LEVEL==6
-  Log.verbose(F("TSEN: Set resolution to %d." CR), TEMPERATURE_PRECISION);
-#endif
-  run();
-
-  for( int i=0; i<noSensors; i++) {
-    DeviceAddress da;
-
-    if(!sensors.getAddress(da, i)) {
-      Log.error(F("Temp: Unable to find address for device %d." CR), i);
-    } else {
-      Log.notice(F("Temp: Device [%d] adress %x %x %x %x %x %x %x %x." CR), i, 
-        da[0],da[1],da[2],da[3],da[4],da[5],da[6],da[7] );
-
-#if LOG_LEVEL==6
-      Log.verbose(F("Temp: Temperature for device [%d] %F C." CR), i, values[i]);
-#endif
-    }
+  if( mySensors.getDeviceCount() ) {
+    Log.notice(F("TSEN: Found %d sensors." CR), mySensors.getDeviceCount());
+    mySensors.setResolution(TEMPERATURE_PRECISION);
   }
-*/
-}
-
-//
-// Reading values from temp sensors
-//
-void TempSensor::run() {
-/*
-  sensors.requestTemperatures();
-
-  for( int i=0; i<noSensors; i++) {
-
-    float tempC = sensors.getTempCByIndex(i);
-    if(tempC == DEVICE_DISCONNECTED_C) {
-      Log.error(F("TSEN: Could not read temperature data from device [%d]." CR), i);
-    } else {
-      values[i] = tempC;
-#if LOG_LEVEL==6
-      Log.verbose(F("TSEN: Temperature for device [%d] %F C." CR), i, getValue(i));
-#endif
-    } 
-  }
-*/
 }
 
 //
 // Retrieving value from sensor
 //
-float TempSensor::getValue(int index) {
-/*
+float TempSensor::getValueCelcius() {
   float f = 0;
 
-  if( noSensors >= index )
-    f = values[index];
+#if defined( SIMULATE_TEMP )
+  return 21;
+#endif
+
+  mySensors.requestTemperatures();
+
+  if( mySensors.getDeviceCount() >= 1) {
+    f = mySensors.getTempCByIndex(0);
 
 #if LOG_LEVEL==6
-  Log.verbose(F("TSEN: Reciving temp value for sensor %d = %F C." CR), index, f);
+    Log.verbose(F("TSEN: Reciving temp value for sensor %F C." CR), f);
 #endif
+    hasSensors = true;
+  }
+
   return f;
-*/
-  return 0;
 }
+
+#endif //  ACTIVATE_TEMP 
 
 // EOF 

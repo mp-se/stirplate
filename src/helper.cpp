@@ -22,9 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #include "helper.h"
+#include "config.h"
 #include <Ticker.h>  
 
-SerialDebug stirSerial;
+SerialDebug mySerial;
 Ticker      powerLedBlinker;
 bool        powerLedConfigured = false;
 
@@ -81,7 +82,7 @@ void powerLedToggle() {
 // Print the build options used
 //
 void printBuildOptions() {
-    Log.notice( F("Build options: LOGLEVEL %d " 
+    Log.notice( F("Build options: %s LOGLEVEL %d " 
 #ifdef ACTIVATE_WIFI
                 "WIFI "
 #endif    
@@ -103,7 +104,7 @@ void printBuildOptions() {
 #ifdef DISPLAY_SELFTEST    
                 "DISPLAY_SELFTEST "
 #endif    
-    CR), LOG_LEVEL );
+    CR), CFG_APPVER, LOG_LEVEL );
 }
 
 //

@@ -39,12 +39,12 @@ class AnalogSensor {
 #endif
 
     public:
-        AnalogSensor();
-        int readSensor();
+        void setup();
+        int  readSensor();
 };
 
 // Global instance created
-extern AnalogSensor stirAnalogSensor;
+extern AnalogSensor myAnalogSensor;
 
 #endif // _ANALOGSENSOR_H
 

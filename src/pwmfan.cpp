@@ -24,7 +24,7 @@ SOFTWARE.
 #include "pwmfan.h"
 #include "helper.h"
 
-PwmFan stirFan;
+PwmFan myFan;
 
 //
 // Constructor
@@ -50,32 +50,38 @@ int PwmFan::setPower( int value, int minRange, int maxRange ) {
 //    Log.verbose(F("PFAN: Setting output value to %d." CR), value);
 //#endif
     powerPercentage = map(value, minRange, maxRange, 0, 100);   // Convert to percentage
+
+    if( powerPercentage > 100 )     // Cap the value in case we get a higher analog read than expected.
+        powerPercentage = 100;
+
     int power = map(powerPercentage, 0, 100, PwmFan::pwmMin, PwmFan::pwmMax);
     analogWrite(PwmFan::pwmCtrlPIN, power);
     return powerPercentage;
 }
 
 //
-// Set the speed of the pwmsignal
+// Calculate the rotations per period
 //
-int PwmFan::getCurrentRPM() {
+void PwmFan::loop() {
 #ifdef SIMULATE_RPM
     rpm = simulateRPM();
-    return rpm;
+    return;
 #endif
+
     // How much time has passed since the last call?
     long unsigned timePeriod = millis() - rpmLastMillis;
-//#if LOG_LEVEL==6
-//    Log.verbose(F("PFAN: Period %d, Rotations = %d." CR), timePeriod, pwmRotationCounter);
-//#endif
+
+#if LOG_LEVEL==6
+    Log.verbose(F("PFAN: Period %d, Rotations = %d." CR), timePeriod, pwmRotationCounter);
+#endif
+
     // My fan report 2 ticks per rotation. 
     rpm = ((double) pwmRotationCounter / (double) timePeriod) * 1000 * 60 / 2;
-    rpmLastMillis = millis();
     pwmRotationCounter = 0;
-    return rpm;
+    rpmLastMillis = millis();  
 }
 
-#ifdef SIMULATE_RPM
+#if defined( SIMULATE_RPM )
 
 // Format, powerpercentage-rpm
 int simSequenceRPM[][2] = {

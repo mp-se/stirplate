@@ -2,6 +2,6 @@
 .pio/*
 .vscode/*
 src/mysecrets.h
-cad/*.lib
-cad/*.sch-bak
+cad/*.job
+cad/*.pro
 log/*

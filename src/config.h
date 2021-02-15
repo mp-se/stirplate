@@ -28,13 +28,17 @@ SOFTWARE.
 #include <Arduino.h>
 #include <ArduinoJson.h>
 
-// defintions
+// Defintions
 #define CFG_APPNAME         "Stir Plate"    // Name of firmware
-#define CFG_APPVER          "0.4.0"         // Version of firmware (used wit OTA update to check for newer)
+#define CFG_APPVER          "0.5.0"         // Version of firmware (used wit OTA update to check for newer)
+#define CFG_FILENAME        "/config.json"  // Filename of config file
 
 #define WIFI_DEFAULT_SSID   "StirPlate"     // Name of created SSID
 #define WIFI_DEFAULT_PWD    "password"      // Password for created SSID
+#define WIFI_MDNS           "stirplate"     // Prefix for mdns name
 #define WIFI_PORTAL_TIMEOUT 120             // Number of seconds until the config portal is closed
+
+#define POT_MAX_READING     910             // You might need to change this value if the percentage never reach 100%
 
 class Config {
     public:
@@ -49,6 +53,9 @@ class Config {
         char blynkToken[40];
         char blynkServerPort[5];
 
+        // Temp Settings
+        char tempFormat[2];     // Should be C or F
+
         // Set this flag if config has changed
         bool saveNeeded = false;
 
@@ -57,8 +64,8 @@ class Config {
 
         // Conversion functions
         int  getBlynkPort() { return atoi(&blynkServerPort[0]); }
-        bool isBlynkActive() { return strlen(blynkToken)>0?true:false; }
-        bool isOtaActive() { return strlen(otaUrl)>0?true:false; }
+        bool isBlynkConfigured() { return strlen(blynkToken)>0?true:false; }
+        bool isOtaConfigured() { return strlen(otaUrl)>0?true:false; }
 
         // IO functions
         bool saveFile();
@@ -70,7 +77,7 @@ class Config {
 };
 
 // Global instance created
-extern Config config;
+extern Config myConfig;
 
 #endif // _CONFIG_H
 
