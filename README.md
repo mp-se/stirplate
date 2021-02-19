@@ -1,4 +1,4 @@
-# PWM controlled stir plate with remote control
+# PWM controlled magnetic stir plate with remote control
 
 I decided to build my own stir plate and I wanted to use a PWM controlled fan for optimal performance. This also enabled me to measure the RPM of the fan. I'm using this build for my yeast starter (Beer brewing).
 
