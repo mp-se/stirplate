@@ -12,7 +12,7 @@ Here is a short video that shows the minimum and maximum speed with a 3 liter st
 
 ## Versions
 
-* 0.6.0 Added support for http endpoints + web api (not fully rest yet)
+* 0.6.0 Added support for http endpoints + web api + testsuite (not fully rest yet)
 * 0.5.0 Added temp sensor support + pcb layout (pcb has not yet been fully tested)
 * 0.4.0 Added wifi manager/web server to enable config changes via webbrowser/wifi setup.
 * 0.3.0 Some minor refactoring + OTA update from local web server.

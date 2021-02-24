@@ -2,6 +2,7 @@
 .pio/*
 .vscode/*
 src/mysecrets.h
-cad/*.?#?
+cad/*.b#?
+cad/*.s#?
 log/*
 test/env/*

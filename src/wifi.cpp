@@ -155,8 +155,10 @@ void webHandleConfigApiSet() {
             myConfig.setBlynkServer( value.c_str() );
             success = true; 
         } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_BLYNKPORT ) ) {
-            myConfig.setBlynkPort( value.c_str() );
-            success = true; 
+            if( atoi( value.c_str() ) ) {
+                myConfig.setBlynkPort( value.c_str() );
+                success = true; 
+            }
         } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_BLYNKTOKEN ) ) {
             myConfig.setBlynkToken( value.c_str() );
             success = true; 
@@ -164,8 +166,10 @@ void webHandleConfigApiSet() {
             myConfig.setHttpPushTarget( value.c_str() );
             success = true; 
         } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_INTERVAL ) ) {
-            myConfig.setPushInterval( value.c_str() );
-            success = true; 
+            if( atoi( value.c_str() ) ) {
+                myConfig.setPushInterval( value.c_str() );
+                success = true; 
+            }
         } else if( param.equalsIgnoreCase( CFG_PARAM_MDNS ) ) {
             myConfig.setMDNS( value.c_str() );
             success = true; 
@@ -195,21 +199,21 @@ void webHandleConfigApiGet() {
     char buf[200];
 
     if( param.equalsIgnoreCase( CFG_PARAM_OTA ) ) {
-        sprintf( &buf[0], "{ '%s': '%s'", CFG_PARAM_OTA, myConfig.getOtaURL() );
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_OTA, myConfig.getOtaURL() );
     } else if( param.equalsIgnoreCase( CFG_PARAM_TEMPFORMAT ) ) {
-        sprintf( &buf[0], "{ '%s': '%s'", CFG_PARAM_TEMPFORMAT, myConfig.getTempFormat() );
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_TEMPFORMAT, myConfig.getTempFormat() );
     } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_BLYNKSERVER ) ) {
-        sprintf( &buf[0], "{ '%s': '%s'", CFG_PARAM_PUSH_BLYNKSERVER, myConfig.getBlynkServer() );
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_PUSH_BLYNKSERVER, myConfig.getBlynkServer() );
     } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_BLYNKPORT ) ) {
-        sprintf( &buf[0], "{ '%s': %s", CFG_PARAM_PUSH_BLYNKPORT, myConfig.getBlynkPort() );
+        sprintf( &buf[0], "{ \"%s\": %s }", CFG_PARAM_PUSH_BLYNKPORT, myConfig.getBlynkPort() );
     } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_BLYNKTOKEN ) ) {
-        sprintf( &buf[0], "{ '%s': '%s'", CFG_PARAM_PUSH_BLYNKTOKEN, myConfig.getBlynkToken() );
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_PUSH_BLYNKTOKEN, myConfig.getBlynkToken() );
     } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_HTTP ) ) {
-        sprintf( &buf[0], "{ '%s': '%s'", CFG_PARAM_PUSH_HTTP, myConfig.getHttpPushTarget() );
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_PUSH_HTTP, myConfig.getHttpPushTarget() );
     } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_INTERVAL ) ) {
-        sprintf( &buf[0], "{ '%s': %s", CFG_PARAM_PUSH_INTERVAL, myConfig.getPushInterval() );
+        sprintf( &buf[0], "{ \"%s\": %s }", CFG_PARAM_PUSH_INTERVAL, myConfig.getPushInterval() );
     } else if( param.equalsIgnoreCase( CFG_PARAM_MDNS ) ) {
-        sprintf( &buf[0], "{ '%s': '%s'", CFG_PARAM_MDNS, myConfig.getMDNS() );
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_MDNS, myConfig.getMDNS() );
     } else {
         myWebServer.send(400, "text/plain", "Unknown parameter.");
         delay(1000);
