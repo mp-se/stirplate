@@ -89,6 +89,9 @@ void printBuildOptions() {
 #ifdef ACTIVATE_BLYNK
                 "BLYNK "
 #endif    
+#ifdef ACTIVATE_PUSH
+                "PUSH "
+#endif    
 #ifdef ACTIVATE_OTA
                 "OTA "
 #endif    
@@ -127,6 +130,22 @@ void printTimestamp(Print* _logOutput) {
   char c[12];
   sprintf(c, "%10lu ", millis());
   _logOutput->print(c);
+}
+
+//
+// Convert float to formatted string with 2 decimals
+//
+void convertFloatToString( float f, char *buffer ) {
+    dtostrf(f, 6, 2, buffer); 
+}
+
+//
+// Reduce precision to 2 decimals
+//
+float reduceFloatPrecision( float f ) {
+    char buffer[10];
+    dtostrf(f, 6, 2, &buffer[0]); 
+    return atof(&buffer[0]);
 }
 
 // EOF 
