@@ -12,6 +12,7 @@ Here is a short video that shows the minimum and maximum speed with a 3 liter st
 
 ## Versions
 
+* 0.6.0 Added support for http endpoints + web api (not fully rest yet)
 * 0.5.0 Added temp sensor support + pcb layout (pcb has not yet been fully tested)
 * 0.4.0 Added wifi manager/web server to enable config changes via webbrowser/wifi setup.
 * 0.3.0 Some minor refactoring + OTA update from local web server.
@@ -19,7 +20,6 @@ Here is a short video that shows the minimum and maximum speed with a 3 liter st
 
 ## Future changes
 
-* Add REST API to get values from the device 
 * Add support for Blynk Cloud (or at least test/document this part)
 * Add support for mqtt
 
@@ -52,13 +52,30 @@ The following are the options you can set in the WIFI portal:
 * BLYNK SERVER; IP adress to the blynk server (192.168.4.1) 
 * BLYNK PORT; If you are using the blynk docker image this is typlically 8080
 * BLYNK TOKEN; Token for your blynk app
+* PUSH TARGET HTTP; Endpoint to send data to
+* PUSH TARGET INTERVAL; How often should data be sent to push targets (default 60s)
 * TEMPERATURE: Use C or F (Capital letters) to indicate if you want Celcius or Farenheight for the temp display.
 
 Once the device is on the wifi network it will have a running webserver that can show the active configuration and also force the device into configuration model. The name of the device will be __stirplateXXXXX.local__ (or just use the dynamic IP). Chip ID will be 6 characters and uniqe for that device (eg 7a84DC).
 
-* __stirplateXXXXX.local/__ will show the name, version and chip ID
-* __stirplateXXXXX.local/config__ will show the current configuration
-* __stirplateXXXXX.local/reset__ will force the device into wifi configuration mode by erasing the wifi settings.
+* __/__ will show the name, version and chip ID
+* __/config__ will show the current configuration in json format
+* __/reset__ will reboot the device.
+* __/clearwifi__ will force the device into wifi configuration mode by erasing the wifi settings.
+* __/api/config/get?param=__ will receive a configuration parameter.
+* __/api/config/set?id=X&param=Y&value=Z__ will set a configuration parameter. The ID is used to validate that the commands are for the correct device (ID = ChipID). This can be found on the main page or via the /config page. 
+
+Valid configuration parameters:
+
+* __id__ Chip ID (Read Only)
+* __mdns__ mDNS name of the device
+* __otaurl__ url to directory where new firmware versions are located
+* __blynkserver__ adress of remote server
+* __blynkserverport__ port for remote blynk server
+* __blynktoken__ blynk token 
+* __httppush__ url to brewfather endpoint
+* __pushinterval__ seconds between push
+* __tempformat__ temperature format (Valid: C or F)
 
 ## Build Configuration
 
@@ -68,6 +85,7 @@ The following defintions can be used to enable/disable parts of the code
 
 * ACTIVATE_BLYNK    Include blynk code in build (requires wifi)
 * ACTIVATE_OTA      Include ota code in build (requires wifi)
+* ACTIVATE_PUSH     Include support for push targets (requires wifi) 
 * ACTIVATE_WIFI     Include wifi access in build 
 * ACTIVATE_TEMP     Include temperature sensor access in build 
 
@@ -108,6 +126,20 @@ Currently the code uses the following virtual sensors to interact with blynk
 * V6 - Output - Temp sensor in F (if no tempsensor attached it will return 32)
 
 ![Screenshot from Blynk](img/blynk.png)
+
+## HTTP Push Target
+
+When submitting data to a http endpoint the data is submitted in json format;
+
+```
+{
+    "name" : "mydevice",
+    "temp" : 28.5,
+    "temp_unit" : "C',
+    "rpm" : 1200,
+    "rssi" : -58,
+}
+```
 
 ## Materials
 
