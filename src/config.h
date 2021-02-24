@@ -30,7 +30,7 @@ SOFTWARE.
 
 // Defintions
 #define CFG_APPNAME         "Stir Plate"    // Name of firmware
-#define CFG_APPVER          "0.5.0"         // Version of firmware (used wit OTA update to check for newer)
+#define CFG_APPVER          "0.5.1"         // Version of firmware (used wit OTA update to check for newer)
 #define CFG_FILENAME        "/config.json"  // Filename of config file
 
 #define WIFI_DEFAULT_SSID   "StirPlate"     // Name of created SSID

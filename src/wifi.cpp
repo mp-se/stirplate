@@ -27,6 +27,8 @@ SOFTWARE.
 
 #include "config.h"
 #include "helper.h"
+#include "pwmfan.h"
+#include "tempsensor.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <ArduinoJson.h>
@@ -97,13 +99,11 @@ void webHandleStatus() {
     Log.verbose(F("WIFI: webServer callback for /status." CR));
 #endif
     StaticJsonDocument<512> doc;
-/*
-    doc[ "pressure" ]       = reduceFloatPrecision( myPressureSensor.getPressurePsi() );
-    doc[ "pressure_unit" ]  = "PSI";
-    doc[ "temperature_c" ]  = reduceFloatPrecision( myPressureSensor.getTemperatureC() );
-    doc[ "temperature_f" ]  = reduceFloatPrecision( myPressureSensor.convertTemperature2F( myPressureSensor.getTemperatureC() ) );
-    doc[ "battery" ]        = reduceFloatPrecision( myBatteryVoltage.getVoltage() ); 
-*/
+
+    doc[ "rpm" ]            = reduceFloatPrecision( myFan.getCurrentRPM() );
+    doc[ "power" ]          = reduceFloatPrecision( myFan.getCurrentPower() );
+    doc[ "temperature_c" ]  = reduceFloatPrecision( myTempSensor.getValueCelcius() );
+    doc[ "temperature_f" ]  = reduceFloatPrecision( myTempSensor.getValueFarenheight() );
     doc[ "rssi" ]           = WiFi.RSSI(); 
 #if LOG_LEVEL==6
     serializeJson(doc, Serial);
