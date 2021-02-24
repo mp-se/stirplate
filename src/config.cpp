@@ -31,27 +31,28 @@ Config myConfig;
 // Create the config class with default settings
 //
 Config::Config() {
-    sprintf(&mDNS[0], "" WIFI_MDNS "%6x", (unsigned int) ESP.getChipId() );
+    sprintf(&id[0], "%6x", (unsigned int) ESP.getChipId() );
+    sprintf(&mDNS[0], "" WIFI_MDNS "%s", getID() );
+    setTempFormat("C");
+    setPushInterval("900");             // 15 minutes
 #if LOG_LEVEL==6
     Log.verbose(F("CFG : Creating hostname %s." CR), mDNS);
 #endif
-
-    strcpy( &tempFormat[0], "C");
 }
 
 //
 // Populate the json document
 //
 void Config::createJson(StaticJsonDocument<512>& doc) {
-    doc["mDNS"]                = mDNS;
-
-    doc["OtaURL"]              = otaUrl;
-
-    doc["BlynkServer"]         = blynkServer;
-    doc["BlynkServerPort"]     = blynkServerPort;
-    doc["BlynkToken"]          = blynkToken;
-
-    doc["tempFormat"]          = tempFormat;
+    doc[ CFG_PARAM_MDNS ]             = getMDNS();
+    doc[ CFG_PARAM_ID ]               = getID();
+    doc[ CFG_PARAM_OTA ]              = getOtaURL();
+    doc[ CFG_PARAM_TEMPFORMAT ]       = getTempFormat();
+    doc[ CFG_PARAM_PUSH_HTTP ]        = getHttpPushTarget();
+    doc[ CFG_PARAM_PUSH_INTERVAL ]    = getPushInterval();
+    doc[ CFG_PARAM_PUSH_BLYNKSERVER ] = getBlynkServer();
+    doc[ CFG_PARAM_PUSH_BLYNKTOKEN ]  = getBlynkToken();
+    doc[ CFG_PARAM_PUSH_BLYNKPORT ]   = getBlynkPort();
 }
 
 //
@@ -135,14 +136,29 @@ bool Config::loadFile() {
 #endif    
                     // If we add new parameters we need to check if they exist in the json file...
                 
-                    if( !cfg["tempFormat"].isNull() )
-                        strcpy( tempFormat, cfg["tempFormat"]);
+                    if( !cfg[ CFG_PARAM_OTA ].isNull() )
+                        setOtaURL( cfg[ CFG_PARAM_OTA ] );
 
-                    strcpy( otaUrl, cfg["OtaURL"]);
+                    if( !cfg[ CFG_PARAM_MDNS ].isNull() )
+                        setMDNS( cfg[ CFG_PARAM_MDNS ] );
 
-                    strcpy( blynkServer, cfg["BlynkServer"]);
-                    strcpy( blynkServerPort, cfg["BlynkServerPort"]);
-                    strcpy( blynkToken, cfg["BlynkToken"] );
+                    if( !cfg[ CFG_PARAM_TEMPFORMAT ].isNull() )
+                        setTempFormat( cfg[ CFG_PARAM_TEMPFORMAT ] );
+
+                   if( !cfg[ CFG_PARAM_PUSH_HTTP ].isNull() )
+                        setHttpPushTarget( cfg[ CFG_PARAM_PUSH_HTTP ] );
+
+                   if( !cfg[ CFG_PARAM_PUSH_INTERVAL ].isNull() )
+                        setPushInterval( cfg[ CFG_PARAM_PUSH_INTERVAL ] );
+
+                   if( !cfg[ CFG_PARAM_PUSH_BLYNKSERVER ].isNull() )
+                        setBlynkServer( cfg[ CFG_PARAM_PUSH_BLYNKSERVER ] );
+
+                   if( !cfg[ CFG_PARAM_PUSH_BLYNKPORT ].isNull() )
+                        setBlynkPort( cfg[ CFG_PARAM_PUSH_BLYNKPORT ] );
+
+                   if( !cfg[ CFG_PARAM_PUSH_BLYNKTOKEN ].isNull() )
+                        setBlynkToken( cfg[ CFG_PARAM_PUSH_BLYNKTOKEN ] );
 
                     myConfig.debug();
                     success = true;
@@ -195,8 +211,13 @@ void Config::checkFileSystem() {
 void Config::debug() {
 #if LOG_LEVEL==6
     Log.verbose(F("CFG : Dumping configration " CFG_FILENAME "." CR));
-    Log.verbose(F("CFG : OTA; '%s'." CR), otaUrl );
-    Log.verbose(F("CFG : Blynk; '%s' '%s' '%s'." CR), blynkServer, blynkServerPort, blynkToken );
+    Log.verbose(F("CFG : ID; '%s'." CR), getID());
+    Log.verbose(F("CFG : mDNS; '%s'." CR), getMDNS() );
+    Log.verbose(F("CFG : OTA; '%s'." CR), getOtaURL() );
+    Log.verbose(F("CFG : Temp; '%s'." CR), getTempFormat() );
+    Log.verbose(F("CFG : Push http; '%s'." CR), getHttpPushTarget() );
+    Log.verbose(F("CFG : Push interval; '%s'." CR), getPushInterval() );
+    Log.verbose(F("CFG : Blynk; '%s' '%s' '%s'." CR), getBlynkServer(), getBlynkPort(), getBlynkToken() );
 #endif    
 }
 
