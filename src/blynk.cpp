@@ -110,7 +110,10 @@ void BlynkPins::connect(const char* blynkToken, const char *ip, int port) {
     #if LOG_LEVEL==6
         Log.verbose(F("BLYN: connect %s." CR), bs.toString().c_str());
     #endif    
-        Blynk.config(blynkToken, bs, (uint16_t) port);
+        if( strlen(ip) > 0)
+            Blynk.config(blynkToken, bs, (uint16_t) port);
+        else
+            Blynk.config(blynkToken);
         Blynk.syncAll();
         Blynk.run();
         active = true;

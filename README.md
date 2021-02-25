@@ -12,7 +12,7 @@ Here is a short video that shows the minimum and maximum speed with a 3 liter st
 
 ## Versions
 
-* 0.6.0 Added support for http endpoints + web api + testsuite (not fully rest yet)
+* 0.6.0 Added support for http endpoints + web api + testsuite + blynk cloud support
 * 0.5.0 Added temp sensor support + pcb layout (pcb has not yet been fully tested)
 * 0.4.0 Added wifi manager/web server to enable config changes via webbrowser/wifi setup.
 * 0.3.0 Some minor refactoring + OTA update from local web server.
@@ -68,14 +68,16 @@ Once the device is on the wifi network it will have a running webserver that can
 Valid configuration parameters:
 
 * __id__ Chip ID (Read Only)
-* __mdns__ mDNS name of the device
-* __otaurl__ url to directory where new firmware versions are located
-* __blynkserver__ adress of remote server
-* __blynkserverport__ port for remote blynk server
-* __blynktoken__ blynk token 
-* __httppush__ url to brewfather endpoint
-* __pushinterval__ seconds between push
+* __mdns__ mDNS name of the device (Changing this via API requires a reboot to take affect) *
+* __otaurl__ url to directory where new firmware versions are located *
+* __blynkserver__ adress of remote server (if this is left empty, blynk cloud will be used) *
+* __blynkserverport__ port for remote blynk server (only used if blynkserver is defined, must be a valid port number) *
+* __blynktoken__ blynk token (if defined blynk support is active) 
+* __httppush__ url to brewfather endpoint (if defined http push will be active)
+* __pushinterval__ seconds between push (only applies to http push)
 * __tempformat__ temperature format (Valid: C or F)
+
+* These parameters require a reboot for the change to take affect. 
 
 ## Build Configuration
 
