@@ -20,8 +20,7 @@ Here is a short video that shows the minimum and maximum speed with a 3 liter st
 
 ## Future changes
 
-* Add support for Blynk Cloud (or at least test/document this part)
-* Add support for mqtt
+* No more ideas so far... 
 
 ## How it works
 
@@ -43,26 +42,26 @@ An option could be to use this tool; https://github.com/marcelstoer/nodemcu-pyfl
 
 ## Setup
 
-The wifi version will create an access point at startup called StirPlate (password=password). In the portal you can choose the settings for OTA and Blynk (local server). Leaving the fields blank will disable that part of the functionallity.
+The wifi version will create an access point at startup called StirPlate (password=password). In the portal you can choose the settings for OTA and Blynk. 
 
 Double tap on the reset button will force the device into wifi setup mode.
 
 The following are the options you can set in the WIFI portal:
-* OTA URL; Point to a directory on a webserver where the firmware and version.json file is stored.  
-* BLYNK SERVER; IP adress to the blynk server (192.168.4.1) 
-* BLYNK PORT; If you are using the blynk docker image this is typlically 8080
-* BLYNK TOKEN; Token for your blynk app
-* PUSH TARGET HTTP; Endpoint to send data to
+* OTA URL; Point to a directory on a webserver where the firmware and version.json file is stored.  If empty this function is disabled.
+* BLYNK SERVER; IP adress to the blynk server (192.168.4.1). If empty then blynk cloud will be used.
+* BLYNK PORT; If you are using the blynk docker image this is typlically (8080. Ignored when using blynk cloud.
+* BLYNK TOKEN; Token for your blynk app. If left empty, blynk is disabled.
+* PUSH TARGET HTTP; Endpoint to send data to. If empty this function is disabled.
 * PUSH TARGET INTERVAL; How often should data be sent to push targets (default 60s)
-* TEMPERATURE: Use C or F (Capital letters) to indicate if you want Celcius or Farenheight for the temp display.
+* TEMPERATURE: Use C or F (Capital letters) to indicate if you want Celcius or Farenheight for the temp display. Deafult is C.
 
 Once the device is on the wifi network it will have a running webserver that can show the active configuration and also force the device into configuration model. The name of the device will be __stirplateXXXXX.local__ (or just use the dynamic IP). Chip ID will be 6 characters and uniqe for that device (eg 7a84DC).
 
 * __/__ will show the name, version and chip ID
 * __/config__ will show the current configuration in json format
-* __/reset__ will reboot the device.
-* __/clearwifi__ will force the device into wifi configuration mode by erasing the wifi settings.
-* __/api/config/get?param=__ will receive a configuration parameter.
+* __/reset?id=X__ will reboot the device.
+* __/clearwifi?id=X__ will force the device into wifi configuration mode by erasing the wifi settings.
+* __/api/config/get?param=Y__ will receive a configuration parameter.
 * __/api/config/set?id=X&param=Y&value=Z__ will set a configuration parameter. The ID is used to validate that the commands are for the correct device (ID = ChipID). This can be found on the main page or via the /config page. 
 
 Valid configuration parameters:
