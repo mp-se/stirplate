@@ -83,12 +83,17 @@ void webHandleConfig() {
 // Callback from webServer when / has been accessed.
 //
 void webHandleReset() {
+    String id    = myWebServer.arg("id");
 #if LOG_LEVEL==6
     Log.verbose(F("WIFI: webServer callback for /reset." CR));
 #endif
-    myWebServer.send(200, "text/plain", "Doing reset...");
-    delay(1000);
-    ESP.reset();
+    if( !id.compareTo( myConfig.getID() ) ) {
+        myWebServer.send(200, "text/plain", "Doing reset...");
+        delay(1000);
+        ESP.reset();
+    } else {
+        myWebServer.send(400, "text/plain", "Unknown ID.");
+    }
 }
 
 //
@@ -113,18 +118,22 @@ void webHandleStatus() {
     myWebServer.send(200, "application/json", out.c_str() );
 }
 
-
 //
 // Callback from webServer when / has been accessed.
 //
 void webHandleClearWIFI() {
+    String id    = myWebServer.arg("id");
 #if LOG_LEVEL==6
     Log.verbose(F("WIFI: webServer callback for /clearwifi." CR));
 #endif
-    myWebServer.send(200, "text/plain", "Clearing WIFI credentials and doing reset...");
-    delay(1000);
-    WiFi.disconnect();  // Clear credentials
-    ESP.reset();
+    if( !id.compareTo( myConfig.getID() ) ) {
+        myWebServer.send(200, "text/plain", "Clearing WIFI credentials and doing reset...");
+        delay(1000);
+        WiFi.disconnect();  // Clear credentials
+        ESP.reset();
+    } else {
+        myWebServer.send(400, "text/plain", "Unknown ID.");
+    }
 }
 
 //
