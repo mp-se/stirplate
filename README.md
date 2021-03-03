@@ -1,8 +1,8 @@
-# PWM controlled magnetic stir plate with remote control
+# PWM controlled stir plate for Beer Brewing
 
-I decided to build my own stir plate and I wanted to use a PWM controlled fan for optimal performance. This also enabled me to measure the RPM of the fan. I'm using this build for my yeast starter (Beer brewing).
+I decided to build my own stir plate and I wanted to use a PWM controlled fan for optimal performance. This also enabled me to measure RPM of the fan. I'm using this build for my yeast starters. Tests shows that this setup can handle a starter for up to 3 liters (I dont have a bigger glass vessel to test with).
 
-Since I had a few ESP8266 controller this was the natual choise to use and since there is built in wifi, one needs to use that. This version can use a local Blynk server in order to display the RPM and also control the FAN from the app. 
+Since I had a few ESP8266 controller this was the natual choise to use and since there is built in wifi, one needs to use that. This version can communicate with Blynk server in order to display the RPM and also control the FAN from the app. 
 
 ![Yeast fermentation](img/stirplate.jpg)
 
@@ -12,22 +12,17 @@ Here is a short video that shows the minimum and maximum speed with a 3 liter st
 
 ## Versions
 
+* 0.6.0 Added support for http endpoints + web api + testsuite + blynk cloud support
 * 0.5.0 Added temp sensor support + pcb layout (pcb has not yet been fully tested)
 * 0.4.0 Added wifi manager/web server to enable config changes via webbrowser/wifi setup.
 * 0.3.0 Some minor refactoring + OTA update from local web server.
 * 0.2.0 First version that is published on github
 
-## Future changes
-
-* Add REST API to get values from the device 
-* Add support for Blynk Cloud (or at least test/document this part)
-* Add support for mqtt
-
 ## How it works
 
 I use a potentimeter (5k) to control the speed, this is read via the Analog input (A0) on the ESP (note that this is limited to max 3.3V) so if it's powered by 5V a voltage divider must be used (R1 is used to limit the input to 3.3V). 
 
-D5 is used to generate the PWM signal to the FAN and D6 is used to monitor the RPM via interrupt. So the basic design is quite simple. D1 and D2 are used for communicating with the LCD display.
+D5 is used to generate the PWM signal to the FAN and D6 is used to monitor the RPM via interrupt. So the basic design is quite simple. D1 and D2 are used for communicating with the LCD display via I2C.
 
 There are 3 defined targets in the platformIO configuration
 
@@ -43,22 +38,34 @@ An option could be to use this tool; https://github.com/marcelstoer/nodemcu-pyfl
 
 ## Setup
 
-The wifi version will create an access point at startup called StirPlate (password=password). In the portal you can choose the settings for OTA and Blynk (local server). Leaving the fields blank will disable that part of the functionallity.
+The wifi version will create an WIFI access point at startup called StirPlate (password=password). In the portal you can choose some of the settings. 
 
-Double tap on the reset button will force the device into wifi setup mode.
-
-The following are the options you can set in the WIFI portal:
-* OTA URL; Point to a directory on a webserver where the firmware and version.json file is stored.  
-* BLYNK SERVER; IP adress to the blynk server (192.168.4.1) 
-* BLYNK PORT; If you are using the blynk docker image this is typlically 8080
-* BLYNK TOKEN; Token for your blynk app
-* TEMPERATURE: Use C or F (Capital letters) to indicate if you want Celcius or Farenheight for the temp display.
+Double tap on the reset button will force the device into wifi setup mode. See below for the description of the configuration paramaters.
 
 Once the device is on the wifi network it will have a running webserver that can show the active configuration and also force the device into configuration model. The name of the device will be __stirplateXXXXX.local__ (or just use the dynamic IP). Chip ID will be 6 characters and uniqe for that device (eg 7a84DC).
 
-* __stirplateXXXXX.local/__ will show the name, version and chip ID
-* __stirplateXXXXX.local/config__ will show the current configuration
-* __stirplateXXXXX.local/reset__ will force the device into wifi configuration mode by erasing the wifi settings.
+* __/__ will show the name, version and chip ID
+* __/config__ will show the current configuration in json format
+* __/reset?id=X__ will reboot the device.
+* __/clearwifi?id=X__ will force the device into wifi configuration mode by erasing the wifi settings.
+* __/api/config/get?param=Y__ will receive a configuration parameter.
+* __/api/config/set?id=X&param=Y&value=Z__ will set a configuration parameter. 
+
+The ID parameter is used to validate that the commands are for the correct device (ID = ChipID). This can be found on the main page or via the /config page.
+
+Valid configuration parameters:
+
+* __id__ Chip ID (Read Only)
+* __mdns__ mDNS name of the device (Changing this via API requires a reboot to take affect) *
+* __otaurl__ url to directory where new firmware versions are located *
+* __blynkserver__ adress of remote server (if this is left empty, blynk cloud will be used) *
+* __blynkserverport__ port for remote blynk server (only used if blynkserver is defined, must be a valid port number) *
+* __blynktoken__ blynk token (if defined blynk support is active) 
+* __httppush__ url to brewfather endpoint (if defined http push will be active)
+* __pushinterval__ seconds between push (only applies to http push)
+* __tempformat__ temperature format (Valid: C or F)
+
+\* These parameters require a reboot for the change to take affect. 
 
 ## Build Configuration
 
@@ -68,6 +75,7 @@ The following defintions can be used to enable/disable parts of the code
 
 * ACTIVATE_BLYNK    Include blynk code in build (requires wifi)
 * ACTIVATE_OTA      Include ota code in build (requires wifi)
+* ACTIVATE_PUSH     Include support for push targets (requires wifi) 
 * ACTIVATE_WIFI     Include wifi access in build 
 * ACTIVATE_TEMP     Include temperature sensor access in build 
 
@@ -108,6 +116,20 @@ Currently the code uses the following virtual sensors to interact with blynk
 * V6 - Output - Temp sensor in F (if no tempsensor attached it will return 32)
 
 ![Screenshot from Blynk](img/blynk.png)
+
+## HTTP Push Target
+
+When submitting data to a http endpoint the data is submitted in json format;
+
+```
+{
+    "name" : "mydevice",
+    "temp" : 28.5,
+    "temp_unit" : "C',
+    "rpm" : 1200,
+    "rssi" : -58,
+}
+```
 
 ## Materials
 

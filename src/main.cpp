@@ -26,6 +26,7 @@ SOFTWARE.
 #include "pwmfan.h"
 #include "config.h"
 #include "blynk.h"
+#include "pushtarget.h"
 #include "analogsensor.h"
 #include "tempsensor.h"
 #include "wifi.h"
@@ -122,10 +123,10 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(tachPIN), handleTachiometerInterrupt, FALLING);
 
 #if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
-  if( myWifi.isConnected() && myConfig.isBlynkConfigured() ) {
+  if( myWifi.isConnected() && myConfig.isBlynkActive() ) {
     Log.notice(F("Main: Connecting to blynk." CR));
     myDisplay.printText( 0, 1, "Connect blynk   " );   
-    myBlynk.connect( myConfig.blynkToken, myConfig.blynkServer, myConfig.getBlynkPort() );
+    myBlynk.connect( myConfig.getBlynkToken(), myConfig.getBlynkServer(), myConfig.getBlynkPortAsInt() );
   }
 #endif
 
@@ -171,7 +172,7 @@ void loop() {
 #if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
     // Execute the blynk stuff
     myBlynk.loop();
-#endif 
+#endif
 
     // This code is run every loop.
     // -----------------------------------------------------------
@@ -213,6 +214,10 @@ void loop() {
       }
 #endif
 #endif // ACTIVATE_BLYNK && ACTIVATE_WIFI
+
+#if defined( ACTIVATE_PUSH ) && defined( ACTIVATE_WIFI )
+    myPushTarget.send( rpm, myConfig.isTempC() ? tempC : tempF ); 
+#endif
 
     // Display Layout 
     //
@@ -267,7 +272,7 @@ void loop() {
 
         // Every 5 seconds we swap between RPM and TEMP if there is a temp sensor attached
         if( loopTempCounter>5 && tempAttached ) {
-          if( strcmp( myConfig.tempFormat, "C" )==0 )
+          if( strcmp( myConfig.getTempFormat(), "C" )==0 )
             sprintf( &s[0], "%3d C", (int) tempC);      
           else
             sprintf( &s[0], "%3d F", (int) tempF);      

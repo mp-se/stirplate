@@ -21,43 +21,35 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef _HELPER_H
-#define _HELPER_H
+#ifndef _PUSHTARGET_H
+#define _PUSHTARGET_H
 
 // Includes
-#include <ArduinoLog.h>
+#include "helper.h"
 
-#define LED_FLASH_WIFI 0.2
+#include <Arduino.h>
+#include <ArduinoJson.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
 
-// Interact with LED
-void powerLedConfigure();
-void powerLedToggle();
-void powerLedOn();
-void powerLedOff();
-void activateLedTicker(float t);
-void deactivateLedTicker();
-
-// Show build options
-void printBuildOptions();
-
-// Float to String
-void  convertFloatToString( float f, char* buf);
-float reduceFloatPrecision( float f );
-
-// Logging via serial
-void printTimestamp(Print* _logOutput);
-void printNewline(Print* _logOutput);
+#if defined( ACTIVATE_PUSH )
 
 // Classes
-class SerialDebug {
+class PushTarget {
+    private:
+        unsigned long ms;   // Used to check that we do not post to often 
+
+        void sendHttp(float rpm, float temp );
+
     public:
-        SerialDebug(const long serialSpeed = 115200L);
-        static Logging* getLog() { return &Log; };
+        PushTarget() { ms = millis(); }
+        void send(float rpm, float temp );
 };
 
-// Global instance created
-extern SerialDebug mySerial;
+extern PushTarget myPushTarget;
 
-#endif // _HELPER_H
+#endif
+
+#endif // _PUSHTARGET_H
 
 // EOF

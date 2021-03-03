@@ -27,6 +27,8 @@ SOFTWARE.
 
 #include "config.h"
 #include "helper.h"
+#include "pwmfan.h"
+#include "tempsensor.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <ArduinoJson.h>
@@ -36,6 +38,7 @@ SOFTWARE.
 Wifi myWifi;
 WiFiManager myWifiManager; 
 ESP8266WebServer myWebServer(80);
+bool saveConfigCallbackFlag = false;
 
 //
 // Callback from wifiManager when settings have changed.
@@ -44,7 +47,7 @@ void saveConfigCallback() {
 #if LOG_LEVEL==6
     Log.verbose(F("WIFI: wifiMgr callback to save params." CR));
 #endif
-    myConfig.saveNeeded = true;
+    saveConfigCallbackFlag = true;
 }
 
 //
@@ -55,7 +58,7 @@ void webHandleRoot() {
     Log.verbose(F("WIFI: webServer callback for /." CR));
 #endif
     char buf[100];
-    sprintf( &buf[0], "%s (%s), %s", CFG_APPNAME, CFG_APPVER, myConfig.mDNS );
+    sprintf( &buf[0], "ApplicationName=%s version=%s mDNS=%s, ID=%s", CFG_APPNAME, CFG_APPVER, myConfig.getMDNS(), myConfig.getID() );
     myWebServer.send(200, "text/plain", buf );
 }
 
@@ -80,26 +83,172 @@ void webHandleConfig() {
 // Callback from webServer when / has been accessed.
 //
 void webHandleReset() {
+    String id    = myWebServer.arg("id");
 #if LOG_LEVEL==6
     Log.verbose(F("WIFI: webServer callback for /reset." CR));
 #endif
-    myWebServer.send(200, "text/plain", "Clearing WIFI credentials, doing reset...");
-    delay(1000);
-    WiFi.disconnect();  // Clear credentials
-    ESP.reset();
-    delay(500);
+    if( !id.compareTo( myConfig.getID() ) ) {
+        myWebServer.send(200, "text/plain", "Doing reset...");
+        delay(1000);
+        ESP.reset();
+    } else {
+        myWebServer.send(400, "text/plain", "Unknown ID.");
+    }
+}
+
+//
+// Callback from webServer when / has been accessed.
+//
+void webHandleStatus() {
+#if LOG_LEVEL==6
+    Log.verbose(F("WIFI: webServer callback for /status." CR));
+#endif
+    StaticJsonDocument<512> doc;
+
+    doc[ "rpm" ]            = reduceFloatPrecision( myFan.getCurrentRPM() );
+    doc[ "power" ]          = reduceFloatPrecision( myFan.getCurrentPower() );
+    doc[ "temperature_c" ]  = reduceFloatPrecision( myTempSensor.getValueCelcius() );
+    doc[ "temperature_f" ]  = reduceFloatPrecision( myTempSensor.getValueFarenheight() );
+    doc[ "rssi" ]           = WiFi.RSSI(); 
+#if LOG_LEVEL==6
+    serializeJson(doc, Serial);
+#endif    
+    String out;
+    serializeJson(doc, out);
+    myWebServer.send(200, "application/json", out.c_str() );
+}
+
+//
+// Callback from webServer when / has been accessed.
+//
+void webHandleClearWIFI() {
+    String id    = myWebServer.arg("id");
+#if LOG_LEVEL==6
+    Log.verbose(F("WIFI: webServer callback for /clearwifi." CR));
+#endif
+    if( !id.compareTo( myConfig.getID() ) ) {
+        myWebServer.send(200, "text/plain", "Clearing WIFI credentials and doing reset...");
+        delay(1000);
+        WiFi.disconnect();  // Clear credentials
+        ESP.reset();
+    } else {
+        myWebServer.send(400, "text/plain", "Unknown ID.");
+    }
+}
+
+//
+// Callback from webServer when / has been accessed.
+//
+// TODO: Change these to REST API (these are convinient for testing)
+//
+void webHandleConfigApiSet() {
+    String id    = myWebServer.arg("id");
+    String param = myWebServer.arg("param");
+    String value = myWebServer.arg("value");
+    bool success = false; 
+
+#if LOG_LEVEL==6
+    Log.verbose(F("WIFI: webServer callback for /api/config/set. %s=%s" CR), param.c_str(), value.c_str());
+#endif
+
+    if( !id.compareTo( myConfig.getID() ) ) {
+        if( param.equalsIgnoreCase( CFG_PARAM_OTA ) ) {
+            myConfig.setOtaURL( value.c_str() );
+            success = true; 
+        } else if( param.equalsIgnoreCase( CFG_PARAM_TEMPFORMAT ) ) {
+            if( !value.compareTo("C") || !value.compareTo("F") ) {
+                myConfig.setTempFormat( value.c_str() );
+                success = true; 
+            }
+        } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_BLYNKSERVER ) ) {
+            myConfig.setBlynkServer( value.c_str() );
+            success = true; 
+        } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_BLYNKPORT ) ) {
+            if( atoi( value.c_str() ) ) {
+                myConfig.setBlynkPort( value.c_str() );
+                success = true; 
+            }
+        } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_BLYNKTOKEN ) ) {
+            myConfig.setBlynkToken( value.c_str() );
+            success = true; 
+        } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_HTTP ) ) {
+            myConfig.setHttpPushTarget( value.c_str() );
+            success = true; 
+        } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_INTERVAL ) ) {
+            if( atoi( value.c_str() ) ) {
+                myConfig.setPushInterval( value.c_str() );
+                success = true; 
+            }
+        } else if( param.equalsIgnoreCase( CFG_PARAM_MDNS ) ) {
+            myConfig.setMDNS( value.c_str() );
+            success = true; 
+        }
+    } else {
+        Log.error(F("WIFI: Wrong ID received %s, expected %s" CR), id.c_str(), myConfig.getID());
+    }
+
+    if( success ) {
+        myConfig.saveFile();
+        myWebServer.send(200, "text/plain", "Updated configuration.");
+    } else {
+        myWebServer.send(400, "text/plain", "Unknown parameter/value or ID.");
+    }
+}
+
+//
+// Callback from webServer when / has been accessed.
+//
+// TODO: Change these to REST API (these are convinient for testing)
+//
+void webHandleConfigApiGet() {
+    String param = myWebServer.arg("param");
+#if LOG_LEVEL==6
+    Log.verbose(F("WIFI: webServer callback for /api/config/get. %s" CR), param.c_str());
+#endif
+    char buf[200];
+
+    if( param.equalsIgnoreCase( CFG_PARAM_OTA ) ) {
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_OTA, myConfig.getOtaURL() );
+    } else if( param.equalsIgnoreCase( CFG_PARAM_TEMPFORMAT ) ) {
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_TEMPFORMAT, myConfig.getTempFormat() );
+    } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_BLYNKSERVER ) ) {
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_PUSH_BLYNKSERVER, myConfig.getBlynkServer() );
+    } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_BLYNKPORT ) ) {
+        sprintf( &buf[0], "{ \"%s\": %s }", CFG_PARAM_PUSH_BLYNKPORT, myConfig.getBlynkPort() );
+    } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_BLYNKTOKEN ) ) {
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_PUSH_BLYNKTOKEN, myConfig.getBlynkToken() );
+    } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_HTTP ) ) {
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_PUSH_HTTP, myConfig.getHttpPushTarget() );
+    } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_INTERVAL ) ) {
+        sprintf( &buf[0], "{ \"%s\": %s }", CFG_PARAM_PUSH_INTERVAL, myConfig.getPushInterval() );
+    } else if( param.equalsIgnoreCase( CFG_PARAM_MDNS ) ) {
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_MDNS, myConfig.getMDNS() );
+    } else {
+        myWebServer.send(400, "text/plain", "Unknown parameter.");
+        delay(1000);
+        return;
+    }
+
+#if LOG_LEVEL==6
+    Log.verbose(F("WIFI: webServer returning %s" CR), &buf[0]);
+#endif
+    myWebServer.send(200, "text/plain", &buf[0] );
 }
 
 //
 // Setup the Web Server callbacks and start it
 //
 void Wifi::setupWebServer() {
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //    Log.verbose(F("WIFI: Setting up web server." CR));
-//#endif
+#endif
     myWebServer.on("/", webHandleRoot);
     myWebServer.on("/config", webHandleConfig);
     myWebServer.on("/reset", webHandleReset);
+    myWebServer.on("/status", webHandleStatus);
+    myWebServer.on("/clearwifi", webHandleClearWIFI);
+    myWebServer.on("/api/config/set", webHandleConfigApiSet);   // Will be obsolate
+    myWebServer.on("/api/config/get", webHandleConfigApiGet);   // Will be obsolete
     myWebServer.begin();
 }
 
@@ -115,47 +264,54 @@ bool Wifi::connect( bool showPortal ) {
     // LED will show that we are in WIFI connection/configuration mode
     activateLedTicker( LED_FLASH_WIFI );
 
+    #define WIFI_PARAM_MAXLEN 120
+
     // Setup OTA variables
-    WiFiManagerParameter cfgOtaUrl("otaUrl", "OTA Base URL (ex: http://server:port/path)", myConfig.otaUrl, sizeof(myConfig.otaUrl)-1);
+    WiFiManagerParameter cfgOtaUrl("otaUrl", "OTA Base URL (ex: http://server:port/path)", myConfig.getOtaURL(), WIFI_PARAM_MAXLEN);
     myWifiManager.addParameter(&cfgOtaUrl);
 
     // Setup Blynk variables
-    WiFiManagerParameter cfgBlynkServer("blynkServer", "Blynk server (ex: 192.168.1.1)", myConfig.blynkServer, sizeof(myConfig.blynkServer)-1);
+    WiFiManagerParameter cfgBlynkServer("blynkServer", "Blynk server (ex: 192.168.1.1)", myConfig.getBlynkServer(), WIFI_PARAM_MAXLEN);
     myWifiManager.addParameter(&cfgBlynkServer);
-    WiFiManagerParameter cfgBlynkServerPort("blynkServerPort", "Blynk server port (ex: 8080)", myConfig.blynkServerPort, sizeof(myConfig.blynkServerPort)-1);
+    WiFiManagerParameter cfgBlynkServerPort("blynkServerPort", "Blynk server port (ex: 8080)", myConfig.getBlynkPort(), 10);
     myWifiManager.addParameter(&cfgBlynkServerPort);
-    WiFiManagerParameter cfgBlynkToken("blynkToken", "Blynk token (from blynk)", myConfig.blynkToken, sizeof(myConfig.blynkToken)-1);
+    WiFiManagerParameter cfgBlynkToken("blynkToken", "Blynk token (from blynk)", myConfig.getBlynkToken(), WIFI_PARAM_MAXLEN);
     myWifiManager.addParameter(&cfgBlynkToken);
+    WiFiManagerParameter cfgHttpPush("Http push", "Http URL", myConfig.getHttpPushTarget(), WIFI_PARAM_MAXLEN);
+    myWifiManager.addParameter(&cfgHttpPush);
+    WiFiManagerParameter cfgPushInterval("Push interval", "Seconds between push", myConfig.getPushInterval(), WIFI_PARAM_MAXLEN);
+    myWifiManager.addParameter(&cfgPushInterval);
 
     // Setup temp format
-    WiFiManagerParameter tempFormat("tempFormat", "Temperature format (C|F)", myConfig.tempFormat, sizeof(myConfig.tempFormat)-1);
+    WiFiManagerParameter tempFormat("tempFormat", "Temperature format (C|F)", myConfig.getTempFormat(), 1);
     myWifiManager.addParameter(&tempFormat);
 
     myWifiManager.setConfigPortalTimeout( WIFI_PORTAL_TIMEOUT );
     myWifiManager.setSaveConfigCallback(saveConfigCallback);
 
     // Connect to WIFI
-   // Connect to WIFI
     if( showPortal )
         connectedFlag = myWifiManager.startConfigPortal( WIFI_DEFAULT_SSID, WIFI_DEFAULT_PWD );
     else
         connectedFlag = myWifiManager.autoConnect( WIFI_DEFAULT_SSID, WIFI_DEFAULT_PWD );
 
     // If the flag is changed, the callback was triggered
-    if( connectedFlag && myConfig.saveNeeded ) {
+    if( connectedFlag && myConfig.isSaveNeeded() ) {
 #if LOG_LEVEL==6
         Log.verbose(F("WIFI: Saving configuration options." CR));
 #endif
         const char* t = cfgOtaUrl.getValue();
         if( strcmp(t, "C")==0 || strcmp(t, "c")==0 )
-            strcpy( myConfig.tempFormat, "C" );
+            myConfig.setTempFormat( "C" );
         if( strcmp(t, "F")==0 || strcmp(t, "f")==0 )
-            strcpy( myConfig.tempFormat, "F" );
+            myConfig.setTempFormat( "F" );
 
-        strcpy( myConfig.otaUrl, cfgOtaUrl.getValue() );
-        strcpy( myConfig.blynkServer, cfgBlynkServer.getValue() );
-        strcpy( myConfig.blynkServerPort, cfgBlynkServerPort.getValue() );
-        strcpy( myConfig.blynkToken, cfgBlynkToken.getValue() );
+        myConfig.setOtaURL( cfgOtaUrl.getValue() );
+        myConfig.setPushInterval( cfgPushInterval.getValue() );
+        myConfig.setHttpPushTarget( cfgHttpPush.getValue() );
+        myConfig.setBlynkServer( cfgBlynkServer.getValue() );
+        myConfig.setBlynkPort( cfgBlynkServerPort.getValue() );
+        myConfig.setBlynkToken( cfgBlynkToken.getValue() );
     }
 
     myConfig.saveFile();
@@ -166,9 +322,9 @@ bool Wifi::connect( bool showPortal ) {
 
     if( connectedFlag ) {
 #if LOG_LEVEL==6
-        Log.verbose(F("WIFI: Starting mDNS for %s." CR), myConfig.mDNS );
+        Log.verbose(F("WIFI: Starting mDNS for %s." CR), myConfig.getMDNS() );
 #endif
-        MDNS.begin( myConfig.mDNS );
+        MDNS.begin( myConfig.getMDNS() );
         MDNS.addService("http", "tcp", 80);
         setupWebServer();
 
@@ -211,12 +367,12 @@ bool Wifi::updateFirmware() {
         return false;
     }
 
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //    Log.verbose(F("WIFI: Updating firmware." CR));
-//#endif
+#endif
 
     WiFiClient client;
-    String serverPath = myConfig.otaUrl;
+    String serverPath = myConfig.getOtaURL();
     serverPath += "firmware.bin";
 
     // TODO: Update code to work with https connection 
@@ -245,17 +401,17 @@ bool Wifi::updateFirmware() {
 //
 bool Wifi::checkFirmwareVersion() {
 
-    if( !myConfig.isOtaConfigured() ) {
+    if( !myConfig.isOtaActive() ) {
         Log.notice(F("WIFI: No OTA URL defined, skipping." CR));
         return false;
     }
 
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //    Log.verbose(F("WIFI: Checking if new version exist." CR));
-//#endif
+#endif
     WiFiClient client;
     HTTPClient http;
-    String serverPath = myConfig.otaUrl;
+    String serverPath = myConfig.getOtaURL();
     serverPath += "version.json";
 
     // Your Domain name with URL path or IP address with path
@@ -268,9 +424,9 @@ bool Wifi::checkFirmwareVersion() {
         Log.notice(F("WIFI: HTTP Response code %d" CR), httpResponseCode);
  
         String payload = http.getString();
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //        Log.verbose(F("WIFI: Payload %s." CR), payload.c_str());
-//#endif
+#endif
         StaticJsonDocument<200> ver;
         DeserializationError err = deserializeJson(ver, payload);
         if( err ) {
@@ -306,9 +462,9 @@ bool Wifi::checkFirmwareVersion() {
     }
 
     http.end();
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //    Log.verbose(F("WIFI: Found new version %s." CR), newFirmware?"true":"false");
-//#endif
+#endif
     return newFirmware;
 }
 
@@ -316,9 +472,9 @@ bool Wifi::checkFirmwareVersion() {
 // Parse a version string in the format M.m.p (eg. 1.2.10)
 //
 bool Wifi::parseFirmwareVersionString( int (&num)[3], const char *version ) {
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //    Log.verbose(F("WIFI: Parsing version number %s." CR), version);
-//#endif
+#endif
     char temp[80]; 
     char *s;
     char *p = &temp[0];
