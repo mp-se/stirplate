@@ -53,7 +53,7 @@ SOFTWARE.
  */
 
 // Define constats for this program
-#define LOOP_INTERVAL 500                // ms, time to wait between running the loop code
+#define LOOP_INTERVAL 100                // ms, time to wait between running the loop code
 const static int     tachPIN = 12;       // Measure speed on FAN. D6 PIN on ESP-12F
 DoubleResetDetector* myDRD;
 
@@ -157,13 +157,6 @@ void loop() {
   // Check for double tap
   myDRD->loop();
 
-  // We dont run this in a tight loop, every 500 ms is fast
-  if( abs(millis() - loopLastMillis) > LOOP_INTERVAL ) {
-
-    // We vary what parts of the code is run every main loop. Some parts like display 
-    // updates/temp reading can be done more seldom. 
-    loopCounter++;
-
 #if defined( ACTIVATE_WIFI )
     // Execute the webserver stuff
     myWifi.loop();    
@@ -174,50 +167,66 @@ void loop() {
     myBlynk.loop();
 #endif
 
+  // We dont run this in a tight loop, every 500 ms is fast
+  if( abs(millis() - loopLastMillis) > LOOP_INTERVAL ) {
+
+    // Reset the counter
+    loopLastMillis = millis();
+
+    // We vary what parts of the code is run every main loop. Some parts like display 
+    // updates/temp reading can be done more seldom. 
+    loopCounter++;
+
     // This code is run every loop.
     // -----------------------------------------------------------
     // setPower will map the value to the range supported by the PWM output
     int vin = myAnalogSensor.readSensor();
-    myFan.setPower( vin, 0, POT_MAX_READING );      // (value, min,  max) reading of value
     int rpm = myFan.getCurrentRPM();
     int pwr = myFan.getCurrentPower();
+
+    // Update the power setting based on current pot reading
+    myFan.setPower( vin, 0, POT_MAX_READING );      // (value, min,  max) reading of value
 
     // Use the lower line to create a power bar that indicate power to stirplate
 #if LOG_LEVEL==6
     Log.verbose(F("MAIN: POT = %d, Percentage %d, RPM=%d." CR), vin, pwr, rpm);
 #endif
 
+#if defined( ACTIVATE_TEMP )
+    bool tempAttached = myTempSensor.isSensorAttached();
+    float tempC = myTempSensor.getValueCelcius();
+    float tempF = myTempSensor.getValueFarenheight();
+#endif
+
     // This code is run every 1 seconds or when we have an updated power setting
-    // -----------------------------------------------------------
-    if( !(loopCounter%2) || vin!=loopLastVin ) {
+    // -------------------------------------------------------------------------
+    if( !(loopCounter % 10) || vin!=loopLastVin ) {
+
 #if LOG_LEVEL==6
       Log.verbose(F("MAIN: Running 1 second loop." CR));
 #endif
       loopLastVin = vin;
 
-#if defined( ACTIVATE_TEMP )
-      bool tempAttached = myTempSensor.isSensorAttached();
-      float tempC = myTempSensor.getValueCelcius();
-      float tempF = myTempSensor.getValueFarenheight();
-#endif
-
 #if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
-      if( myWifi.isConnected() && myBlynk.isActive() ) {
-        myBlynk.writeRemoteRPM( rpm );
-        myBlynk.writeRemotePower( pwr );
-        myBlynk.writeRemoteVer(CFG_APPVER);
-      }
-#if defined( ACTIVATE_TEMP )
-      if( tempAttached ) {
-        myBlynk.writeRemoteTempC(tempC);
-        myBlynk.writeRemoteTempF(tempF);
-      }
-#endif
+      // Update push targets and blynk every 2 seconds
+      // -------------------------------------------------------------------------
+      if( !(loopCounter % 20) ) {
+        if( myWifi.isConnected() && myBlynk.isActive() ) {
+          myBlynk.writeRemoteRPM( rpm );
+          myBlynk.writeRemotePower( pwr );
+          myBlynk.writeRemoteVer(CFG_APPVER);
+        }
+  #if defined( ACTIVATE_TEMP )
+        if( tempAttached ) {
+          myBlynk.writeRemoteTempC(tempC);
+          myBlynk.writeRemoteTempF(tempF);
+        }
+  #endif
 #endif // ACTIVATE_BLYNK && ACTIVATE_WIFI
-
 #if defined( ACTIVATE_PUSH ) && defined( ACTIVATE_WIFI )
-    myPushTarget.send( rpm, myConfig.isTempC() ? tempC : tempF ); 
+        myPushTarget.send( rpm, myConfig.isTempC() ? tempC : tempF ); 
 #endif
+      }
 
     // Display Layout 
     //
@@ -283,21 +292,24 @@ void loop() {
       myDisplay.printText( 11, 0, &s[0] );
     }
 
-    // This code is run every 2,5 seconds.
+    // This code is run every 5 seconds.
     // -----------------------------------------------------------
-    if( !(loopCounter%5) ) {
+    if( !(loopCounter % 50) ) {
 #if LOG_LEVEL==6
       Log.verbose(F("MAIN: Running 2,5 second loop." CR));
 #endif
       // Used to calculate the RPM value. 
       myFan.loop();
+    }
 
+    // This code is run every 10 seconds.
+    // -----------------------------------------------------------
+    if( !(loopCounter % 100) ) {
       // Since the tempsensor can be remove/added we check if there is a change 
 #if defined( ACTIVATE_TEMP )
       myTempSensor.setup();
 #endif
     }
-    loopLastMillis = millis();
   }
 }
 
