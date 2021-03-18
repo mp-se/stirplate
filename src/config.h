@@ -102,7 +102,7 @@ class Config {
         bool         isTempF() { return strcmp( &tempFormat[0], "F")?false:true; };
 
         // IO functions
-        void createJson(StaticJsonDocument<512>& doc);
+        void createJson(DynamicJsonDocument& doc);
         bool saveFile();
         bool loadFile();
         void checkFileSystem();

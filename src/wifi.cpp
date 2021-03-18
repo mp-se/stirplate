@@ -69,7 +69,7 @@ void webHandleConfig() {
 #if LOG_LEVEL==6
     Log.verbose(F("WIFI: webServer callback for /config." CR));
 #endif
-    StaticJsonDocument<512> doc;
+    DynamicJsonDocument doc(256);
     myConfig.createJson( doc );
 #if LOG_LEVEL==6
     serializeJson(doc, Serial);

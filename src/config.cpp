@@ -43,7 +43,7 @@ Config::Config() {
 //
 // Populate the json document
 //
-void Config::createJson(StaticJsonDocument<512>& doc) {
+void Config::createJson(DynamicJsonDocument& doc) {
     doc[ CFG_PARAM_MDNS ]             = getMDNS();
     doc[ CFG_PARAM_ID ]               = getID();
     doc[ CFG_PARAM_OTA ]              = getOtaURL();
@@ -66,6 +66,7 @@ bool Config::saveFile() {
 #if LOG_LEVEL==6
         Log.verbose(F("CFG : Saving configuration." CR));
 #endif    
+        LittleFS.begin();
 
         File configFile = LittleFS.open(CFG_FILENAME, "w");
 
@@ -73,7 +74,7 @@ bool Config::saveFile() {
             Log.error(F("CFG : Failed to save " CFG_FILENAME "." CR));
         }
 
-        StaticJsonDocument<512> doc;
+        DynamicJsonDocument doc(256);
         createJson( doc );
 #if LOG_LEVEL==6
         serializeJson(doc, Serial);
@@ -88,6 +89,8 @@ bool Config::saveFile() {
 #if LOG_LEVEL==6
         Log.verbose(F("CFG : Configuration saved to " CFG_FILENAME "." CR));
 #endif    
+
+        LittleFS.end();
     } else {
 #if LOG_LEVEL==6
         Log.verbose(F("CFG : Skipping save." CR));
@@ -125,7 +128,7 @@ bool Config::loadFile() {
                 size_t size = configFile.size();
                 configFile.readBytes(&buf[0], size);
 
-                StaticJsonDocument<1024> cfg;
+                DynamicJsonDocument cfg(512);
                 DeserializationError err = deserializeJson(cfg, buf);
 
                 if( err ) {
@@ -169,6 +172,8 @@ bool Config::loadFile() {
         }  else {
             Log.error(F("CFG : Configuration file does not exist " CFG_FILENAME "." CR));
         }
+
+        LittleFS.end();
     } else {
         Log.error(F("CFG : Failed to mount file system." CR));
     }
@@ -198,7 +203,8 @@ void Config::checkFileSystem() {
     if (LittleFS.begin()) {
 #if LOG_LEVEL==6
         Log.verbose(F("CFG : Filesystem mounted." CR));
-#endif    
+#endif
+        LittleFS.end();    
     } else {
         Log.error(F("CFG : Unable to mount file system, formatting..." CR));
         LittleFS.format();
