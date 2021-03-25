@@ -12,6 +12,10 @@ Here is a short video that shows the minimum and maximum speed with a 3 liter st
 
 ## Versions
 
+* 0.7.0 Added a web interface to the device and refactored the API's to match. When updating to this version 
+the configuration will be lost, but it's quite simple to change the settings. In the WIFI setup you 
+can now only change the device name (mdns network name).
+
 * 0.6.0 Added support for http endpoints + web api + testsuite + blynk cloud support
 * 0.5.0 Added temp sensor support + pcb layout (pcb has not yet been fully tested)
 * 0.4.0 Added wifi manager/web server to enable config changes via webbrowser/wifi setup.
@@ -44,29 +48,6 @@ Double tap on the reset button will force the device into wifi setup mode. See b
 
 Once the device is on the wifi network it will have a running webserver that can show the active configuration and also force the device into configuration model. The name of the device will be __stirplateXXXXX.local__ (or just use the dynamic IP). Chip ID will be 6 characters and uniqe for that device (eg 7a84DC).
 
-* __/__ will show the name, version and chip ID
-* __/config__ will show the current configuration in json format
-* __/reset?id=X__ will reboot the device.
-* __/clearwifi?id=X__ will force the device into wifi configuration mode by erasing the wifi settings.
-* __/api/config/get?param=Y__ will receive a configuration parameter.
-* __/api/config/set?id=X&param=Y&value=Z__ will set a configuration parameter. 
-
-The ID parameter is used to validate that the commands are for the correct device (ID = ChipID). This can be found on the main page or via the /config page.
-
-Valid configuration parameters:
-
-* __id__ Chip ID (Read Only)
-* __mdns__ mDNS name of the device (Changing this via API requires a reboot to take affect) *
-* __otaurl__ url to directory where new firmware versions are located *
-* __blynkserver__ adress of remote server (if this is left empty, blynk cloud will be used) *
-* __blynkserverport__ port for remote blynk server (only used if blynkserver is defined, must be a valid port number) *
-* __blynktoken__ blynk token (if defined blynk support is active) 
-* __httppush__ url to brewfather endpoint (if defined http push will be active)
-* __pushinterval__ seconds between push (only applies to http push)
-* __tempformat__ temperature format (Valid: C or F)
-
-\* These parameters require a reboot for the change to take affect. 
-
 ## Build Configuration
 
 I prefer to use Visual Studio Code with the extension PlatformIO which makes it quite easy to make a build.
@@ -78,6 +59,7 @@ The following defintions can be used to enable/disable parts of the code
 * ACTIVATE_PUSH     Include support for push targets (requires wifi) 
 * ACTIVATE_WIFI     Include wifi access in build 
 * ACTIVATE_TEMP     Include temperature sensor access in build 
+* EMBED_HTML        This option will embed the web interface into the binary file. 
 
 Development related settings (so I dont have to have a fully working setup)
 

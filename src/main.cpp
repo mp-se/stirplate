@@ -78,6 +78,8 @@ void setup() {
   Log.notice(F("Main: Loading configuration." CR));
   //myConfig.formatFileSystem();    // Erase the config file
   myConfig.checkFileSystem();
+  myConfig.saveFile();
+
   myConfig.loadFile();
 
   Log.notice(F("Main: Setting up devices." CR));
@@ -126,7 +128,7 @@ void setup() {
   if( myWifi.isConnected() && myConfig.isBlynkActive() ) {
     Log.notice(F("Main: Connecting to blynk." CR));
     myDisplay.printText( 0, 1, "Connect blynk   " );   
-    myBlynk.connect( myConfig.getBlynkToken(), myConfig.getBlynkServer(), myConfig.getBlynkPortAsInt() );
+    myBlynk.connect( myConfig.getBlynkToken(), myConfig.getBlynkServer(), myConfig.getBlynkServerPort() );
   }
 #endif
 
@@ -189,7 +191,7 @@ void loop() {
 
     // Use the lower line to create a power bar that indicate power to stirplate
 #if LOG_LEVEL==6
-    Log.verbose(F("MAIN: POT = %d, Percentage %d, RPM=%d." CR), vin, pwr, rpm);
+    //Log.verbose(F("MAIN: POT = %d, Percentage %d, RPM=%d." CR), vin, pwr, rpm);
 #endif
 
 #if defined( ACTIVATE_TEMP )
@@ -203,14 +205,14 @@ void loop() {
     if( !(loopCounter % 10) || vin!=loopLastVin ) {
 
 #if LOG_LEVEL==6
-      Log.verbose(F("MAIN: Running 1 second loop." CR));
+     // Log.verbose(F("MAIN: Running 1 second loop." CR));
 #endif
       loopLastVin = vin;
 
-#if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
       // Update push targets and blynk every 2 seconds
       // -------------------------------------------------------------------------
       if( !(loopCounter % 20) ) {
+#if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
         if( myWifi.isConnected() && myBlynk.isActive() ) {
           myBlynk.writeRemoteRPM( rpm );
           myBlynk.writeRemotePower( pwr );
@@ -281,7 +283,7 @@ void loop() {
 
         // Every 5 seconds we swap between RPM and TEMP if there is a temp sensor attached
         if( loopTempCounter>5 && tempAttached ) {
-          if( strcmp( myConfig.getTempFormat(), "C" )==0 )
+          if( myConfig.isTempC() )
             sprintf( &s[0], "%3d C", (int) tempC);      
           else
             sprintf( &s[0], "%3d F", (int) tempF);      
@@ -296,7 +298,7 @@ void loop() {
     // -----------------------------------------------------------
     if( !(loopCounter % 50) ) {
 #if LOG_LEVEL==6
-      Log.verbose(F("MAIN: Running 2,5 second loop." CR));
+      //Log.verbose(F("MAIN: Running 2,5 second loop." CR));
 #endif
       // Used to calculate the RPM value. 
       myFan.loop();

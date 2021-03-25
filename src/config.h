@@ -29,39 +29,51 @@ SOFTWARE.
 #include <ArduinoJson.h>
 
 // Defintions
-#define CFG_APPNAME         "Stir Plate"    // Name of firmware
-#define CFG_APPVER          "0.6.0"         // Version of firmware (used wit OTA update to check for newer)
-#define CFG_FILENAME        "/config.json"  // Filename of config file
+#define CFG_APPNAME         "Stir Plate"      // Name of firmware
+#define CFG_FILENAME        "/stirplate.json" // Filename of config file
 
-#define WIFI_DEFAULT_SSID   "StirPlate"     // Name of created SSID
+#define WIFI_DEFAULT_SSID   "Stirplate"     // Name of created SSID
 #define WIFI_DEFAULT_PWD    "password"      // Password for created SSID
 #define WIFI_MDNS           "stirplate"     // Prefix for mdns name
 #define WIFI_PORTAL_TIMEOUT 120             // Number of seconds until the config portal is closed
 
 #define POT_MAX_READING     910             // You might need to change this value if the percentage never reach 100%
+#define CFG_JSON_BUFSIZE    500
 
+// Configuration params
 #define CFG_PARAM_ID                 "id"
 #define CFG_PARAM_MDNS               "mdns"
-#define CFG_PARAM_OTA                "otaurl"
-#define CFG_PARAM_PUSH_BLYNKSERVER   "blynkserver"
-#define CFG_PARAM_PUSH_BLYNKPORT     "blynkserverport"
-#define CFG_PARAM_PUSH_BLYNKTOKEN    "blynktoken"
-#define CFG_PARAM_PUSH_HTTP          "httppush"
-#define CFG_PARAM_PUSH_INTERVAL      "pushinterval"
-#define CFG_PARAM_TEMPFORMAT         "tempformat"
+#define CFG_PARAM_OTA                "ota-url"
+#define CFG_PARAM_PUSH_BLYNK_SERVER  "blynk-server"
+#define CFG_PARAM_PUSH_BLYNK_PORT    "blynk-server-port"
+#define CFG_PARAM_PUSH_BLYNK_TOKEN   "blynk-token"
+#define CFG_PARAM_PUSH_HTTP          "http-push"
+#define CFG_PARAM_PUSH_INTERVAL      "push-interval"
+#define CFG_PARAM_TEMP_FORMAT        "temp-format"
+#define CFG_PARAM_TEMP_ADJ           "temp-adjustment-value"          // Correction value for temp sensor
+
+// API params
+#define CFG_PARAM_RPM                "rpm"
+#define CFG_PARAM_POWER              "power"
+#define CFG_PARAM_RSSI               "rssi"
+#define CFG_PARAM_TEMP_C             "temp-c"
+#define CFG_PARAM_TEMP_F             "temp-f"
+#define CFG_PARAM_APP_NAME           "app-name"
+#define CFG_PARAM_APP_VER            "app-ver"
 
 class Config {
     private:
-        char id[10];
-        char mDNS[40]; 
-        char otaURL[200];
-        char tempFormat[2];              // Should be C or F
-        char blynkServer[100];
-        char blynkToken[100];
-        char blynkServerPort[5];
-        char httpPushTarget[100];
-        char pushInterval[10];
-
+        char  id[10];
+        char  mDNS[40]; 
+        char  otaURL[100];
+        char  tempFormat;                      // C, F
+        char  blynkServer[100];
+        char  blynkToken[100];
+        int   blynkServerPort;
+        char  httpPushTarget[100];
+        int   pushInterval;
+        float tempSensorAdj;                   // This value will be added to the read sensor value
+ 
         // Set this flag if config has changed
         bool saveNeeded;
 
@@ -83,23 +95,29 @@ class Config {
         void         setHttpPushTarget( const char* s ) { strncpy(&httpPushTarget[0], s, sizeof(httpPushTarget)-1); saveNeeded = true; }
         bool         isHttpActive() { return strlen(&httpPushTarget[0])>0?true:false; }
 
-        const char*  getPushInterval() { return &pushInterval[0]; }
-        void         setPushInterval( const char* s ) { strncpy(&pushInterval[0], s, sizeof(pushInterval)-1); saveNeeded = true; }
-        int          getPushIntervalAsInt() { return atoi(&pushInterval[0]); }
+        int          getPushInterval() { return pushInterval; }
+        void         setPushInterval( int v ) { pushInterval = v; saveNeeded = true; }
+        void         setPushInterval( const char* s ) { pushInterval = atoi(s); saveNeeded = true; }
 
         const char*  getBlynkServer() { return &blynkServer[0]; }
         void         setBlynkServer( const char* s ) { strncpy(&blynkServer[0], s, sizeof(blynkServer)-1); saveNeeded = true; }
+
         const char*  getBlynkToken() { return &blynkToken[0]; }
         void         setBlynkToken( const char* s ) { strncpy(&blynkToken[0], s, sizeof(blynkToken)-1); saveNeeded = true; }
-        const char*  getBlynkPort() { return &blynkServerPort[0]; }
-        void         setBlynkPort( const char* s ) { strncpy(&blynkServerPort[0], s, sizeof(blynkServerPort)-1); saveNeeded = true; }
-        int          getBlynkPortAsInt() { return atoi(&blynkServerPort[0]); }
         bool         isBlynkActive() { return strlen(blynkToken)>0?true:false; }
 
-        const char*  getTempFormat() { return &tempFormat[0]; }
-        void         setTempFormat( const char* s ) { strncpy( &tempFormat[0], s, sizeof(tempFormat)-1); saveNeeded = true; }
-        bool         isTempC() { return strcmp( &tempFormat[0], "C")?false:true; };
-        bool         isTempF() { return strcmp( &tempFormat[0], "F")?false:true; };
+        int          getBlynkServerPort() { return blynkServerPort; }
+        void         setBlynkServerPort( int v ) { blynkServerPort = v; saveNeeded = true; }
+        void         setBlynkServerPort( const char* s ) { blynkServerPort = atoi(s); saveNeeded = true; }
+
+        char         getTempFormat() { return tempFormat; }
+        void         setTempFormat( char c ) { tempFormat = c; saveNeeded = true; }
+        bool         isTempC() { return tempFormat=='C'?false:true; };
+        bool         isTempF() { return tempFormat=='F'?false:true; };
+
+        float        getTempSensorAdj() { return tempSensorAdj; }
+        void         setTempSensorAdj( float f ) { tempSensorAdj = f; saveNeeded = true; }
+        void         setTempSensorAdj( const char* s ) { tempSensorAdj = atof(s); saveNeeded = true; }
 
         // IO functions
         void createJson(DynamicJsonDocument& doc);

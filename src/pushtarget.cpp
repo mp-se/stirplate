@@ -34,7 +34,7 @@ PushTarget myPushTarget;
 //
 void PushTarget::send(float pressure, float temp ) {
     unsigned long timePassed = abs( millis() - ms );
-    unsigned long interval = myConfig.getPushIntervalAsInt()*1000;
+    unsigned long interval = myConfig.getPushInterval()*1000;
 
     if( ( timePassed < interval ) ) {
 #if LOG_LEVEL==6
@@ -57,13 +57,13 @@ void PushTarget::send(float pressure, float temp ) {
 //
 void PushTarget::sendHttp(float rpm, float temp ) {
     // Send data to the standard HTTP endpoint
-    Log.notice(F("PUSH: Sending values to http pressure=%F, temp=%F." CR), rpm, temp );
+    Log.notice(F("PUSH: Sending values to http rpm=%F, temp=%F." CR), rpm, temp );
 
-    StaticJsonDocument<400> doc;
+    DynamicJsonDocument doc(200);
 
     doc["name"]          = myConfig.getMDNS();
     doc["temp"]          = reduceFloatPrecision( temp );
-    doc["temp_unit"]     = myConfig.getTempFormat(); 
+    doc["temp-unit"]     = String( myConfig.getTempFormat() ); 
     doc["rpm"]           = rpm; 
     doc["rssi"]          = WiFi.RSSI(); 
 

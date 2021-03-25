@@ -27,14 +27,16 @@ SOFTWARE.
 
 Config myConfig;
 
+
 //
 // Create the config class with default settings
 //
 Config::Config() {
     sprintf(&id[0], "%6x", (unsigned int) ESP.getChipId() );
     sprintf(&mDNS[0], "" WIFI_MDNS "%s", getID() );
-    setTempFormat("C");
-    setPushInterval("900");             // 15 minutes
+    setTempFormat('C');
+    setPushInterval(30);             
+    saveNeeded = false;
 #if LOG_LEVEL==6
     Log.verbose(F("CFG : Creating hostname %s." CR), mDNS);
 #endif
@@ -44,141 +46,115 @@ Config::Config() {
 // Populate the json document
 //
 void Config::createJson(DynamicJsonDocument& doc) {
-    doc[ CFG_PARAM_MDNS ]             = getMDNS();
-    doc[ CFG_PARAM_ID ]               = getID();
-    doc[ CFG_PARAM_OTA ]              = getOtaURL();
-    doc[ CFG_PARAM_TEMPFORMAT ]       = getTempFormat();
-    doc[ CFG_PARAM_PUSH_HTTP ]        = getHttpPushTarget();
-    doc[ CFG_PARAM_PUSH_INTERVAL ]    = getPushInterval();
-    doc[ CFG_PARAM_PUSH_BLYNKSERVER ] = getBlynkServer();
-    doc[ CFG_PARAM_PUSH_BLYNKTOKEN ]  = getBlynkToken();
-    doc[ CFG_PARAM_PUSH_BLYNKPORT ]   = getBlynkPort();
+    doc[ CFG_PARAM_MDNS ]              = getMDNS();
+    doc[ CFG_PARAM_ID ]                = getID();
+    doc[ CFG_PARAM_OTA ]               = getOtaURL();
+    doc[ CFG_PARAM_TEMP_FORMAT ]       = String( getTempFormat() );
+    doc[ CFG_PARAM_TEMP_ADJ ]          = getTempSensorAdj();
+    doc[ CFG_PARAM_PUSH_HTTP ]         = getHttpPushTarget();
+    doc[ CFG_PARAM_PUSH_INTERVAL ]     = getPushInterval();
+    doc[ CFG_PARAM_PUSH_BLYNK_SERVER ] = getBlynkServer();
+    doc[ CFG_PARAM_PUSH_BLYNK_TOKEN ]  = getBlynkToken();
+    doc[ CFG_PARAM_PUSH_BLYNK_PORT ]   = getBlynkServerPort();
 }
 
 //
 // Save json document to file
 //
 bool Config::saveFile() {
-
-    bool success = false;
-
-    if( saveNeeded ) {
+    if( !saveNeeded ) {
 #if LOG_LEVEL==6
-        Log.verbose(F("CFG : Saving configuration." CR));
-#endif    
-        LittleFS.begin();
-
-        File configFile = LittleFS.open(CFG_FILENAME, "w");
-
-        if (!configFile) {
-            Log.error(F("CFG : Failed to save " CFG_FILENAME "." CR));
-        }
-
-        DynamicJsonDocument doc(256);
-        createJson( doc );
-#if LOG_LEVEL==6
-        serializeJson(doc, Serial);
-#endif    
-        serializeJson(doc, configFile);
-        configFile.close();
-
-        saveNeeded = false;
-        success = true;
-        myConfig.debug();
-
-#if LOG_LEVEL==6
-        Log.verbose(F("CFG : Configuration saved to " CFG_FILENAME "." CR));
-#endif    
-
-        LittleFS.end();
-    } else {
-#if LOG_LEVEL==6
-        Log.verbose(F("CFG : Skipping save." CR));
-#endif    
-        success = true;
+        Log.verbose(F("CFG : Skipping save, not needed." CR));
+#endif
+        return true;
     }
 
-    return success;
-}
+#if LOG_LEVEL==6
+    Log.verbose(F("CFG : Saving configuration to file." CR));
+#endif    
+
+    File configFile = LittleFS.open(CFG_FILENAME, "w");
+
+    if (!configFile) {
+        Log.error(F("CFG : Failed to open file " CFG_FILENAME " for save." CR));
+        return false;
+    }
+
+    DynamicJsonDocument doc(CFG_JSON_BUFSIZE);
+    createJson( doc );
+#if LOG_LEVEL==6
+    serializeJson(doc, Serial);
+    Serial.print( CR );
+#endif    
+    serializeJson(doc, configFile);
+    configFile.flush();
+    configFile.close();
+    saveNeeded = false;
+    myConfig.debug();
+    Log.notice(F("CFG : Configuration saved to " CFG_FILENAME "." CR));
+    return true;}
 
 //
 // Load config file from disk
 //
 bool Config::loadFile() {
-
-    bool success = false;
-
 #if LOG_LEVEL==6
-    Log.verbose(F("CFG : Loading configuration file." CR));
-#endif    
+    Log.verbose(F("CFG : Loading configuration from file." CR));
+#endif 
 
-    if (LittleFS.begin()) {
-#if LOG_LEVEL==6
-        Log.verbose(F("CFG : Filesystem mounted." CR));
-#endif    
-        if (LittleFS.exists(CFG_FILENAME)) {
-
-            File configFile = LittleFS.open(CFG_FILENAME, "r");
-            
-            if (configFile) {
-#if LOG_LEVEL==6
-                Log.verbose(F("CFG : Reading configuration file." CR));
-#endif    
-                char buf[1024];
-                size_t size = configFile.size();
-                configFile.readBytes(&buf[0], size);
-
-                DynamicJsonDocument cfg(512);
-                DeserializationError err = deserializeJson(cfg, buf);
-
-                if( err ) {
-                    Log.error(F("CFG : Failed to load " CFG_FILENAME " file." CR));
-                } else {
-#if LOG_LEVEL==6
-                    Log.verbose(F("CFG : Parsed configuration file." CR));
-#endif    
-                    // If we add new parameters we need to check if they exist in the json file...
-                
-                    if( !cfg[ CFG_PARAM_OTA ].isNull() )
-                        setOtaURL( cfg[ CFG_PARAM_OTA ] );
-
-                    if( !cfg[ CFG_PARAM_MDNS ].isNull() )
-                        setMDNS( cfg[ CFG_PARAM_MDNS ] );
-
-                    if( !cfg[ CFG_PARAM_TEMPFORMAT ].isNull() )
-                        setTempFormat( cfg[ CFG_PARAM_TEMPFORMAT ] );
-
-                   if( !cfg[ CFG_PARAM_PUSH_HTTP ].isNull() )
-                        setHttpPushTarget( cfg[ CFG_PARAM_PUSH_HTTP ] );
-
-                   if( !cfg[ CFG_PARAM_PUSH_INTERVAL ].isNull() )
-                        setPushInterval( cfg[ CFG_PARAM_PUSH_INTERVAL ] );
-
-                   if( !cfg[ CFG_PARAM_PUSH_BLYNKSERVER ].isNull() )
-                        setBlynkServer( cfg[ CFG_PARAM_PUSH_BLYNKSERVER ] );
-
-                   if( !cfg[ CFG_PARAM_PUSH_BLYNKPORT ].isNull() )
-                        setBlynkPort( cfg[ CFG_PARAM_PUSH_BLYNKPORT ] );
-
-                   if( !cfg[ CFG_PARAM_PUSH_BLYNKTOKEN ].isNull() )
-                        setBlynkToken( cfg[ CFG_PARAM_PUSH_BLYNKTOKEN ] );
-
-                    myConfig.debug();
-                    success = true;
-                }
-            } else {
-                Log.error(F("CFG : Failed to open " CFG_FILENAME "." CR));
-            }
-        }  else {
-            Log.error(F("CFG : Configuration file does not exist " CFG_FILENAME "." CR));
-        }
-
-        LittleFS.end();
-    } else {
-        Log.error(F("CFG : Failed to mount file system." CR));
+    if (!LittleFS.exists(CFG_FILENAME)) {
+        Log.error(F("CFG : Configuration file does not exist " CFG_FILENAME "." CR));
+        return false;
     }
 
-    return success;
+    File configFile = LittleFS.open(CFG_FILENAME, "r");
+
+    if (!configFile) {
+        Log.error(F("CFG : Failed to open " CFG_FILENAME "." CR));
+        return false;
+    }
+
+    DynamicJsonDocument doc(CFG_JSON_BUFSIZE);
+    DeserializationError err = deserializeJson(doc, configFile);
+#if LOG_LEVEL==6
+    serializeJson(doc, Serial);
+    Serial.print( CR );
+#endif    
+    configFile.close();
+
+    if( err ) {
+        Log.error(F("CFG : Failed to parse " CFG_FILENAME " file, Err: %s, %d." CR), err.c_str(), doc.capacity());
+        return false;
+    }
+
+#if LOG_LEVEL==6
+    Log.verbose(F("CFG : Parsed configuration file." CR));
+#endif                    
+    if( !doc[ CFG_PARAM_OTA ].isNull() )
+        setOtaURL( doc[ CFG_PARAM_OTA ] );
+    if( !doc[ CFG_PARAM_MDNS ].isNull() )
+        setMDNS( doc[ CFG_PARAM_MDNS ] );
+    if( !doc[ CFG_PARAM_TEMP_FORMAT ].isNull() ) {
+        String s = doc[ CFG_PARAM_TEMP_FORMAT ];
+        setTempFormat( s.charAt(0) );
+    }
+    if( !doc[ CFG_PARAM_PUSH_HTTP ].isNull() )
+        setHttpPushTarget( doc[ CFG_PARAM_PUSH_HTTP ] );
+    if( !doc[ CFG_PARAM_PUSH_INTERVAL ].isNull() )
+        setPushInterval( doc[ CFG_PARAM_PUSH_INTERVAL ].as<int>() );
+    if( !doc[ CFG_PARAM_PUSH_BLYNK_SERVER ].isNull() )
+        setBlynkServer( doc[ CFG_PARAM_PUSH_BLYNK_SERVER ] );
+    if( !doc[ CFG_PARAM_PUSH_BLYNK_PORT ].isNull() )
+        setBlynkServerPort( doc[ CFG_PARAM_PUSH_BLYNK_PORT ].as<int>() );
+    if( !doc[ CFG_PARAM_PUSH_BLYNK_TOKEN ].isNull() )
+        setBlynkToken( doc[ CFG_PARAM_PUSH_BLYNK_TOKEN ] );
+    if( !doc[ CFG_PARAM_TEMP_ADJ ].isNull() )
+        setTempSensorAdj( doc[ CFG_PARAM_TEMP_ADJ ].as<float>() );
+
+    myConfig.debug();
+    saveNeeded = false;     // Reset save flag 
+    Log.notice(F("CFG : Configuration file " CFG_FILENAME " loaded." CR));
+    return true;
 }
 
 //
@@ -195,16 +171,13 @@ void Config::formatFileSystem() {
 // Check if file system can be mounted, if not we format it.
 //
 void Config::checkFileSystem() {
-
 #if LOG_LEVEL==6
     Log.verbose(F("CFG : Checking if filesystem is valid." CR));
 #endif    
-
     if (LittleFS.begin()) {
 #if LOG_LEVEL==6
         Log.verbose(F("CFG : Filesystem mounted." CR));
 #endif
-        LittleFS.end();    
     } else {
         Log.error(F("CFG : Unable to mount file system, formatting..." CR));
         LittleFS.format();
@@ -220,10 +193,10 @@ void Config::debug() {
     Log.verbose(F("CFG : ID; '%s'." CR), getID());
     Log.verbose(F("CFG : mDNS; '%s'." CR), getMDNS() );
     Log.verbose(F("CFG : OTA; '%s'." CR), getOtaURL() );
-    Log.verbose(F("CFG : Temp; '%s'." CR), getTempFormat() );
+    Log.verbose(F("CFG : Tempformat; '%c'." CR), getTempFormat() );
     Log.verbose(F("CFG : Push http; '%s'." CR), getHttpPushTarget() );
-    Log.verbose(F("CFG : Push interval; '%s'." CR), getPushInterval() );
-    Log.verbose(F("CFG : Blynk; '%s' '%s' '%s'." CR), getBlynkServer(), getBlynkPort(), getBlynkToken() );
+    Log.verbose(F("CFG : Push interval; %d." CR), getPushInterval() );
+    Log.verbose(F("CFG : Blynk; '%s' %d '%s'." CR), getBlynkServer(), getBlynkServerPort(), getBlynkToken() );
 #endif    
 }
 
