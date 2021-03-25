@@ -34,9 +34,9 @@ AnalogSensor myAnalogSensor;
 // Setup analog input
 //
 void AnalogSensor::setup() {
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //    Log.verbose(F("ASEN: Setting up analog sensor." CR));
-//#endif
+#endif
     pinMode(analogPIN, INPUT);    
 #ifdef SIMULATE_SENSOR
     simualteMillsStart = millis();
@@ -47,9 +47,9 @@ void AnalogSensor::setup() {
 // Set the speed of the pwmsignal
 //
 int AnalogSensor::readSensor() {
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //    Log.verbose(F("ASEN: Reading analog sensor." CR));
-//#endif
+#endif
 
 #ifdef SIMULATE_SENSOR
     value = simulateSensor();
@@ -109,9 +109,9 @@ int AnalogSensor::simulateSensor() {
             v = simSequenceSensor[i].power;
     }
 
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //  Log.verbose(F("ASEN: Value simulator %l, value %d." CR), tstamp, v);
-//#endif
+#endif
     return v;
 }
 

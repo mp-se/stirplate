@@ -25,7 +25,6 @@ SOFTWARE.
 
 #if defined( EMBED_HTML )
 
-//INCBIN(FaviconIco, "data/favicon.ico" );  // Including this file causes a linker error
 INCBIN(IndexHtm, "data/index.htm" );
 INCBIN(DeviceHtm, "data/device.htm" );
 INCBIN(ConfigHtm, "data/config.htm" );

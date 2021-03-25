@@ -31,9 +31,9 @@ Display myDisplay;
 // Initialize display
 //
 void Display::init() {
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //  Log.verbose(F("DISP: Initiating LCD display." CR));
-//#endif
+#endif
   lcd = new LiquidCrystal_I2C(PCF8574_ADDR_A21_A11_A01, 4, 5, 6, 16, 11, 12, 13, 14, POSITIVE);
   setup();
   createCustomChars();
@@ -61,7 +61,6 @@ void Display::selfTest() {
   delay(5000);
 }
 #endif // DISPLAY_SELFTEST
-
 
 //
 // Setup the display, choose the size in config.h
@@ -170,9 +169,9 @@ byte END_DIV_1_OF_1 [ 8 ] = {
 // https://www.carnetdumaker.net/articles/faire-une-barre-de-progression-avec-arduino-et-liquidcrystal/
 //
 void Display::createCustomChars() { 
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //  Log.verbose(F("DISP: Setting up custom characters." CR));
-//#endif
+#endif
 
   if( !lcd_found )
     return;
@@ -190,9 +189,9 @@ void Display::createCustomChars() {
 // clear the display
 //
 void Display::clear() {
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //  Log.verbose(F("DISP: Clear display." CR));
-//#endif
+#endif
 
   if( !lcd_found )
     return;
@@ -204,9 +203,9 @@ void Display::clear() {
 // Print string
 //
 void Display::printText(int x, int y, const char *s ) {
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //  Log.verbose(F("DISP: Printing '%s' at %d,%d." CR), s, x, y);
-//#endif
+#endif
 
   if( !lcd_found )
     return;
@@ -221,9 +220,9 @@ void Display::printText(int x, int y, const char *s ) {
 // The progress bar is fixed to 10 chars (to make the rendering simpler)
 // 
 void Display::printProgressBar(int x, int y, int percentage) {
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //  Log.verbose(F("DISP: Creating progress %d at %d,%d." CR), percentage, x, y);
-//#endif
+#endif
 
   if( !lcd_found )
     return;
@@ -245,26 +244,26 @@ void Display::printProgressBar(int x, int y, int percentage) {
   for (int i =  0 ; i < PROGRESS_BAR_WIDTH; ++ i) { 
     switch( i ) {
       case 0:
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //        Log.verbose(F("DISP: First poistion %d." CR), col);
-//#endif
+#endif
         // Char 0 = empty start, Char 1 = full start 
         lcd->write( col==0 ? 0 : 1 );
         col -= 1; // First item only have one halv bar
       break;
 
       case PROGRESS_BAR_WIDTH-1:
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //        Log.verbose(F("DISP: Last position %d." CR), col);
-//#endif
+#endif
         // Char 5 = full end, Char 6 = empty end 
         lcd->write( col>0 ? 6 : 5 );
       break;
 
       default:
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //        Log.verbose(F("DISP: Creating progress col=%d, loop=%d." CR), col, i);
-//#endif
+#endif
         if( col <= 0 ) {
           // Char 2 = empty middle 
           lcd->write ( 2 );
@@ -281,9 +280,9 @@ void Display::printProgressBar(int x, int y, int percentage) {
   char s[6];
   sprintf( &s[0], "  %3d%%", percentage);
 
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //  Log.verbose(F("DISP: Printing percentage '%s'." CR), s);
-//#endif
+#endif
   lcd->print( s );
 }
 

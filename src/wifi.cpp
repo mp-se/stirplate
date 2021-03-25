@@ -35,6 +35,7 @@ SOFTWARE.
 #include <ArduinoJson.h>
 #include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
+#include <LittleFS.h>
 
 Wifi myWifi;
 WiFiManager myWifiManager; 
@@ -262,9 +263,6 @@ void Wifi::setupWebServer() {
     server.on("/",[]() {
         server.send_P(200, "text/html", (const char*) gIndexHtmData, gIndexHtmSize );
     } );
-    /*server.on("/favicon.ico",[]() {
-        server.send_P(200, "image/x-icon", (const char*) gFaviconIcoData, gFaviconIcoSize );
-    } );*/
     server.on("/index.htm",[]() {
         server.send_P(200, "text/html", (const char*) gIndexHtmData, gIndexHtmSize );
     } );
@@ -301,6 +299,8 @@ void Wifi::setupWebServer() {
     server.on("/api/config/push", webHandleConfigPush);
     server.on("/api/config/hardware", webHandleConfigHardware);
     server.on("/api/status", webHandleStatus);
+    server.on("/api/reset", webHandleReset);
+    server.on("/api/clearwifi", webHandleClearWIFI);
 
     server.begin();
 }

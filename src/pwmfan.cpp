@@ -30,9 +30,9 @@ PwmFan myFan;
 // Constructor
 //
 PwmFan::PwmFan() {
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //    Log.verbose(F("Setting up pwm fan control." CR));
-//#endif
+#endif
     pinMode(PwmFan::pwmCtrlPIN, OUTPUT);   
     analogWriteFreq( PwmFan::pwmFrequency );   
     analogWrite(PwmFan::pwmCtrlPIN, 0);
@@ -46,9 +46,9 @@ PwmFan::PwmFan() {
 // Set the speed of the pwmsignal
 //
 int PwmFan::setPower( int value, int minRange, int maxRange ) {
-//#if LOG_LEVEL==6
+#if LOG_LEVEL==6
 //    Log.verbose(F("PFAN: Setting output value to %d." CR), value);
-//#endif
+#endif
     powerPercentage = map(value, minRange, maxRange, 0, 100);   // Convert to percentage
 
     if( powerPercentage > 100 )     // Cap the value in case we get a higher analog read than expected.

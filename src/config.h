@@ -112,8 +112,8 @@ class Config {
 
         char         getTempFormat() { return tempFormat; }
         void         setTempFormat( char c ) { tempFormat = c; saveNeeded = true; }
-        bool         isTempC() { return tempFormat=='C'?false:true; };
-        bool         isTempF() { return tempFormat=='F'?false:true; };
+        bool         isTempC() { return tempFormat=='C'?true:false; };
+        bool         isTempF() { return tempFormat=='F'?true:false; };
 
         float        getTempSensorAdj() { return tempSensorAdj; }
         void         setTempSensorAdj( float f ) { tempSensorAdj = f; saveNeeded = true; }

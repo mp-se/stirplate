@@ -27,7 +27,6 @@ SOFTWARE.
 
 Config myConfig;
 
-
 //
 // Create the config class with default settings
 //

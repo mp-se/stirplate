@@ -98,6 +98,9 @@ void printBuildOptions() {
 #ifdef ACTIVATE_TEMP
                 "TEMP "
 #endif    
+#ifdef EMBED_HTML
+                "EMBEDHTML "
+#endif    
 #ifdef SIMULATE_SENSOR
                 "SIMULATE_SENSOR "
 #endif    
