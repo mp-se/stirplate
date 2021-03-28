@@ -25,7 +25,7 @@ SOFTWARE.
 #define _WIFI_H
 
 // Include 
-#include <WiFiManager.h>
+#include <ESP8266WiFi.h>
 
 // classes
 class Wifi {

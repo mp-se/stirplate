@@ -32,9 +32,12 @@ SOFTWARE.
 #include "wifi.h"
 
 // Settings for double reset
-#define ESP8266_DRD_USE_RTC true
+#define ESP8266_DRD_USE_RTC       true
+#define DRD_TIMEOUT               1
+#define DRD_ADDRESS               0
 #define DOUBLERESETDETECTOR_DEBUG true
-#include <ESP_DoubleResetDetector.h>
+#include <ESP_DoubleResetDetector.h>            
+DoubleResetDetector *drd;
 
 /*
  * This is the fan I used for my build.
@@ -55,7 +58,6 @@ SOFTWARE.
 // Define constats for this program
 #define LOOP_INTERVAL 100                // ms, time to wait between running the loop code
 const static int     tachPIN = 12;       // Measure speed on FAN. D6 PIN on ESP-12F
-DoubleResetDetector* myDRD;
 
 //
 // Callback for tachimeter
@@ -72,11 +74,10 @@ void setup() {
   // Initialize pin outputs
   Log.notice(F("Main: Started setup for %s." CR), String( ESP.getChipId(), HEX).c_str() );
   printBuildOptions();
-  myDRD = new DoubleResetDetector(3, 0); // Timeout, Address
-  bool dt = myDRD->detectDoubleReset();
+  drd = new DoubleResetDetector(DRD_TIMEOUT, DRD_ADDRESS);
+  bool dt = drd->detectDoubleReset();  
 
   Log.notice(F("Main: Loading configuration." CR));
-  //myConfig.formatFileSystem();    // Erase the config file
   myConfig.checkFileSystem();
   myConfig.saveFile();
 
@@ -157,7 +158,7 @@ int            loopLastVin = 0;        // Last value of analog pot (used to forc
 void loop() {
 
   // Check for double tap
-  myDRD->loop();
+  drd->loop();
 
 #if defined( ACTIVATE_WIFI )
     // Execute the webserver stuff

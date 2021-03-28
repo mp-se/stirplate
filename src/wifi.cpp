@@ -30,17 +30,17 @@ SOFTWARE.
 #include "pwmfan.h"
 #include "tempsensor.h"
 #include <incbin.h>
-#include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <ArduinoJson.h>
 #include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
+#include <ESP_WiFiManager.h>   
 #include <LittleFS.h>
 
 Wifi myWifi;
-WiFiManager myWifiManager; 
+ESP_WiFiManager myWifiManager; 
 ESP8266WebServer server(80);
-bool saveConfigCallbackFlag = false;
+bool shouldSaveConfig = false;
 
 // Binary resouces
 #if defined( EMBED_HTML )
@@ -57,7 +57,7 @@ void saveConfigCallback() {
 #if LOG_LEVEL==6
     Log.verbose(F("WIFI: wifiMgr callback to save params." CR));
 #endif
-    saveConfigCallbackFlag = true;
+    shouldSaveConfig = true;
 }
 
 //
@@ -313,67 +313,38 @@ bool Wifi::connect( bool showPortal ) {
     Log.verbose(F("WIFI: Connecting to WIFI via connection manager (portal=%s)." CR), showPortal?"true":"false");
     myWifiManager.setDebugOutput(true);    
 #endif
+    unsigned long startMillis = millis();
 
-    #define WIFI_PARAM_MAXLEN 120
-
-    WiFiManagerParameter cfgMdns("mdns", "Device name", myConfig.getMDNS(), WIFI_PARAM_MAXLEN);
-    myWifiManager.addParameter(&cfgMdns);
-
-/*
-    // LED will show that we are in WIFI connection/configuration mode
-    activateLedTicker( LED_FLASH_WIFI );
-
-    // Setup OTA variables
-    WiFiManagerParameter cfgOtaUrl("otaUrl", "OTA Base URL (ex: http://server:port/path)", myConfig.getOtaURL(), WIFI_PARAM_MAXLEN);
-    myWifiManager.addParameter(&cfgOtaUrl);
-
-    // Setup Blynk variables
-    WiFiManagerParameter cfgBlynkServer("blynkServer", "Blynk server (ex: 192.168.1.1)", myConfig.getBlynkServer(), WIFI_PARAM_MAXLEN);
-    myWifiManager.addParameter(&cfgBlynkServer);
-    WiFiManagerParameter cfgBlynkServerPort("blynkServerPort", "Blynk server port (ex: 8080)", myConfig.getBlynkPort(), 10);
-    myWifiManager.addParameter(&cfgBlynkServerPort);
-    WiFiManagerParameter cfgBlynkToken("blynkToken", "Blynk token (from blynk)", myConfig.getBlynkToken(), WIFI_PARAM_MAXLEN);
-    myWifiManager.addParameter(&cfgBlynkToken);
-    WiFiManagerParameter cfgHttpPush("Http push", "Http URL", myConfig.getHttpPushTarget(), WIFI_PARAM_MAXLEN);
-    myWifiManager.addParameter(&cfgHttpPush);
-    WiFiManagerParameter cfgPushInterval("Push interval", "Seconds between push", myConfig.getPushInterval(), WIFI_PARAM_MAXLEN);
-    myWifiManager.addParameter(&cfgPushInterval);
-
-    // Setup temp format
-    WiFiManagerParameter tempFormat("tempFormat", "Temperature format (C|F)", myConfig.getTempFormat(), 1);
-    myWifiManager.addParameter(&tempFormat);
-*/
     myWifiManager.setConfigPortalTimeout( WIFI_PORTAL_TIMEOUT );
+
+    ESP_WMParameter mdnsParam("mDNS name", "hostname", myConfig.getMDNS(), 20);
     myWifiManager.setSaveConfigCallback(saveConfigCallback);
+    myWifiManager.addParameter( &mdnsParam );
 
     // Connect to WIFI
-    if( showPortal )
+    if( showPortal ) {
+        Log.notice(F("WIFI: Starting wifi portal." CR));
+        myWifiManager.setMinimumSignalQuality(-1);  // Ignore under 8%
         connectedFlag = myWifiManager.startConfigPortal( WIFI_DEFAULT_SSID, WIFI_DEFAULT_PWD );
-    else
-        connectedFlag = myWifiManager.autoConnect( WIFI_DEFAULT_SSID, WIFI_DEFAULT_PWD );
 
-    // If the flag is changed, the callback was triggered
-    if( connectedFlag && myConfig.isSaveNeeded() ) {
-#if LOG_LEVEL==6
-        Log.verbose(F("WIFI: Saving configuration options." CR));
-#endif
-        myConfig.setMDNS( cfgMdns.getValue() );
-
-/*      const char* t = cfgOtaUrl.getValue();
-        if( strcmp(t, "C")==0 || strcmp(t, "c")==0 )
-            myConfig.setTempFormat( "C" );
-        if( strcmp(t, "F")==0 || strcmp(t, "f")==0 )
-            myConfig.setTempFormat( "F" );
-
-        myConfig.setOtaURL( cfgOtaUrl.getValue() );
-        myConfig.setPushInterval( cfgPushInterval.getValue() );
-        myConfig.setHttpPushTarget( cfgHttpPush.getValue() );
-        myConfig.setBlynkServer( cfgBlynkServer.getValue() );
-        myConfig.setBlynkPort( cfgBlynkServerPort.getValue() );
-        myConfig.setBlynkToken( cfgBlynkToken.getValue() );*/
+        if( shouldSaveConfig ) {
+            myConfig.setMDNS( mdnsParam.getValue() );
+            myConfig.saveFile();
+        }
     }
 
-    myConfig.saveFile();
+    // TODO: Add timeout after x retries to not end up in forever loop.
+
+    // Connect to wifi
+    WiFi.begin();
+    while( WiFi.status() != WL_CONNECTED ) {
+        delay(100);
+        Serial.print( "." );
+    }
+    Serial.print( CR );
+    connectedFlag = true;
+
+    Log.notice( F("WIFI: IP=%s, Connect time %d s" CR), WiFi.localIP().toString().c_str(), abs(millis() - startMillis)/1000);
 
 #if LOG_LEVEL==6
     Log.verbose(F("WIFI: Connect returned %s." CR), connectedFlag?"True":"False" );
@@ -386,11 +357,6 @@ bool Wifi::connect( bool showPortal ) {
         MDNS.begin( myConfig.getMDNS() );
         MDNS.addService("http", "tcp", 80);
         setupWebServer();
-
-/*
-        // Disable the ticker if we are connected, otherwise it's a signal that wifi connection failed.
-        deactivateLedTicker();
-*/
     }
 
     return connectedFlag;

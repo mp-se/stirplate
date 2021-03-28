@@ -25,10 +25,16 @@ SOFTWARE.
 
 #if defined( EMBED_HTML )
 
-INCBIN(IndexHtm, "data/index.htm" );
+/*INCBIN(IndexHtm, "data/index.htm" );
 INCBIN(DeviceHtm, "data/device.htm" );
 INCBIN(ConfigHtm, "data/config.htm" );
-INCBIN(AboutHtm, "data/about.htm" );
+INCBIN(AboutHtm, "data/about.htm" );*/
+
+// Testing Minify for reduce memory usage.
+INCBIN(IndexHtm, "data/index.min.htm" );
+INCBIN(DeviceHtm, "data/device.min.htm" );
+INCBIN(ConfigHtm, "data/config.min.htm" );
+INCBIN(AboutHtm, "data/about.min.htm" );
 
 #endif
 
