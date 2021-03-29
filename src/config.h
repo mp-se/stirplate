@@ -63,16 +63,16 @@ SOFTWARE.
 
 class Config {
     private:
-        char  id[10];
-        char  mDNS[40]; 
-        char  otaURL[100];
-        char  tempFormat;                      // C, F
-        char  blynkServer[100];
-        char  blynkToken[100];
-        int   blynkServerPort;
-        char  httpPushTarget[100];
-        int   pushInterval;
-        float tempSensorAdj;                   // This value will be added to the read sensor value
+        String id;
+        String mDNS; 
+        String otaURL;
+        char   tempFormat;                      // C, F
+        String blynkServer;
+        String blynkToken;
+        int    blynkServerPort;
+        String httpPushTarget;
+        int    pushInterval;
+        float  tempSensorAdj;                   // This value will be added to the read sensor value
  
         // Set this flag if config has changed
         bool saveNeeded;
@@ -82,33 +82,33 @@ class Config {
 
     public:
         Config();
-        const char*  getID() { return &id[0]; };
+        const char*  getID() { return id.c_str(); };
 
-        const char*  getMDNS() { return &mDNS[0]; }
-        void         setMDNS( const char* s ) { strncpy( &mDNS[0], s, sizeof(mDNS)-1); saveNeeded = true; }
+        const char*  getMDNS() { return mDNS.c_str(); }
+        void         setMDNS( String s ) { mDNS = s; saveNeeded = true; }
 
-        const char*  getOtaURL() { return &otaURL[0]; }
-        void         setOtaURL( const char* s ) { strncpy( &otaURL[0], s, sizeof(otaURL)-1); saveNeeded = true; }
-        bool         isOtaActive() { return strlen(&otaURL[0])>0?true:false; }
+        const char*  getOtaURL() { return otaURL.c_str(); }
+        void         setOtaURL( String s ) { otaURL = s; saveNeeded = true; }
+        bool         isOtaActive() { return otaURL.length()>0?true:false; }
 
-        const char*  getHttpPushTarget() { return &httpPushTarget[0]; }
-        void         setHttpPushTarget( const char* s ) { strncpy(&httpPushTarget[0], s, sizeof(httpPushTarget)-1); saveNeeded = true; }
-        bool         isHttpActive() { return strlen(&httpPushTarget[0])>0?true:false; }
+        const char*  getHttpPushTarget() { return httpPushTarget.c_str(); }
+        void         setHttpPushTarget( String s ) { httpPushTarget = s; saveNeeded = true; }
+        bool         isHttpActive() { return httpPushTarget.length()>0?true:false; }
 
         int          getPushInterval() { return pushInterval; }
         void         setPushInterval( int v ) { pushInterval = v; saveNeeded = true; }
-        void         setPushInterval( const char* s ) { pushInterval = atoi(s); saveNeeded = true; }
+        void         setPushInterval( String s ) { pushInterval = s.toInt(); saveNeeded = true; }
 
-        const char*  getBlynkServer() { return &blynkServer[0]; }
-        void         setBlynkServer( const char* s ) { strncpy(&blynkServer[0], s, sizeof(blynkServer)-1); saveNeeded = true; }
+        const char*  getBlynkServer() { return blynkServer.c_str(); }
+        void         setBlynkServer( String s ) { blynkServer = s;; saveNeeded = true; }
 
-        const char*  getBlynkToken() { return &blynkToken[0]; }
-        void         setBlynkToken( const char* s ) { strncpy(&blynkToken[0], s, sizeof(blynkToken)-1); saveNeeded = true; }
-        bool         isBlynkActive() { return strlen(blynkToken)>0?true:false; }
+        const char*  getBlynkToken() { return blynkToken.c_str(); }
+        void         setBlynkToken( String s ) { blynkToken = s; saveNeeded = true; }
+        bool         isBlynkActive() { return blynkToken.length()>0?true:false; }
 
         int          getBlynkServerPort() { return blynkServerPort; }
         void         setBlynkServerPort( int v ) { blynkServerPort = v; saveNeeded = true; }
-        void         setBlynkServerPort( const char* s ) { blynkServerPort = atoi(s); saveNeeded = true; }
+        void         setBlynkServerPort( String s ) { blynkServerPort = s.toInt(); saveNeeded = true; }
 
         char         getTempFormat() { return tempFormat; }
         void         setTempFormat( char c ) { tempFormat = c; saveNeeded = true; }
@@ -117,7 +117,7 @@ class Config {
 
         float        getTempSensorAdj() { return tempSensorAdj; }
         void         setTempSensorAdj( float f ) { tempSensorAdj = f; saveNeeded = true; }
-        void         setTempSensorAdj( const char* s ) { tempSensorAdj = atof(s); saveNeeded = true; }
+        void         setTempSensorAdj( String s ) { tempSensorAdj = s.toFloat(); saveNeeded = true; }
 
         // IO functions
         void createJson(DynamicJsonDocument& doc);
