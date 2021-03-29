@@ -10,18 +10,6 @@ Here is a short video that shows the minimum and maximum speed with a 3 liter st
 
 [Video of running stir plate](img/speed.mov)
 
-## Versions
-
-* 0.7.0 Added a web interface to the device and refactored the API's to match. When updating to this version 
-the configuration will be lost, but it's quite simple to change the settings. In the WIFI setup you 
-can now only change the device name (mdns network name).
-
-* 0.6.0 Added support for http endpoints + web api + testsuite + blynk cloud support
-* 0.5.0 Added temp sensor support + pcb layout (pcb has not yet been fully tested)
-* 0.4.0 Added wifi manager/web server to enable config changes via webbrowser/wifi setup.
-* 0.3.0 Some minor refactoring + OTA update from local web server.
-* 0.2.0 First version that is published on github
-
 ## How it works
 
 I use a potentimeter (5k) to control the speed, this is read via the Analog input (A0) on the ESP (note that this is limited to max 3.3V) so if it's powered by 5V a voltage divider must be used (R1 is used to limit the input to 3.3V). 
@@ -42,11 +30,27 @@ An option could be to use this tool; https://github.com/marcelstoer/nodemcu-pyfl
 
 ## Setup
 
-The wifi version will create an WIFI access point at startup called StirPlate (password=password). In the portal you can choose some of the settings. 
+The wifi version will create an WIFI access point at startup called StirPlate (password=password). In the portal you can choose some of the settings. Double tap on the reset button will force the device into wifi setup mode. 
 
-Double tap on the reset button will force the device into wifi setup mode. See below for the description of the configuration paramaters.
+Once the device is on the wifi network it will have a running webserver that can be used to configure the device. The name of the device will be __stirplateXXXXX.local__ (or just use the dynamic IP). Chip ID will be 6 characters and uniqe for that device (eg 7a84DC).
 
-Once the device is on the wifi network it will have a running webserver that can show the active configuration and also force the device into configuration model. The name of the device will be __stirplateXXXXX.local__ (or just use the dynamic IP). Chip ID will be 6 characters and uniqe for that device (eg 7a84DC).
+### Index
+
+![Status](img/main.png)
+
+The first page will show information about the operation of the device, RPM, Temperature and Power setting.
+
+### Device
+
+![Device](img/device.png)
+
+Device page will show current version and device information.
+
+### Configuration
+
+![Configuration](img/config.png)
+
+Configuration is used to change the setup and is divided into 4 catagories, Device, Push, Blynk and Hardware.
 
 ## Build Configuration
 
@@ -71,7 +75,7 @@ Development related settings (so I dont have to have a fully working setup)
 
 ## OTA function
 
-From version 0.3.0 I have added the possibility to do updates via OTA from a local web server over port 80. 
+I have added the possibility to do updates via OTA from a local web server over port 80. 
 
 For this to work, place the following files (version.json + firmware.bin) at the location that you pointed out in the mysecrets.h file. If the version number in the json file is newer than in the code the update will procced.
 
