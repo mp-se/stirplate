@@ -37,7 +37,7 @@ Config::Config() {
     setPushInterval(30);             
     saveNeeded = false;
 #if LOG_LEVEL==6
-    Log.verbose(F("CFG : Creating hostname %s." CR), mDNS);
+    Log.verbose(F("CFG : Creating hostname %s." CR), mDNS.c_str());
 #endif
 }
 
