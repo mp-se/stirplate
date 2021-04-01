@@ -63,7 +63,7 @@ const static int     tachPIN = 12;       // Measure speed on FAN. D6 PIN on ESP-
 // Callback for tachimeter
 // 
 void ICACHE_RAM_ATTR handleTachiometerInterrupt() {
-  myFan.tachCallback();
+    myFan.tachCallback();
 }
 
 //
@@ -71,79 +71,77 @@ void ICACHE_RAM_ATTR handleTachiometerInterrupt() {
 //
 void setup() {
 
-  // Initialize pin outputs
-  Log.notice(F("Main: Started setup for %s." CR), String( ESP.getChipId(), HEX).c_str() );
-  printBuildOptions();
-  drd = new DoubleResetDetector(DRD_TIMEOUT, DRD_ADDRESS);
-  bool dt = drd->detectDoubleReset();  
+    // Initialize pin outputs
+    Log.notice(F("Main: Started setup for %s." CR), String( ESP.getChipId(), HEX).c_str() );
+    printBuildOptions();
+    drd = new DoubleResetDetector(DRD_TIMEOUT, DRD_ADDRESS);
+    bool dt = drd->detectDoubleReset();  
 
-  Log.notice(F("Main: Loading configuration." CR));
-  myConfig.checkFileSystem();
-  myConfig.saveFile();
+    Log.notice(F("Main: Loading configuration." CR));
+    myConfig.checkFileSystem();
+    myConfig.loadFile();
 
-  myConfig.loadFile();
-
-  Log.notice(F("Main: Setting up devices." CR));
+    Log.notice(F("Main: Setting up devices." CR));
 
 #if LOG_LEVEL==6
 //  Log.verbose(F("MAIN: Wait 5s for debugger to come online." CR));
 //  delay(5000);
 #endif
 
-  // Setup watchdog
-  ESP.wdtDisable();
-  ESP.wdtEnable( LOOP_INTERVAL * 2 );
+    // Setup watchdog
+    ESP.wdtDisable();
+    ESP.wdtEnable( LOOP_INTERVAL * 2 );
 
-  // Setup display
-  Log.notice(F("Main: Looking for display." CR));
-  myDisplay.init();
+    // Setup display
+    Log.notice(F("Main: Looking for display." CR));
+    myDisplay.init();
 
-  char buffer[20];
-  sprintf( &buffer[0], "%s", CFG_APPNAME );
-  myDisplay.printText( 0, 0, &buffer[0] );    
+    char buffer[20];
+    sprintf( &buffer[0], "%s", CFG_APPNAME );
+    myDisplay.printText( 0, 0, &buffer[0] );    
 
 #if defined( ACTIVATE_WIFI )
-  if( dt ) 
-    Log.notice(F("Main: Detected doubletap on reset." CR));
+    if( dt ) 
+        Log.notice(F("Main: Detected doubletap on reset." CR));
 
-  myDisplay.printText( 0, 1, "Connect wifi    " );    
-  myWifi.connect( dt );
-  if( myWifi.isConnected() )
-    Log.notice(F("Main: Connected to wifi ip=%s." CR), myWifi.getIPAddress().c_str() );
+    myDisplay.printText( 0, 1, "Connect wifi    " );    
+    myWifi.connect( dt );
+    if( myWifi.isConnected() )
+        Log.notice(F("Main: Connected to wifi ip=%s." CR), myWifi.getIPAddress().c_str() );
 #endif
 
 #if defined( ACTIVATE_WIFI ) && defined( ACTIVATE_OTA )
-  myDisplay.printText( 0, 1, "Checking for upd" );    
-  if( myWifi.isConnected() && myWifi.checkFirmwareVersion() ) {
-    delay(500);
-    myDisplay.printText( 0, 1, "Updating        " );    
-    myWifi.updateFirmware();
-  }
+    myDisplay.printText( 0, 1, "Checking for upd" );    
+    if( myWifi.isConnected() && myWifi.checkFirmwareVersion() ) {
+        delay(500);
+        myDisplay.printText( 0, 1, "Updating        " );    
+        myWifi.updateFirmware();
+    }
 #endif
 
-  // Setup interrput callback for tachiometer (fan rotation)
-  pinMode(tachPIN, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(tachPIN), handleTachiometerInterrupt, FALLING);
+    // Setup interrput callback for tachiometer (fan rotation)
+    pinMode(tachPIN, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(tachPIN), handleTachiometerInterrupt, FALLING);
 
 #if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
-  if( myWifi.isConnected() && myConfig.isBlynkActive() ) {
-    Log.notice(F("Main: Connecting to blynk." CR));
-    myDisplay.printText( 0, 1, "Connect blynk   " );   
-    myBlynk.connect( myConfig.getBlynkToken(), myConfig.getBlynkServer(), myConfig.getBlynkServerPort() );
-  }
+    if( myWifi.isConnected() && myConfig.isBlynkActive() ) {
+        Log.notice(F("Main: Connecting to blynk." CR));
+        myDisplay.printText( 0, 1, "Connect blynk   " );   
+        myBlynk.connect( myConfig.getBlynkToken(), myConfig.getBlynkServer(), myConfig.getBlynkServerPort() );
+    }
 #endif
 
-  Log.notice(F("Main: Setting up sensors." CR));
-  myAnalogSensor.setup();
+    Log.notice(F("Main: Setting up sensors." CR));
+    myAnalogSensor.setup();
 #if defined( ACTIVATE_TEMP )
-  myTempSensor.setup();
+    myTempSensor.setup();
 #endif
 
 #if LOG_LEVEL==6
 //  Log.verbose(F("MAIN: Wait 5s." CR));
 //  delay(5000);
 #endif
-  Log.notice(F("Main: Setup is completed." CR));
+    Log.notice(F("Main: Setup is completed." CR));
 }
 
 // Variables used in the main loop
@@ -157,8 +155,8 @@ int            loopLastVin = 0;        // Last value of analog pot (used to forc
 //
 void loop() {
 
-  // Check for double tap
-  drd->loop();
+    // Check for double tap
+    drd->loop();
 
 #if defined( ACTIVATE_WIFI )
     // Execute the webserver stuff
@@ -170,150 +168,149 @@ void loop() {
     myBlynk.loop();
 #endif
 
-  // We dont run this in a tight loop, every 500 ms is fast
-  if( abs(millis() - loopLastMillis) > LOOP_INTERVAL ) {
+    // We dont run this in a tight loop, every 500 ms is fast
+    if( abs(millis() - loopLastMillis) > LOOP_INTERVAL ) {
 
-    // Reset the counter
-    loopLastMillis = millis();
+        // Reset the counter
+        loopLastMillis = millis();
 
-    // We vary what parts of the code is run every main loop. Some parts like display 
-    // updates/temp reading can be done more seldom. 
-    loopCounter++;
+        // We vary what parts of the code is run every main loop. Some parts like display 
+        // updates/temp reading can be done more seldom. 
+        loopCounter++;
 
-    // This code is run every loop.
-    // -----------------------------------------------------------
-    // setPower will map the value to the range supported by the PWM output
-    int vin = myAnalogSensor.readSensor();
-    int rpm = myFan.getCurrentRPM();
-    int pwr = myFan.getCurrentPower();
+        // This code is run every loop.
+        // -----------------------------------------------------------
+        // setPower will map the value to the range supported by the PWM output
+        int vin = myAnalogSensor.readSensor();
+        int rpm = myFan.getCurrentRPM();
+        int pwr = myFan.getCurrentPower();
 
-    // Update the power setting based on current pot reading
-    myFan.setPower( vin, 0, POT_MAX_READING );      // (value, min,  max) reading of value
+        // Update the power setting based on current pot reading
+        myFan.setPower( vin, 0, POT_MAX_READING );      // (value, min,  max) reading of value
 
-    // Use the lower line to create a power bar that indicate power to stirplate
+        // Use the lower line to create a power bar that indicate power to stirplate
 #if LOG_LEVEL==6
-    //Log.verbose(F("MAIN: POT = %d, Percentage %d, RPM=%d." CR), vin, pwr, rpm);
+        //Log.verbose(F("MAIN: POT = %d, Percentage %d, RPM=%d." CR), vin, pwr, rpm);
 #endif
 
 #if defined( ACTIVATE_TEMP )
-    bool tempAttached = myTempSensor.isSensorAttached();
-    float tempC = myTempSensor.getValueCelcius();
-    float tempF = myTempSensor.getValueFarenheight();
+        bool tempAttached = myTempSensor.isSensorAttached();
+        float tempC = myTempSensor.getValueCelcius();
+        float tempF = myTempSensor.getValueFarenheight();
 #endif
 
-    // This code is run every 1 seconds or when we have an updated power setting
-    // -------------------------------------------------------------------------
-    if( !(loopCounter % 10) || vin!=loopLastVin ) {
+        // This code is run every 1 seconds or when we have an updated power setting
+        // -------------------------------------------------------------------------
+        if( !(loopCounter % 10) || vin!=loopLastVin ) {
 
 #if LOG_LEVEL==6
-     // Log.verbose(F("MAIN: Running 1 second loop." CR));
+            // Log.verbose(F("MAIN: Running 1 second loop." CR));
 #endif
-      loopLastVin = vin;
+            loopLastVin = vin;
 
-      // Update push targets and blynk every 2 seconds
-      // -------------------------------------------------------------------------
-      if( !(loopCounter % 20) ) {
+            // Update push targets and blynk every 2 seconds
+            // -------------------------------------------------------------------------
+            if( !(loopCounter % 20) ) {
 #if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
-        if( myWifi.isConnected() && myBlynk.isActive() ) {
-          myBlynk.writeRemoteRPM( rpm );
-          myBlynk.writeRemotePower( pwr );
-          myBlynk.writeRemoteVer(CFG_APPVER);
-        }
-  #if defined( ACTIVATE_TEMP )
-        if( tempAttached ) {
-          myBlynk.writeRemoteTempC(tempC);
-          myBlynk.writeRemoteTempF(tempF);
-        }
-  #endif
+                if( myWifi.isConnected() && myBlynk.isActive() ) {
+                    myBlynk.writeRemoteRPM( rpm );
+                    myBlynk.writeRemotePower( pwr );
+                    myBlynk.writeRemoteVer(CFG_APPVER);
+                }
+    #if defined( ACTIVATE_TEMP )
+                if( tempAttached ) {
+                    myBlynk.writeRemoteTempC(tempC);
+                    myBlynk.writeRemoteTempF(tempF);
+                }
+    #endif
 #endif // ACTIVATE_BLYNK && ACTIVATE_WIFI
 #if defined( ACTIVATE_PUSH ) && defined( ACTIVATE_WIFI )
-        myPushTarget.send( rpm, myConfig.isTempC() ? tempC : tempF ); 
+                myPushTarget.send( rpm, myConfig.isTempC() ? tempC : tempF ); 
 #endif
-      }
+            }
 
-    // Display Layout 
-    //
-    //  |123456789.123456| - Startup messages
-    // 1|Stir plate      |
-    // 2|Connect wifi    | - Step 1 
-    // 2|Firmware check  | - Step 2
-    // 2|Updating        | - Step 3
-    // 2|Connect blynk   | - Step 4
+            // Display Layout 
+            //
+            //  |123456789.123456| - Startup messages
+            // 1|Stir plate      |
+            // 2|Connect wifi    | - Step 1 
+            // 2|Firmware check  | - Step 2
+            // 2|Updating        | - Step 3
+            // 2|Connect blynk   | - Step 4
 
-    //  |123456789.123456| - No power on 
-    // 1|Stir plate 0.0.0| - Version 
-    // 2|wifi            | - wifi connected
-    // 2|No wifi         | - no wifi connected
+            //  |123456789.123456| - No power on 
+            // 1|Stir plate 0.0.0| - Version 
+            // 2|wifi            | - wifi connected
+            // 2|No wifi         | - no wifi connected
 
-    //  |123456789.123456| - Power on
-    // 1|Stir plate  0rpm| - RPM (Variera var 5:e sekund med TEMP)
-    // 2|-progress-  000%| - Progress + % power
+            //  |123456789.123456| - Power on
+            // 1|Stir plate  0rpm| - RPM (Variera var 5:e sekund med TEMP)
+            // 2|-progress-  000%| - Progress + % power
 
-    //  |123456789.123456| - Power on
-    // 1|Stir plate   20C| - Temperator (Variera var 5:e sekund med RPM) - Välja temperatur (C/F)
-    // 2|-progress-  000%| - Progress + % power
+            //  |123456789.123456| - Power on
+            // 1|Stir plate   20C| - Temperator (Variera var 5:e sekund med RPM) - Välja temperatur (C/F)
+            // 2|-progress-  000%| - Progress + % power
 
-    // If there is no power we show the version number, else the RPM
+            // If there is no power we show the version number, else the RPM
 
-    char s[10];
+            char s[10];
 
-    // If the stirplate is not running we show the version number
-    if( myFan.getCurrentPower() < 10 ) { 
-      sprintf( &s[0], "%5s", CFG_APPVER);
+            // If the stirplate is not running we show the version number
+            if( myFan.getCurrentPower() < 10 ) { 
+                sprintf( &s[0], "%5s", CFG_APPVER);
 
 #if defined( ACTIVATE_WIFI )      
-      if( myWifi.isConnected() )
-        myDisplay.printText( 0, 1, "WIFI            " );
-      else
-        myDisplay.printText( 0, 1, "NO WIFI         " );
+                if( myWifi.isConnected() )
+                    myDisplay.printText( 0, 1, "WIFI            " );
+                else
+                    myDisplay.printText( 0, 1, "NO WIFI         " );
 #else 
-        myDisplay.printText( 0, 1, "                " );
+                myDisplay.printText( 0, 1, "                " );
 #endif // ACTIVATE_WIFI
-      }
-      else {
-        // Create progress bar
-        myDisplay.printProgressBar(0,1, pwr);
+            } else {
+                // Create progress bar
+                myDisplay.printProgressBar(0,1, pwr);
 
-        // Show RPM
-        sprintf( &s[0], "%5d", myFan.getCurrentRPM());
+                // Show RPM
+                sprintf( &s[0], "%5d", myFan.getCurrentRPM());
 
-        // Show Temp
+                // Show Temp
 #if defined( ACTIVATE_TEMP )
-        if( loopTempCounter++ > 10 )
-          loopTempCounter = 0;
+                if( loopTempCounter++ > 10 )
+                    loopTempCounter = 0;
 
-        // Every 5 seconds we swap between RPM and TEMP if there is a temp sensor attached
-        if( loopTempCounter>5 && tempAttached ) {
-          if( myConfig.isTempC() )
-            sprintf( &s[0], "%3d C", (int) tempC);      
-          else
-            sprintf( &s[0], "%3d F", (int) tempF);      
+                // Every 5 seconds we swap between RPM and TEMP if there is a temp sensor attached
+                if( loopTempCounter>5 && tempAttached ) {
+                    if( myConfig.isTempC() )
+                        sprintf( &s[0], "%3d C", (int) tempC);      
+                    else
+                        sprintf( &s[0], "%3d F", (int) tempF);      
+                }
+#endif
+            }
+
+            myDisplay.printText( 11, 0, &s[0] );
         }
-#endif
-      }
 
-      myDisplay.printText( 11, 0, &s[0] );
-    }
-
-    // This code is run every 5 seconds.
-    // -----------------------------------------------------------
-    if( !(loopCounter % 50) ) {
+        // This code is run every 5 seconds.
+        // -----------------------------------------------------------
+        if( !(loopCounter % 50) ) {
 #if LOG_LEVEL==6
-      //Log.verbose(F("MAIN: Running 2,5 second loop." CR));
+            //Log.verbose(F("MAIN: Running 2,5 second loop." CR));
 #endif
-      // Used to calculate the RPM value. 
-      myFan.loop();
-    }
+            // Used to calculate the RPM value. 
+            myFan.loop();
+        }
 
-    // This code is run every 10 seconds.
-    // -----------------------------------------------------------
-    if( !(loopCounter % 100) ) {
-      // Since the tempsensor can be remove/added we check if there is a change 
+        // This code is run every 10 seconds.
+        // -----------------------------------------------------------
+        if( !(loopCounter % 100) ) {
+            // Since the tempsensor can be remove/added we check if there is a change 
 #if defined( ACTIVATE_TEMP )
-      myTempSensor.setup();
+            myTempSensor.setup();
 #endif
+        }
     }
-  }
 }
 
 // EOF
