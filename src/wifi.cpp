@@ -34,11 +34,10 @@ SOFTWARE.
 #include <ArduinoJson.h>
 #include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
-#include <ESP_WiFiManager.h>   
+#include <WiFiManager.h>   
 #include <LittleFS.h>
-
 Wifi myWifi;
-ESP_WiFiManager myWifiManager; 
+WiFiManager myWifiManager; 
 ESP8266WebServer server(80);
 bool shouldSaveConfig = false;
 
@@ -315,17 +314,19 @@ bool Wifi::connect( bool showPortal ) {
 #endif
     unsigned long startMillis = millis();
 
-    myWifiManager.setConfigPortalTimeout( WIFI_PORTAL_TIMEOUT );
-
-    ESP_WMParameter mdnsParam("mDNS name", "hostname", myConfig.getMDNS(), 20);
-    myWifiManager.setSaveConfigCallback(saveConfigCallback);
-    myWifiManager.addParameter( &mdnsParam );
-
     // Connect to WIFI
     if( showPortal ) {
         Log.notice(F("WIFI: Starting wifi portal." CR));
-        myWifiManager.setMinimumSignalQuality(-1);  // Ignore under 8%
-        connectedFlag = myWifiManager.startConfigPortal( WIFI_DEFAULT_SSID, WIFI_DEFAULT_PWD );
+        myWifiManager.setBreakAfterConfig( true );
+        myWifiManager.setSaveConfigCallback(saveConfigCallback);
+        myWifiManager.setMinimumSignalQuality(10);  
+        myWifiManager.setClass("invert");
+        myWifiManager.setHostname( myConfig.getMDNS() );
+
+        WiFiManagerParameter mdnsParam("mDNS", "hostname", myConfig.getMDNS(), 20);
+        myWifiManager.addParameter( &mdnsParam );
+
+        myWifiManager.startConfigPortal( WIFI_DEFAULT_SSID, WIFI_DEFAULT_PWD );
 
         if( shouldSaveConfig ) {
             myConfig.setMDNS( mdnsParam.getValue() );
@@ -333,13 +334,18 @@ bool Wifi::connect( bool showPortal ) {
         }
     }
 
-    // TODO: Add timeout after x retries to not end up in forever loop.
-
     // Connect to wifi
+    int i = 0;
+
     WiFi.begin();
     while( WiFi.status() != WL_CONNECTED ) {
         delay(100);
         Serial.print( "." );
+
+        if( i++ > 100 ) {
+            LittleFS.end();
+            ESP.reset();
+        }
     }
     Serial.print( CR );
     connectedFlag = true;
@@ -377,7 +383,7 @@ void Wifi::loop() {
 bool Wifi::disconnect() {
     Log.notice(F("WIFI: Erasing stored WIFI credentials." CR));
     // Erase WIFI credentials
-    return WiFi.disconnect();
+    return WiFi.disconnect(true);
 }
 
 #endif // ACTIVATE_WIFI
