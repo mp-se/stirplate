@@ -2,7 +2,7 @@
 
 I decided to build my own stir plate and I wanted to use a PWM controlled fan for optimal performance, which requires a microcontroller, since the esp8266 are quite cheap and I happend to have a few lying around this was the natural selection. This also enabled me to measure RPM of the fan and integrate with other things. I'm using this build for my yeast starters with good result and stability. Tests shows that this setup can handle a starter for up to 3 liters (I dont have a bigger glass vessel to test with). The first extension was to add a temperature probe so I can keep track of the wort temperature as well. 
 
-This version can communicate with Blynk server and other software that can handle a standard http post request. With blynk it's also possible to remote control the device and change the speed if needed.
+This version can communicate with Blynk server and other software that can handle a standard http post request. With blynk it's also possible to remote control the device and change the power if needed (do override on the potentiometer).
 
 ![Yeast fermentation](img/stirplate.jpg)
 
@@ -20,17 +20,24 @@ There are 3 defined targets in the platformIO configuration
 * Release without WIFI (firmware-nowifi.bin)
 * Debug version uses simualated values to simplify development.
 
+## Todo
+
+This is a list of possible updates that i might implement in the future.
+* Change log settings from UI, this is today set in the platform.ini (compile time).
+* Additional push targets, influxdb.
+
 ## Installation
 
 You can use VisualStudio Code + Platform IO to handle the device flashing. 
 
 An option could be to use this tool; https://github.com/marcelstoer/nodemcu-pyflasher
+Binaries for this is located in the bin folder. 
 
 ## Setup
 
-The wifi version will create an WIFI access point at startup called StirPlate (password=password). In the portal you can choose some of the settings. Double tap on the reset button will force the device into wifi setup mode. In the portal you can also set the network name of the device (mDNS name). This will have the suffix .local
+The wifi version will create an WIFI access point at startup called StirPlate (password=password) unless the device has valid wifi settings. A double tap on the reset button will force the device into wifi setup mode. In the portal you can also set the network name of the device (mDNS name). This will have the suffix .local
 
-Once the device is on the wifi network it will have a running webserver that can be used to configure the device. The name of the device will be __stirplateXXXXX.local__ (or just use the dynamic IP). Chip ID will be 6 characters and uniqe for that device (eg 7a84DC), unless this was changed in the wifi setup screen.
+Once the device is on the wifi network it will have a running webserver that can be used to configure the device. The default name of the device will be __stirplateXXXXX.local__ unless changed in the wifi settings. Use mDNS name or just use the dynamic IP to access the portal. IP adress will be displayed in the serial output from the device during startup. XXXXX is the chip ID and will be 6 characters and uniqe for that device (eg 7a84DC).
 
 ### Index
 
@@ -46,9 +53,21 @@ Device page will show current version and device information.
 
 ### Configuration
 
+Configuration is used to change the setup and is divided into 4 catagories, Device, Push, Blynk and Hardware.
+
 ![Configuration](img/config.png)
 
-Configuration is used to change the setup and is divided into 4 catagories, Device, Push, Blynk and Hardware.
+The settings that can be changed are the following;
+
+* Device name; this is the mDNS (network) name of the device.
+* Temperature format; select in which format the temperature value is displayed (Celcius or Farenheigt)
+* HTTP Push; URL for posting data (See section below on format details)
+* Push Interval; How often should the data be submitted (in seconds)
+* Blynk server; Name or IP of the local blynk server. If left empty the blynk cloud will be used.
+* Blynk server port; Port for the local blynk server, ignored if blynk cloud is used.
+* Blynk token; Token connected to the blynk application, if empty blynk will be disabled.
+* Temp sensor adjustment; If you feel that the tempsensor is not showing the correct temperature it's possible to enter a value that will adjust the presented temperature. 
+* OTA base URL; OTA base url (use a local webserver since SSL is not used). See section below on more details.
 
 ## Build Configuration
 
@@ -139,6 +158,8 @@ Schema and PCB is avaialble under the cad folder, these are designed in Eagle (F
 * 2 neodym magnets (glued to fan)
 
 A schematics that I used can be found in the cad directory. [Electronic schema](cad/stirplate.pdf)
+
+There is also a PCB example that has not yet been verified.
 
 ![First build](img/build.jpg)
 
