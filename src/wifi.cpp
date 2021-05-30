@@ -337,6 +337,7 @@ bool Wifi::connect( bool showPortal ) {
     // Connect to wifi
     int i = 0;
 
+    WiFi.mode(WIFI_STA);
     WiFi.begin();
     while( WiFi.status() != WL_CONNECTED ) {
         delay(100);
