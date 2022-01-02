@@ -24,7 +24,7 @@ SOFTWARE.
 #include "tempsensor.h"
 #include "helper.h"
 
-#include <onewire.h>
+#include <OneWire.h>
 #include <DallasTemperature.h>
 #include <Wire.h>
 
