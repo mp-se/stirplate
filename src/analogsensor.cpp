@@ -100,7 +100,7 @@ const SimPoint simSequenceSensor[] = {
 // Used to simualte sensor value if no analog input is avaialble.
 //
 int AnalogSensor::simulateSensor() {
-    unsigned long tstamp = abs( millis() - simualteMillsStart ) / 1000;
+    unsigned long tstamp = abs( long(millis() - simualteMillsStart) ) / 1000;
     int max = (sizeof(simSequenceSensor) / sizeof(SimPoint));
     int v = simSequenceSensor[max-1].power;
 

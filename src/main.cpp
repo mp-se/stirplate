@@ -169,7 +169,7 @@ void loop() {
 #endif
 
     // We dont run this in a tight loop, every 500 ms is fast
-    if( abs(millis() - loopLastMillis) > LOOP_INTERVAL ) {
+    if( abs( long(millis() - loopLastMillis)) > LOOP_INTERVAL ) {
 
         // Reset the counter
         loopLastMillis = millis();

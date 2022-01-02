@@ -20,6 +20,12 @@ There are 3 defined targets in the platformIO configuration
 * Release without WIFI (firmware-nowifi.bin)
 * Debug version uses simualated values to simplify development.
 
+## Version changes
+
+v1.0.2 - Updated dependences and switched back to 2.6.3, fixed minor compiler issues
+v1.0.1 - Forcing wifi into client mode, minor update to support ESP8266 SDK v3.0.0
+v1.0.0 - First release 
+
 ## Todo
 
 This is a list of possible updates that i might implement in the future.

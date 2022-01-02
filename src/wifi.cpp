@@ -338,6 +338,7 @@ bool Wifi::connect( bool showPortal ) {
     int i = 0;
 
     WiFi.mode(WIFI_STA);
+//    WiFi.e
     WiFi.begin();
     while( WiFi.status() != WL_CONNECTED ) {
         delay(100);
@@ -351,7 +352,7 @@ bool Wifi::connect( bool showPortal ) {
     Serial.print( CR );
     connectedFlag = true;
 
-    Log.notice( F("WIFI: IP=%s, Connect time %d s" CR), WiFi.localIP().toString().c_str(), abs(millis() - startMillis)/1000);
+    Log.notice( F("WIFI: IP=%s, Connect time %d s" CR), WiFi.localIP().toString().c_str(), abs( long(millis() - startMillis))/1000);
 
 #if LOG_LEVEL==6
     Log.verbose(F("WIFI: Connect returned %s." CR), connectedFlag?"True":"False" );

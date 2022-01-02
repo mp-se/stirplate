@@ -33,7 +33,7 @@ PushTarget myPushTarget;
 // Send the pressure value
 //
 void PushTarget::send(float pressure, float temp ) {
-    unsigned long timePassed = abs( millis() - ms );
+    unsigned long timePassed = abs( long(millis() - ms) );
     unsigned long interval = myConfig.getPushInterval()*1000;
 
     if( ( timePassed < interval ) ) {
