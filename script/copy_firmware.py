@@ -34,17 +34,17 @@ def after_build(source, target, env):
     print( "Executing custom step " )
     dir    = env.GetLaunchDir()
     name   = env.get( "PIOENV" )
-    source = dir + "\\.pio\\build\\" + name + "\\firmware.bin"
+    source = dir + "/.pio/build/" + name + "/firmware.bin"
     if name == "stirplate-release-nowifi" : 
-        target = dir + "\\bin\\firmware-nowifi.bin"
+        target = dir + "/bin/firmware-nowifi.bin"
     if name == "stirplate-debug" :
-        target = dir + "\\bin\\firmware-debug.bin"
+        target = dir + "/bin/firmware-debug.bin"
     if name == "stirplate-release" :
-        target = dir + "\\bin\\firmware.bin"
+        target = dir + "/bin/firmware.bin"
     print( "Copy file : " + source + " -> " + target )
     shutil.copyfile( source, target )
 
-    target = dir + "\\bin\\version.json"
+    target = dir + "/bin/version.json"
     ver = get_build_flag_value("CFG_APPVER")
     print( "Creating version.json" )
     f = open( target, "w" )
