@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021 Magnus
+Copyright (c) 2021-22 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,21 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <incbin.h>
+#ifndef SRC_MAIN_HPP_
+#define SRC_MAIN_HPP_
 
-#if defined( EMBED_HTML )
+#define PIN_LED 2
+#define CFG_APPNAME "StirPlate"         // Name of firmware
+#define CFG_MDNSNAME "stirplate"        // Name of firmware
+#define CFG_FILENAME "/stirplate.json"  // Filename of config file
+#define POT_MAX_READING \
+  910  // You might need to change this value if the percentage never reach 100%
 
-/*INCBIN(IndexHtm, "data/index.htm" );
-INCBIN(DeviceHtm, "data/device.htm" );
-INCBIN(ConfigHtm, "data/config.htm" );
-INCBIN(AboutHtm, "data/about.htm" );*/
-
-// Testing Minify for reduce memory usage.
-INCBIN(IndexHtm, "data/index.min.htm" );
-INCBIN(DeviceHtm, "data/device.min.htm" );
-INCBIN(ConfigHtm, "data/config.min.htm" );
-INCBIN(AboutHtm, "data/about.min.htm" );
-
-#endif
-
-// EOF 
+#endif  // SRC_MAIN_HPP_

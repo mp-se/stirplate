@@ -21,134 +21,41 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include "helper.h"
-#include "config.h"
-#include <Ticker.h>  
+#include <Ticker.h>
+#include <arduino.h>
 
-SerialDebug mySerial;
-Ticker      powerLedBlinker;
-bool        powerLedConfigured = false;
+#include <helper.hpp>
 
-//
-// Activate the ticker function to flash the led
-//
-void activateLedTicker(float t) {
-    powerLedBlinker.attach( t, powerLedToggle );
-}
+Ticker powerLedBlinker;
+bool powerLedConfigured = false;
 
-//
-// Disable the ticker function
-//
+void activateLedTicker(float t) { powerLedBlinker.attach(t, powerLedToggle); }
+
 void deactivateLedTicker() {
-    powerLedBlinker.detach();
-    powerLedOff();
+  powerLedBlinker.detach();
+  powerLedOff();
 }
 
-//
-// Setup the LED pin as output
-//
 void powerLedConfigure() {
-    if( !powerLedConfigured ) {
-        pinMode( LED_BUILTIN, OUTPUT );
-        powerLedConfigured = true;
-    }
+  if (!powerLedConfigured) {
+    pinMode(LED_BUILTIN, OUTPUT);
+    powerLedConfigured = true;
+  }
 }
 
-//
-// Turn on power led 
-//
 void powerLedOn() {
-    powerLedConfigure();    
-    digitalWrite( LED_BUILTIN, 0);
+  powerLedConfigure();
+  digitalWrite(LED_BUILTIN, 0);
 }
 
-//
-// Turn off the power led
-//
 void powerLedOff() {
-    powerLedConfigure();    
-    digitalWrite( LED_BUILTIN, 1);
+  powerLedConfigure();
+  digitalWrite(LED_BUILTIN, 1);
 }
 
-//
-// Toggle the power led
-//
 void powerLedToggle() {
-    powerLedConfigure();    
-    digitalWrite( LED_BUILTIN, !digitalRead(LED_BUILTIN));
+  powerLedConfigure();
+  digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
 }
 
-//
-// Print the build options used
-//
-void printBuildOptions() {
-    Log.notice( F("Build options: %s LOGLEVEL %d " 
-#ifdef ACTIVATE_WIFI
-                "WIFI "
-#endif    
-#ifdef ACTIVATE_BLYNK
-                "BLYNK "
-#endif    
-#ifdef ACTIVATE_PUSH
-                "PUSH "
-#endif    
-#ifdef ACTIVATE_OTA
-                "OTA "
-#endif    
-#ifdef ACTIVATE_TEMP
-                "TEMP "
-#endif    
-#ifdef EMBED_HTML
-                "EMBEDHTML "
-#endif    
-#ifdef SIMULATE_SENSOR
-                "SIMULATE_SENSOR "
-#endif    
-#ifdef SIMULATE_RPM
-                "SIMULATE_RPM "
-#endif    
-#ifdef DISPLAY_SELFTEST    
-                "DISPLAY_SELFTEST "
-#endif    
-    CR), CFG_APPVER, LOG_LEVEL );
-}
-
-//
-// Configure serial debug output
-//
-SerialDebug::SerialDebug(const long serialSpeed) { 
-    // Start serial with auto-detected rate (default to defined BAUD)
-    Serial.flush();
-    Serial.begin(serialSpeed);
-
-    getLog()->begin(LOG_LEVEL, &Serial, true);
-    getLog()->setPrefix(printTimestamp);
-    getLog()->notice(F("SDBG: Serial logging started at %l." CR), serialSpeed);
-}
-
-//
-// Print the timestamp (ms since start of device)
-//
-void printTimestamp(Print* _logOutput, int _logLevel) {
-  char c[12];
-  sprintf(c, "%10lu ", millis());
-  _logOutput->print(c);
-}
-
-//
-// Convert float to formatted string with 2 decimals
-//
-void convertFloatToString( float f, char *buffer ) {
-    dtostrf(f, 6, 2, buffer); 
-}
-
-//
-// Reduce precision to 2 decimals
-//
-float reduceFloatPrecision( float f ) {
-    char buffer[10];
-    dtostrf(f, 6, 2, &buffer[0]); 
-    return atof(&buffer[0]);
-}
-
-// EOF 
+// EOF

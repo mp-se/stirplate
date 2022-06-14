@@ -21,58 +21,28 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <DallasTemperature.h>
-#include <OneWire.h>
-#include <Wire.h>
+#ifndef SRC_ANALOGSENSOR_HPP_
+#define SRC_ANALOGSENSOR_HPP_
 
-#include <espframework.hpp>
-#include <helper.hpp>
-#include <tempsensor.hpp>
+#include <main.hpp>
+#include <Arduino.h>
 
-OneWire myOneWire(D4);
-DallasTemperature mySensors(&myOneWire);
-TempSensor myTempSensor;
+class AnalogSensor {
+ private:
+  int value = 0;  // last value read from sensor
 
-#define TEMPERATURE_PRECISION 9
-
-void TempSensor::setup() {
-#if defined(SIMULATE_TEMP)
-  hasSensors = true;
-  return;
+#ifdef SIMULATE_SENSOR
+  uint32_t simualteMillsStart;  // used to return simulation value
+  int simulateSensor();
 #endif
 
-  if (mySensors.getDeviceCount()) return;
+ public:
+  void setup();
+  int readSensor();
+};
 
-#if LOG_LEVEL == 6
-  Log.verbose(F("TSEN: Looking for temp sensors." CR));
-#endif
-  mySensors.begin();
+extern AnalogSensor myAnalogSensor;
 
-  if (mySensors.getDeviceCount()) {
-    Log.notice(F("TSEN: Found %d sensors." CR), mySensors.getDeviceCount());
-    mySensors.setResolution(TEMPERATURE_PRECISION);
-  }
-}
-
-float TempSensor::getValueCelcius() {
-  float f = 0;
-
-#if defined(SIMULATE_TEMP)
-  return 21;
-#endif
-
-  mySensors.requestTemperatures();
-
-  if (mySensors.getDeviceCount() >= 1) {
-    f = mySensors.getTempCByIndex(0);
-
-#if LOG_LEVEL == 6
-    Log.verbose(F("TSEN: Reciving temp value for sensor %F C." CR), f);
-#endif
-    hasSensors = true;
-  }
-
-  return f;
-}
+#endif  // SRC_ANALOGSENSOR_HPP_
 
 // EOF

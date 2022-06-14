@@ -21,35 +21,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef _PUSHTARGET_H
-#define _PUSHTARGET_H
+#ifndef SRC_TEMPSENSOR_HPP_
+#define SRC_TEMPSENSOR_HPP_
 
-// Includes
-#include "helper.h"
+class TempSensor {
+ private:
+  bool hasSensors = false;
 
-#include <Arduino.h>
-#include <ArduinoJson.h>
-#include <ESP8266WiFi.h>
-#include <ESP8266HTTPClient.h>
-
-#if defined( ACTIVATE_PUSH )
-
-// Classes
-class PushTarget {
-    private:
-        unsigned long ms;   // Used to check that we do not post to often 
-
-        void sendHttp(float rpm, float temp );
-
-    public:
-        PushTarget() { ms = millis(); }
-        void send(float rpm, float temp );
+ public:
+  void setup();
+  bool isSensorAttached() { return hasSensors; }
+  float getValueCelcius();
+  float getValueFarenheight() { return (getValueCelcius() * 1.8) + 32.0; }
 };
 
-extern PushTarget myPushTarget;
+extern TempSensor myTempSensor;
 
-#endif
-
-#endif // _PUSHTARGET_H
+#endif  // SRC_TEMPSENSOR_HPP_
 
 // EOF

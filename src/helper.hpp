@@ -21,31 +21,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef _ANALOGSENSOR_H
-#define _ANALOGSENSOR_H
+#ifndef SRC_HELPER_HPP_
+#define SRC_HELPER_HPP_
 
-// Includes
-#include <Arduino.h>
+#define LED_FLASH_WIFI 0.2
 
-// classes
-class AnalogSensor {
-    private:
-        const static int analogPIN = A0;    // A0 PIN on ESP-12
-        int value = 0;                      // last value read from sensor              
-        
-#ifdef SIMULATE_SENSOR
-        unsigned long simualteMillsStart;   // used to return simulation value 
-        int simulateSensor();
-#endif
+void powerLedConfigure();
+void powerLedToggle();
+void powerLedOn();
+void powerLedOff();
+void activateLedTicker(float t);
+void deactivateLedTicker();
 
-    public:
-        void setup();
-        int  readSensor();
-};
-
-// Global instance created
-extern AnalogSensor myAnalogSensor;
-
-#endif // _ANALOGSENSOR_H
+#endif  // SRC_HELPER_HPP_
 
 // EOF

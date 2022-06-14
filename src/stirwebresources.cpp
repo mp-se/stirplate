@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021 Magnus
+Copyright (c) 2021-22 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,41 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef _WIFI_H
-#define _WIFI_H
+#define INCBIN_OUTPUT_SECTION ".irom.text"
+#include <incbin.h>
 
-// Include 
-#include <ESP8266WiFi.h>
+// These are used in the webhandler class and needs to be defined.
+INCBIN(IndexHtm, "html/index.min.htm");
+INCBIN(ConfigHtm, "html/config.min.htm");
+INCBIN(AboutHtm, "html/about.min.htm");
+INCBIN(UploadHtm, "html/upload.min.htm");
 
-// classes
-class Wifi {
-    private:
-        // WIFI
-        bool   connectedFlag = false;
-
-        // WEB server
-        void setupWebServer();
-
-        // OTA
-        bool newFirmware = false;
-        bool parseFirmwareVersionString( int (&num)[3], const char *version );
-
-    public:
-        // WIFI
-        bool   connect( bool showPortal );
-        bool   disconnect();
-        bool   isConnected() { return connectedFlag; };
-        String getIPAddress() { return WiFi.localIP().toString(); };
-        void   loop();
-
-        // OTA
-        bool updateFirmware();
-        bool checkFirmwareVersion();
-};
-
-// Global instance created
-extern Wifi myWifi;
-
-#endif // _WIFI_H
+// Extensions for the webhandler
 
 // EOF

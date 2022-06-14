@@ -21,99 +21,83 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include "pwmfan.h"
-#include "helper.h"
+#include <espframework.hpp>
+#include <helper.hpp>
+#include <pwmfan.hpp>
 
 PwmFan myFan;
 
-//
-// Constructor
-//
 PwmFan::PwmFan() {
-#if LOG_LEVEL==6
-//    Log.verbose(F("Setting up pwm fan control." CR));
+#if LOG_LEVEL == 6
+  Log.verbose(F("Setting up pwm fan control." CR));
 #endif
-    pinMode(PwmFan::pwmCtrlPIN, OUTPUT);   
-    analogWriteFreq( PwmFan::pwmFrequency );   
-    analogWrite(PwmFan::pwmCtrlPIN, 0);
-    rpmLastMillis = millis();
+  pinMode(PwmFan::pwmCtrlPIN, OUTPUT);
+  analogWriteFreq(PwmFan::pwmFrequency);
+  analogWrite(PwmFan::pwmCtrlPIN, 0);
+  rpmLastMillis = millis();
 #ifdef SIMULATE_RPM
-    simualteMillsStart = millis();
+  simualteMillsStart = millis();
 #endif
 }
 
-//
-// Set the speed of the pwmsignal
-//
-int PwmFan::setPower( int value, int minRange, int maxRange ) {
-#if LOG_LEVEL==6
-//    Log.verbose(F("PFAN: Setting output value to %d." CR), value);
+int PwmFan::setPower(int value, int minRange, int maxRange) {
+#if LOG_LEVEL == 6
+  Log.verbose(F("PFAN: Setting output value to %d." CR), value);
 #endif
-    powerPercentage = map(value, minRange, maxRange, 0, 100);   // Convert to percentage
+  powerPercentage =
+      map(value, minRange, maxRange, 0, 100);  // Convert to percentage
 
-    if( powerPercentage > 100 )     // Cap the value in case we get a higher analog read than expected.
-        powerPercentage = 100;
+  if (powerPercentage >
+      100)  // Cap the value in case we get a higher analog read than expected.
+    powerPercentage = 100;
 
-    int power = map(powerPercentage, 0, 100, PwmFan::pwmMin, PwmFan::pwmMax);
-    analogWrite(PwmFan::pwmCtrlPIN, power);
-    return powerPercentage;
+  int power = map(powerPercentage, 0, 100, PwmFan::pwmMin, PwmFan::pwmMax);
+  analogWrite(PwmFan::pwmCtrlPIN, power);
+  return powerPercentage;
 }
 
-//
-// Calculate the rotations per period
-//
 void PwmFan::loop() {
 #ifdef SIMULATE_RPM
-    rpm = simulateRPM();
-    return;
+  rpm = simulateRPM();
+  return;
 #endif
 
-    // How much time has passed since the last call?
-    long unsigned timePeriod = millis() - rpmLastMillis;
+  // How much time has passed since the last call?
+  uint32_t timePeriod = millis() - rpmLastMillis;
 
-#if LOG_LEVEL==6
-    Log.verbose(F("PFAN: Period %d, Rotations = %d." CR), timePeriod, pwmRotationCounter);
+#if LOG_LEVEL == 6
+  Log.verbose(F("PFAN: Period %d, Rotations = %d." CR), timePeriod,
+              pwmRotationCounter);
 #endif
 
-    // My fan report 2 ticks per rotation. 
-    rpm = ((double) pwmRotationCounter / (double) timePeriod) * 1000 * 60 / 2;
-    pwmRotationCounter = 0;
-    rpmLastMillis = millis();  
+  // My fan report 2 ticks per rotation.
+  rpm = (static_cast<double>(pwmRotationCounter) /
+         static_cast<double>(timePeriod)) *
+        1000 * 60 / 2;
+  pwmRotationCounter = 0;
+  rpmLastMillis = millis();
 }
 
-#if defined( SIMULATE_RPM )
+#if defined(SIMULATE_RPM)
 
 // Format, powerpercentage-rpm
 int simSequenceRPM[][2] = {
-    {   0,    0 },
-    {  10,    0 },
-    {  20,  100 },
-    {  30,  300 },
-    {  40,  500 },
-    {  50,  700 },
-    {  60, 1100 },
-    {  70, 1500 },
-    {  80, 1800 },
-    {  90, 2200 },
-    { 100, 2900 },
+    {0, 0},     {10, 0},    {20, 100},  {30, 300},  {40, 500},   {50, 700},
+    {60, 1100}, {70, 1500}, {80, 1800}, {90, 2200}, {100, 2900},
 };
 
-//
-// Used to simualate sensor value if no analog input is avaialble.
-//
 int PwmFan::simulateRPM() {
-    int max = (sizeof(simSequenceRPM) / sizeof(int) / 2);
+  int max = (sizeof(simSequenceRPM) / sizeof(int) / 2);
 
-//  Log.verbose(F("PFAN: Value simulator %d." CR), powerPercentage);
+  Log.verbose(F("PFAN: Value simulator %d." CR), powerPercentage);
 
-    for(int i = 0; i < max; i++ ) {
-        if( powerPercentage < simSequenceRPM[i][0] )
-            return simSequenceRPM[i][1];
-    }
+  for (int i = 0; i < max; i++) {
+    if (powerPercentage < simSequenceRPM[i][0]) return simSequenceRPM[i][1];
+  }
 
-    return simSequenceRPM[max-1][1];
+  return simSequenceRPM[max - 1][1];
 }
 
-#endif // SIMULATE_RPM
+#endif  // SIMULATE_RPM
 
-// EOF 
+// EOF

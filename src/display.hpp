@@ -21,43 +21,38 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef _HELPER_H
-#define _HELPER_H
+#ifndef SRC_DISPLAY_HPP_
+#define SRC_DISPLAY_HPP_
 
-// Includes
-#include <ArduinoLog.h>
+// includes
+#include <LiquidCrystal_I2C.h>
 
-#define LED_FLASH_WIFI 0.2
+// classes
+class Display {
+ private:
+  LiquidCrystal_I2C *lcd;
+  bool lcd_found = false;
 
-// Interact with LED
-void powerLedConfigure();
-void powerLedToggle();
-void powerLedOn();
-void powerLedOff();
-void activateLedTicker(float t);
-void deactivateLedTicker();
+  void setup();
+  void createCustomChars();
 
-// Show build options
-void printBuildOptions();
+#ifdef DISPLAY_SELFTEST
+  void selfTest();
+#endif
 
-// Float to String
-void  convertFloatToString( float f, char* buf);
-float reduceFloatPrecision( float f );
+ public:
+  static const int DISP_COLUMS = 16;
+  static const int DISP_ROWS = 2;
 
-// Logging via serial
-void printTimestamp(Print* _logOutput, int _logLevel);
-void printNewline(Print* _logOutput);
+  void init();
+  void clear();
 
-// Classes
-class SerialDebug {
-    public:
-        SerialDebug(const long serialSpeed = 115200L);
-        static Logging* getLog() { return &Log; };
+  void printText(int x, int y, const char *s);
+  void printProgressBar(int x, int y, int percentage);
 };
 
-// Global instance created
-extern SerialDebug mySerial;
+extern Display myDisplay;
 
-#endif // _HELPER_H
+#endif  // SRC_DISPLAY_HPP_
 
 // EOF

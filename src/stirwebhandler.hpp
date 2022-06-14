@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021 Magnus
+Copyright (c) 2021-22 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,44 +21,25 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef _BLYNK_H
-#define _BLYNK_H
+#ifndef SRC_STIRWEBHANDLER_HPP_
+#define SRC_STIRWEBHANDLER_HPP_
 
-#if defined( ACTIVATE_BLYNK ) && defined( ACTIVATE_WIFI )
+#include <incbin.h>
 
-// Includes
-#include <Arduino.h>
+#include <baseconfig.hpp>
+#include <basewebhandler.hpp>
 
-// Classes
-class BlynkPins {
-    private:
-        int toggle  = 0;
-        int power   = 0;
-        bool active = false;
+class StirWebHandler : public BaseWebHandler {
+ private:
+  BaseConfig* _config;
 
-    public:
-        BlynkPins() {};
-        void connect(const char* blynkToken, const char* ip, int port);
-        void loop();
+  void setupWebHandlers();
+  void webHandleStatus();
 
-        void setRemoteToggle(int t) { toggle = t; };
-        void setRemotePower(int p) { power = p; }
-
-        int readRemoteToggle() { return toggle; };
-        int readRemotePower() { return power; }
-        void writeRemoteRPM(int v);
-        void writeRemotePower(int v);
-        void writeRemoteVer(const char *ver);
-        void writeRemoteTempC(float f);
-        void writeRemoteTempF(float f);
-
-        bool isActive() { return active; };
+ public:
+  explicit StirWebHandler(BaseConfig* config);
 };
 
-extern BlynkPins myBlynk;
-
-#endif // ACTIVATE_BLYNK && ACTIVATE_WIFI
-
-#endif // _BLYNK_H
+#endif  // SRC_STIRWEBHANDLER_HPP_
 
 // EOF

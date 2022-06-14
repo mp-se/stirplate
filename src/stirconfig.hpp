@@ -21,39 +21,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef _DISPLAY_H
-#define _DISPLAY_H
+#ifndef SRC_STIRCONFIG_HPP_
+#define SRC_STIRCONFIG_HPP_
 
-// includes
-#include <LiquidCrystal_I2C.h>
+#include <baseconfig.hpp>
 
-// classes
-class Display {
-    private:
-        LiquidCrystal_I2C *lcd;
-        bool lcd_found = false;
+class StirConfig : public BaseConfig {
+ private:
+ public:
+  StirConfig(String baseMDNS, String fileName);
 
-        void setup();
-        void createCustomChars();
-        
-#ifdef DISPLAY_SELFTEST 
-        void selfTest();
-#endif
-
-    public:
-        const static int DISP_COLUMS = 16;
-        const static int DISP_ROWS   = 2;
-
-        void init();
-        void clear();
-
-        void printText( int x, int y, const char *s );
-        void printProgressBar( int x, int y, int percentage );
+  void createJson(DynamicJsonDocument& doc);
+  void parseJson(DynamicJsonDocument& doc);
 };
 
-// Global instance created
-extern Display myDisplay;
-
-#endif // _DISPLAY_H
+#endif  // SRC_STIRCONFIG_HPP_
 
 // EOF

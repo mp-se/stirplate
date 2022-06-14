@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021 Magnus
+Copyright (c) 2021-22 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,26 +21,29 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef _TEMPSENSOR_H
-#define _TEMPSENSOR_H
+#include <ArduinoJson.h>
 
-// definitions
+#include <stirconfig.hpp>
 
-// classes
-class TempSensor {
-    private:
-        bool hasSensors = false;
+StirConfig::StirConfig(String baseMDNS, String fileName)
+    : BaseConfig(baseMDNS, fileName) {}
 
-    public:
-        void setup();    
-        bool  isSensorAttached() { return hasSensors; };
-        float getValueCelcius();
-        float getValueFarenheight() { return (getValueCelcius() * 1.8 ) + 32.0; };
-};
+void StirConfig::createJson(DynamicJsonDocument& doc) {
+  // Call base class functions
+  createJsonBase(doc);
+  createJsonWifi(doc);
+  createJsonOta(doc);
 
-// Global instance created
-extern TempSensor myTempSensor;
+  // Handle project specific config
+}
 
-#endif // _TEMPSENSOR_H
+void StirConfig::parseJson(DynamicJsonDocument& doc) {
+  // Call base class functions
+  parseJsonBase(doc);
+  parseJsonWifi(doc);
+  parseJsonOta(doc);
+
+  // Handle project specific config
+}
 
 // EOF
