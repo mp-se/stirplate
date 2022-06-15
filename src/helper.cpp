@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #include <Ticker.h>
-#include <arduino.h>
+#include <Arduino.h>
 
 #include <helper.hpp>
 
