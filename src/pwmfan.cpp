@@ -63,7 +63,7 @@ void PwmFan::loop() {
 #endif
 
   // How much time has passed since the last call?
-  uint32_t timePeriod = millis() - rpmLastMillis;
+  int32_t timePeriod = millis() - rpmLastMillis;
 
 #if LOG_LEVEL == 6
   Log.verbose(F("PFAN: Period %d, Rotations = %d." CR), timePeriod,
@@ -76,6 +76,7 @@ void PwmFan::loop() {
         1000 * 60 / 2;
   pwmRotationCounter = 0;
   rpmLastMillis = millis();
+  Log.notice(F("PFAN: RPM %d." CR), rpm);
 }
 
 #if defined(SIMULATE_RPM)

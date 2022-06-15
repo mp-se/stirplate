@@ -112,6 +112,12 @@
                 </div>
               </fieldset>
               <div class="row mb-3">
+                <label for="ota-url" class="col-sm-2 col-form-label">OTA base URL:</label>
+                <div class="col-sm-4">
+                  <input type="url" maxlength="90" class="form-control" name="ota-url" id="ota-url">
+                </div>
+              </div>
+                <div class="row mb-3">
                 <div class="col-sm-4 offset-sm-2">
                   <button type="submit" class="btn btn-primary" id="device-btn">Save</button>
                 </div>
@@ -122,37 +128,7 @@
         </div>
       </div>
     </div>
-
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="headingHardware">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHardware" aria-expanded="true" aria-controls="collapseHardware" >
-          <b>Hardware</b>
-        </button>
-      </h2>
-      <div id="collapseHardware" class="accordion-collapse collapse" aria-labelledby="headingHardware" data-bs-parent="#accordion" >
-        <div class="accordion-body">
-
-          <form action="/api/config" method="post">
-            <input type="text" name="id" id="id2" hidden>
-            <input type="text" name="section" value="#collapseHardware" hidden>  
-
-            <div class="row mb-3">
-              <label for="ota-url" class="col-sm-2 col-form-label">OTA base URL:</label>
-              <div class="col-sm-4">
-                <input type="url" maxlength="90" class="form-control" name="ota-url" id="ota-url">
-              </div>
-            </div>
-            <div class="row mb-3">
-              <div class="col-sm-4 offset-sm-2">
-                <button type="submit" class="btn btn-primary" id="hardware-btn">Save</button>
-              </div>
-            </div>
-          </form>
-
-        </div>
-    </div>
   </div>
-
 
   <script type="text/javascript">
     window.onload = getConfig;
@@ -172,24 +148,14 @@
       $('#spinner').show(); 
       $.getJSON(url, function (cfg) {
         console.log( cfg );
-
+        $("#id1").val(cfg["id"]);
+        $("#id2").val(cfg["id"]);
         $("#mdns").val(cfg["mdns"]);
-        $("#weight-precision").val(cfg["weight-precision"]);
-        $("#brewfather-apikey").val(cfg["brewfather-apikey"]);
-        $("#brewfather-userkey").val(cfg["brewfather-userkey"]);
-
-        $("#keg-weight1").val(cfg["keg-weight1"]);
-        $("#keg-weight2").val(cfg["keg-weight2"]);
-        $("#pint-weight1").val(cfg["pint-weight1"]);
-        $("#pint-weight2").val(cfg["pint-weight2"]);
-        $("#beer-name1").val(cfg["beer-name1"]);
-        $("#beer-name2").val(cfg["beer-name2"]);
-        $("#beer-abv1").val(cfg["beer-abv1"]);
-        $("#beer-abv2").val(cfg["beer-abv2"]);
-        $("#beer-ebc1").val(cfg["beer-ebc1"]);
-        $("#beer-ebc2").val(cfg["beer-ebc2"]);
-        $("#beer-ibu1").val(cfg["beer-ibu1"]);
-        $("#beer-ibu2").val(cfg["beer-ibu2"]);
+        if( cfg["temp-format"] == "C" ) 
+          $("#temp-format-c").click();
+        else 
+          $("#temp-format-f").click();
+        $("#ota-url").val(cfg["ota-url"]);
       })
       .fail(function () {
         showError('Unable to get data from the device.');

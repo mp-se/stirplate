@@ -34,10 +34,12 @@ SOFTWARE.
 #include <wificonnection.hpp>
 
 SerialDebug mySerial(115200L);
+#if defined( ENABLE_WIFI )
 StirConfig myConfig(CFG_MDNSNAME, CFG_FILENAME);
 WifiConnection myWifi(&myConfig, CFG_APPNAME, "password", CFG_MDNSNAME);
 OtaUpdate myOta(&myConfig, CFG_APPVER);
 StirWebHandler myWebHandler(&myConfig);
+#endif
 
 /*
  * This is the fan I used for my build.
@@ -56,10 +58,10 @@ StirWebHandler myWebHandler(&myConfig);
  */
 
 // Define constats for this program
-#define LOOP_INTERVAL 100  // ms, time to wait between running the loop code
-static const int tachPIN = 12;  // Measure speed on FAN. D6 PIN on ESP-12F
+#define LOOP_INTERVAL 100 // ms, time to wait between running the loop code
+#define PIN_TACH 12 // Measure speed on FAN. D6 PIN on ESP-12F
 
-void IRAM_ATTR handleTachiometerInterrupt() { myFan.tachCallback(); }
+IRAM_ATTR void handleTachiometerInterrupt() { myFan.tachCallback(); }
 
 void setup() {
   // Initialize pin outputs
@@ -67,10 +69,11 @@ void setup() {
              String(ESP.getChipId(), HEX).c_str());
 
   Log.notice(F("Main: Loading configuration." CR));
+#if defined( ENABLE_WIFI )
   myConfig.checkFileSystem();
   myConfig.loadFile();
   myWifi.init();
-
+#endif
   Log.notice(F("Main: Setting up devices." CR));
 
   ESP.wdtDisable();
@@ -83,6 +86,7 @@ void setup() {
   snprintf(&buffer[0], sizeof(buffer), "%s", CFG_APPNAME);
   myDisplay.printText(0, 0, &buffer[0]);
 
+#if defined( ENABLE_WIFI )
   if (!myWifi.hasConfig() || myWifi.isDoubleResetDetected()) {
     Log.notice(
         F("Main: Missing wifi config or double reset detected, entering wifi "
@@ -106,11 +110,11 @@ void setup() {
     Log.notice(F("Main: Connected to wifi ip=%s." CR),
                myWifi.getIPAddress().c_str());
   }
+#endif
 
   // Setup interrput callback for tachiometer (fan rotation)
-  pinMode(tachPIN, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(tachPIN), handleTachiometerInterrupt,
-                  FALLING);
+  pinMode(PIN_TACH, INPUT_PULLUP);
+  attachInterrupt(PIN_TACH, handleTachiometerInterrupt, FALLING);
 
   Log.notice(F("Main: Setting up sensors." CR));
   myAnalogSensor.setup();
@@ -126,17 +130,19 @@ void setup() {
 // Variables used in the main loop
 int loopCounter = 0;      // used in the loop
 int loopTempCounter = 0;  // used to swap between temp and rpm
-uint32_t loopLastMillis = 0;
+unsigned long loopLastMillis = 0;
 int loopLastVin = 0;  // Last value of analog pot (used to force display update)
 
 void loop() {
+#if defined( ENABLE_WIFI )
   if (myWifi.isConnected()) {
     myWifi.loop();
     myWebHandler.loop();
   }
+#endif
 
   // We dont run this in a tight loop, every 500 ms is fast
-  if (abs(int32_t(millis() - loopLastMillis)) > LOOP_INTERVAL) {
+  if ((millis() - loopLastMillis) > LOOP_INTERVAL) {
     // Reset the counter
     loopLastMillis = millis();
 
@@ -152,8 +158,7 @@ void loop() {
     int pwr = myFan.getCurrentPower();
 
     // Update the power setting based on current pot reading
-    myFan.setPower(vin, 0,
-                   POT_MAX_READING);  // (value, min,  max) reading of value
+    myFan.setPower(vin, 0, POT_MAX_READING); // (value, min,  max) reading of value
 
     // Use the lower line to create a power bar that indicate power to stirplate
 #if LOG_LEVEL == 6
@@ -171,6 +176,7 @@ void loop() {
       Log.verbose(F("Loop: Running 1 second loop." CR));
 #endif
       loopLastVin = vin;
+      // Log.notice(F("Loop: POT = %d, Percentage %d, RPM=%d." CR), vin, pwr, rpm);
     }
 
     // Display Layout
@@ -202,11 +208,12 @@ void loop() {
     // If the stirplate is not running we show the version number
     if (myFan.getCurrentPower() < 10) {
       snprintf(&s[0], sizeof(s), "%5s", CFG_APPVER);
-
+#if defined( ENABLE_WIFI )
       if (myWifi.isConnected())
         myDisplay.printText(0, 1, "WIFI            ");
       else
         myDisplay.printText(0, 1, "NO WIFI         ");
+#endif
     } else {
       // Create progress bar
       myDisplay.printProgressBar(0, 1, pwr);
@@ -220,31 +227,35 @@ void loop() {
       // Every 5 seconds we swap between RPM and TEMP if there is a temp
       // sensor attached
       if ((loopTempCounter > 5) && tempAttached) {
+#if defined( ENABLE_WIFI )
         if (myConfig.isTempC())
           snprintf(&s[0], sizeof(s), "%3d C", static_cast<int>(tempC));
         else
           snprintf(&s[0], sizeof(s), "%3d F", static_cast<int>(tempF));
+#else
+        snprintf(&s[0], sizeof(s), "%3d C", static_cast<int>(tempC));
+#endif
       }
     }
 
     myDisplay.printText(11, 0, &s[0]);
-  }
 
-  // This code is run every 5 seconds.
-  // -----------------------------------------------------------
-  if (!(loopCounter % 50)) {
+    // This code is run every 5 seconds.
+    // -----------------------------------------------------------
+    if (!(loopCounter % 50)) {
 #if LOG_LEVEL == 6
     Log.verbose(F("MAIN: Running 2,5 second loop." CR));
 #endif
-    // Used to calculate the RPM value.
-    myFan.loop();
-  }
+      // Used to calculate the RPM value.
+      myFan.loop();
+    }
 
-  // This code is run every 10 seconds.
-  // -----------------------------------------------------------
-  if (!(loopCounter % 100)) {
-    // Since the tempsensor can be remove/added we check if there is a change
-    myTempSensor.setup();
+    // This code is run every 10 seconds.
+    // -----------------------------------------------------------
+    if (!(loopCounter % 100)) {
+      // Since the tempsensor can be remove/added we check if there is a change
+      myTempSensor.setup();
+    }
   }
 }
 

@@ -46,7 +46,7 @@ void StirWebHandler::setupWebHandlers() {
   Log.notice(F("WEB : Setting up web handlers." CR));
   BaseWebHandler::setupWebHandlers();
 
-  _server->on("/api/status", HTTP_POST,
+  _server->on("/api/status", HTTP_GET,
               std::bind(&StirWebHandler::webHandleStatus, this));
 }
 
