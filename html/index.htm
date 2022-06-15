@@ -107,6 +107,12 @@
               <div class="col-md-4 themed-grid-col bg-light">Power</div>
               <div class="col-md-4 themed-grid-col bg-light" id="power">Loading...</div>
             </div>
+            <!--
+            <div class="row mb-3">
+              <div class="col-md-4 themed-grid-col bg-light">POT</div>
+              <div class="col-md-4 themed-grid-col bg-light" id="pot">Loading...</div>
+            </div>           
+            -->
             <div class="row mb-3">
               <div class="col-md-4 themed-grid-col bg-light">RPM</div>
               <div class="col-md-4 themed-grid-col bg-light" id="rpm">Loading...</div>
@@ -140,6 +146,7 @@
         $("#wifi-ssid").text(cfg["wifi-ssid"]); 
 
         $("#rpm").text(cfg["rpm"]);
+        $("#pot").text(cfg["pot"]);
         $("#power").text(cfg["power"] + " %");
         if( cfg["temp-format"] == "C") 
           $("#temp").text(cfg["temp-c"] + " C");

@@ -27,11 +27,13 @@ SOFTWARE.
 #include <pwmfan.hpp>
 #include <stirwebhandler.hpp>
 #include <tempsensor.hpp>
+#include <analogsensor.hpp>
 #include <utils.hpp>
 
 #define PARAM_RPM "rpm"
 #define PARAM_POWER "power"
 #define PARAM_RSSI "rssi"
+#define PARAM_POT "pot"
 #define PARAM_TEMP_C "temp-c"
 #define PARAM_TEMP_F "temp-f"
 #define PARAM_APP_NAME "app-name"
@@ -56,6 +58,7 @@ void StirWebHandler::webHandleStatus() {
   DynamicJsonDocument doc(256);
   doc[PARAM_RPM] = myFan.getCurrentRPM();
   doc[PARAM_POWER] = myFan.getCurrentPower();
+  doc[PARAM_POT] = myAnalogSensor.readSensor();
   doc[PARAM_TEMP_FORMAT] = String(_config->getTempFormat());
   doc[PARAM_TEMP_C] = reduceFloatPrecision(myTempSensor.getValueCelcius(), 1);
   doc[PARAM_TEMP_F] = reduceFloatPrecision(myTempSensor.getValueFarenheight(), 1);
