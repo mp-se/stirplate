@@ -27,6 +27,7 @@ SOFTWARE.
 
 #include <espframework.hpp>
 #include <helper.hpp>
+#include <log.hpp>
 #include <tempsensor.hpp>
 
 OneWire myOneWire(D4);

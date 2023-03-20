@@ -23,6 +23,7 @@ SOFTWARE.
  */
 #include <espframework.hpp>
 #include <helper.hpp>
+#include <log.hpp>
 #include <pwmfan.hpp>
 
 PwmFan myFan;

@@ -25,6 +25,7 @@ SOFTWARE.
 
 #include <display.hpp>
 #include <espframework.hpp>
+#include <log.hpp>
 
 Display myDisplay;
 

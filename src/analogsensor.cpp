@@ -24,6 +24,7 @@ SOFTWARE.
 #include <analogsensor.hpp>
 #include <espframework.hpp>
 #include <helper.hpp>
+#include <log.hpp>
 
 AnalogSensor myAnalogSensor;
 

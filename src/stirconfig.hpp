@@ -31,7 +31,7 @@ class StirConfig : public BaseConfig {
  public:
   StirConfig(String baseMDNS, String fileName);
 
-  void createJson(DynamicJsonDocument& doc);
+  void createJson(DynamicJsonDocument& doc, bool skipSecrets);
   void parseJson(DynamicJsonDocument& doc);
 };
 

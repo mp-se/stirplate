@@ -24,8 +24,9 @@ SOFTWARE.
 #ifndef SRC_ANALOGSENSOR_HPP_
 #define SRC_ANALOGSENSOR_HPP_
 
-#include <main.hpp>
 #include <Arduino.h>
+
+#include <main.hpp>
 
 class AnalogSensor {
  private:

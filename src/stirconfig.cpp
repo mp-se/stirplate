@@ -28,11 +28,11 @@ SOFTWARE.
 StirConfig::StirConfig(String baseMDNS, String fileName)
     : BaseConfig(baseMDNS, fileName) {}
 
-void StirConfig::createJson(DynamicJsonDocument& doc) {
+void StirConfig::createJson(DynamicJsonDocument& doc, bool skipSecrets) {
   // Call base class functions
-  createJsonBase(doc);
-  createJsonWifi(doc);
-  createJsonOta(doc);
+  createJsonBase(doc, skipSecrets);
+  createJsonWifi(doc, skipSecrets);
+  createJsonOta(doc, skipSecrets);
 
   // Handle project specific config
 }

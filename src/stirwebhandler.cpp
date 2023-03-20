@@ -21,13 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+#include <analogsensor.hpp>
 #include <baseconfig.hpp>
 #include <espframework.hpp>
+#include <log.hpp>
 #include <main.hpp>
 #include <pwmfan.hpp>
 #include <stirwebhandler.hpp>
 #include <tempsensor.hpp>
-#include <analogsensor.hpp>
 #include <utils.hpp>
 
 #define PARAM_RPM "rpm"
@@ -61,7 +62,8 @@ void StirWebHandler::webHandleStatus() {
   doc[PARAM_POT] = myAnalogSensor.readSensor();
   doc[PARAM_TEMP_FORMAT] = String(_config->getTempFormat());
   doc[PARAM_TEMP_C] = reduceFloatPrecision(myTempSensor.getValueCelcius(), 1);
-  doc[PARAM_TEMP_F] = reduceFloatPrecision(myTempSensor.getValueFarenheight(), 1);
+  doc[PARAM_TEMP_F] =
+      reduceFloatPrecision(myTempSensor.getValueFarenheight(), 1);
   doc[PARAM_RSSI] = WiFi.RSSI();
 
   doc[PARAM_ID] = _config->getID();
